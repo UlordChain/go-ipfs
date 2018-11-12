@@ -20,7 +20,6 @@ bin/tmp
 
 
 vendor
-!vendor/gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr
 .tarball
 go-ipfs-source.tar.gz
 ipfs_linux

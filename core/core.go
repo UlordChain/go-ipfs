@@ -67,15 +67,15 @@ import (
 	ic "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
 	ds "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
 
-	libp2p "github.com/ipfs/go-ipfs/udfs/go-libp2p"
-	discovery "github.com/ipfs/go-ipfs/udfs/go-libp2p/p2p/discovery"
-	p2pbhost "github.com/ipfs/go-ipfs/udfs/go-libp2p/p2p/host/basic"
-	rhost "github.com/ipfs/go-ipfs/udfs/go-libp2p/p2p/host/routed"
-	identify "github.com/ipfs/go-ipfs/udfs/go-libp2p/p2p/protocol/identify"
-	ping "github.com/ipfs/go-ipfs/udfs/go-libp2p/p2p/protocol/ping"
+	libp2p "gx/ipfs/QmY51bqSM5XgxQZqsBrQcRkKTnCb8EKpJpR9K6Qax7Njco/go-libp2p"
+	discovery "gx/ipfs/QmY51bqSM5XgxQZqsBrQcRkKTnCb8EKpJpR9K6Qax7Njco/go-libp2p/p2p/discovery"
+	p2pbhost "gx/ipfs/QmY51bqSM5XgxQZqsBrQcRkKTnCb8EKpJpR9K6Qax7Njco/go-libp2p/p2p/host/basic"
+	rhost "gx/ipfs/QmY51bqSM5XgxQZqsBrQcRkKTnCb8EKpJpR9K6Qax7Njco/go-libp2p/p2p/host/routed"
+	identify "gx/ipfs/QmY51bqSM5XgxQZqsBrQcRkKTnCb8EKpJpR9K6Qax7Njco/go-libp2p/p2p/protocol/identify"
+	ping "gx/ipfs/QmY51bqSM5XgxQZqsBrQcRkKTnCb8EKpJpR9K6Qax7Njco/go-libp2p/p2p/protocol/ping"
 
-	dht "github.com/ipfs/go-ipfs/udfs/go-libp2p-kad-dht"
-	dhtopts "github.com/ipfs/go-ipfs/udfs/go-libp2p-kad-dht/opts"
+	dht "gx/ipfs/QmTktQYCKzQjhxF6dk5xJPRuhHn3JBiKGvMLoiDy1mYmxC/go-libp2p-kad-dht"
+	dhtopts "gx/ipfs/QmTktQYCKzQjhxF6dk5xJPRuhHn3JBiKGvMLoiDy1mYmxC/go-libp2p-kad-dht/opts"
 
 	"github.com/pkg/errors"
 )
