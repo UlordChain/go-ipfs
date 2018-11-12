@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"io"
 
-	oldcmds "github.com/ipfs/go-ipfs/commands"
-	lgc "github.com/ipfs/go-ipfs/commands/legacy"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	bitswap "gx/ipfs/QmTtmrK4iiM3MxWNA3pvbM9ekQiGZAiFyo57GP8B9FFgtz/go-bitswap"
-	decision "gx/ipfs/QmTtmrK4iiM3MxWNA3pvbM9ekQiGZAiFyo57GP8B9FFgtz/go-bitswap/decision"
+	oldcmds "github.com/udfs/go-udfs/commands"
+	lgc "github.com/udfs/go-udfs/commands/legacy"
+	e "github.com/udfs/go-udfs/core/commands/e"
+	bitswap "github.com/udfs/go-udfs/exchange/bitswap"
+	decision "github.com/udfs/go-udfs/exchange/bitswap/decision"
 
+	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	"gx/ipfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
-	cmds "gx/ipfs/QmPTfgFTo9PFr1PvPKyKoeMgBvYPh6cX3aDP7DHKVbnCbi/go-ipfs-cmds"
-	peer "gx/ipfs/QmQsErDt8Qgw1XrsXf2BpEzDgGWtB1YLsTAARBup5b6B9W/go-libp2p-peer"
-	cmdkit "gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
+	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 )
 
 var BitswapCmd = &cmds.Command{

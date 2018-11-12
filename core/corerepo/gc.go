@@ -6,14 +6,14 @@ import (
 	"errors"
 	"time"
 
-	"github.com/ipfs/go-ipfs/core"
-	gc "github.com/ipfs/go-ipfs/pin/gc"
-	repo "github.com/ipfs/go-ipfs/repo"
+	"github.com/udfs/go-udfs/core"
+	mfs "github.com/udfs/go-udfs/mfs"
+	gc "github.com/udfs/go-udfs/pin/gc"
+	repo "github.com/udfs/go-udfs/repo"
 
 	humanize "gx/ipfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
-	logging "gx/ipfs/QmRREK2CAZ5Re2Bd9zZFG6FeYDppUWt5cMgsoUEp3ktgSr/go-log"
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
-	mfs "gx/ipfs/QmdghKsSDa2AD1kC4qYRnVYWqZecdSBRZjeXRdhMYYhafj/go-mfs"
+	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
 )
 
 var log = logging.Logger("corerepo")
@@ -223,4 +223,17 @@ func (gc *GC) maybeGC(ctx context.Context, offset uint64) error {
 		log.Infof("Repo GC done. See `ipfs repo stat` to see how much space got freed.\n")
 	}
 	return nil
+}
+
+func Remove(n *core.IpfsNode, ctx context.Context, cids []*cid.Cid, recursive bool, checkPined bool) error {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel() // in case error occurs during operation
+
+	rmed := gc.Remove(ctx, n.Blockstore, n.Repo.Datastore(), n.Pinning, cids, recursive, checkPined)
+
+	return CollectResult(ctx, rmed, nil)
+}
+
+func RemoveAsync(n *core.IpfsNode, ctx context.Context, cids []*cid.Cid, recursive bool, checkPined bool) <-chan gc.Result {
+	return gc.Remove(ctx, n.Blockstore, n.Repo.Datastore(), n.Pinning, cids, recursive, checkPined)
 }

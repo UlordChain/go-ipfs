@@ -6,14 +6,14 @@ import (
 	"strings"
 	"time"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
-	"github.com/ipfs/go-ipfs/core"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	ns "github.com/ipfs/go-ipfs/namesys"
-	nsopts "github.com/ipfs/go-ipfs/namesys/opts"
-	path "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
+	cmds "github.com/udfs/go-udfs/commands"
+	"github.com/udfs/go-udfs/core"
+	e "github.com/udfs/go-udfs/core/commands/e"
+	ns "github.com/udfs/go-udfs/namesys"
+	nsopts "github.com/udfs/go-udfs/namesys/opts"
+	path "github.com/udfs/go-udfs/path"
 
-	"gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
+	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )
 
 type ResolvedPath struct {

@@ -11,17 +11,18 @@ import (
 	"testing"
 	"time"
 
-	random "github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/jbenet/go-random"
+	random "github.com/udfs/go-udfs/Godeps/_workspace/src/github.com/jbenet/go-random"
 
-	"github.com/ipfs/go-ipfs/core"
-	coreunix "github.com/ipfs/go-ipfs/core/coreunix"
-	mock "github.com/ipfs/go-ipfs/core/mock"
-	"github.com/ipfs/go-ipfs/thirdparty/unit"
+	"github.com/udfs/go-udfs/core"
+	coreunix "github.com/udfs/go-udfs/core/coreunix"
+	mock "github.com/udfs/go-udfs/core/mock"
+	"github.com/udfs/go-udfs/thirdparty/unit"
 
-	mocknet "gx/ipfs/QmQiaskfWpdRJ4x2spEQjPFTUkEB87KDYu91qnNYBqvvcX/go-libp2p/p2p/net/mock"
-	testutil "gx/ipfs/QmRNhSdqzMcuRxX9A1egBeQ3BhDTguDV5HPwi8wRykkPU8/go-testutil"
-	logging "gx/ipfs/QmRREK2CAZ5Re2Bd9zZFG6FeYDppUWt5cMgsoUEp3ktgSr/go-log"
-	pstore "gx/ipfs/QmeKD8YT7887Xu6Z86iZmpYNxrLogJexqxEugSmaf14k64/go-libp2p-peerstore"
+	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	testutil "gx/ipfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil"
+
+	mocknet "github.com/udfs/go-udfs/udfs/go-libp2p/p2p/net/mock"
 )
 
 var log = logging.Logger("epictest")

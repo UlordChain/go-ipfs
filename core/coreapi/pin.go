@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
-	caopts "github.com/ipfs/go-ipfs/core/coreapi/interface/options"
-	corerepo "github.com/ipfs/go-ipfs/core/corerepo"
-	merkledag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
-	bserv "gx/ipfs/QmbSB9Uh3wVgmiCb1fAb8zuC3qAE6un4kd1jvatUurfAmB/go-blockservice"
+	bserv "github.com/udfs/go-udfs/blockservice"
+	coreiface "github.com/udfs/go-udfs/core/coreapi/interface"
+	caopts "github.com/udfs/go-udfs/core/coreapi/interface/options"
+	corerepo "github.com/udfs/go-udfs/core/corerepo"
+	merkledag "github.com/udfs/go-udfs/merkledag"
 
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
-	offline "gx/ipfs/QmZxjqR9Qgompju73kakSoUj3rbVndAzky3oCDiBNCxPs1/go-ipfs-exchange-offline"
+	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"
+	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 )
 
 type PinAPI CoreAPI

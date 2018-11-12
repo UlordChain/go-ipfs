@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ipfs/go-ipfs/plugin"
+	"github.com/udfs/go-udfs/plugin"
 
-	logging "gx/ipfs/QmRREK2CAZ5Re2Bd9zZFG6FeYDppUWt5cMgsoUEp3ktgSr/go-log"
+	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
 )
 
 var log = logging.Logger("plugin/loader")

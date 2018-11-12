@@ -8,13 +8,13 @@ import (
 	"io"
 	"io/ioutil"
 
-	util "github.com/ipfs/go-ipfs/blocks/blockstoreutil"
-	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
-	caopts "github.com/ipfs/go-ipfs/core/coreapi/interface/options"
+	util "github.com/udfs/go-udfs/blocks/blockstoreutil"
+	coreiface "github.com/udfs/go-udfs/core/coreapi/interface"
+	caopts "github.com/udfs/go-udfs/core/coreapi/interface/options"
 
 	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	blocks "gx/ipfs/QmWAzSEoqZ6xU6pu8yL8e5WaMb7wtbfbhhN4p1DknUPtr3/go-block-format"
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
+	blocks "gx/ipfs/QmVzK524a2VWLqyvtBeiHKsUAWYgeAk4DBeZoY7vpNPNRx/go-block-format"
+	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 )
 
 type BlockAPI CoreAPI

@@ -7,17 +7,17 @@ import (
 	"sort"
 	"text/tabwriter"
 
-	cmdkit "gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
+	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
-	core "github.com/ipfs/go-ipfs/core"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	unixfs "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs"
-	uio "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/io"
-	unixfspb "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/pb"
-	merkledag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
-	path "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
-	resolver "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path/resolver"
+	cmds "github.com/udfs/go-udfs/commands"
+	core "github.com/udfs/go-udfs/core"
+	e "github.com/udfs/go-udfs/core/commands/e"
+	merkledag "github.com/udfs/go-udfs/merkledag"
+	path "github.com/udfs/go-udfs/path"
+	resolver "github.com/udfs/go-udfs/path/resolver"
+	unixfs "github.com/udfs/go-udfs/unixfs"
+	uio "github.com/udfs/go-udfs/unixfs/io"
+	unixfspb "github.com/udfs/go-udfs/unixfs/pb"
 )
 
 type LsLink struct {

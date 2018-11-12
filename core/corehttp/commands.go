@@ -9,15 +9,14 @@ import (
 	"strconv"
 	"strings"
 
-	version "github.com/ipfs/go-ipfs"
-	oldcmds "github.com/ipfs/go-ipfs/commands"
-	"github.com/ipfs/go-ipfs/core"
-	corecommands "github.com/ipfs/go-ipfs/core/commands"
+	oldcmds "github.com/udfs/go-udfs/commands"
+	core "github.com/udfs/go-udfs/core"
+	corecommands "github.com/udfs/go-udfs/core/commands"
+	path "github.com/udfs/go-udfs/path"
+	config "github.com/udfs/go-udfs/repo/config"
 
-	cmds "gx/ipfs/QmPTfgFTo9PFr1PvPKyKoeMgBvYPh6cX3aDP7DHKVbnCbi/go-ipfs-cmds"
-	cmdsHttp "gx/ipfs/QmPTfgFTo9PFr1PvPKyKoeMgBvYPh6cX3aDP7DHKVbnCbi/go-ipfs-cmds/http"
-	config "gx/ipfs/QmTyiSs9VgdVb4pnzdjtKhcfdTkHFEaNn6xnCbZq4DTFRt/go-ipfs-config"
-	path "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
+	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
+	cmdsHttp "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds/http"
 )
 
 var (
@@ -78,7 +77,7 @@ func addHeadersFromConfig(c *cmdsHttp.ServerConfig, nc *config.Config) {
 	for h, v := range nc.API.HTTPHeaders {
 		c.Headers[h] = v
 	}
-	c.Headers["Server"] = []string{"go-ipfs/" + version.CurrentVersionNumber}
+	c.Headers["Server"] = []string{"go-ipfs/" + config.CurrentVersionNumber}
 }
 
 func addCORSDefaults(c *cmdsHttp.ServerConfig) {
@@ -153,7 +152,7 @@ func CommandsROOption(cctx oldcmds.Context) ServeOption {
 
 // CheckVersionOption returns a ServeOption that checks whether the client ipfs version matches. Does nothing when the user agent string does not contain `/go-ipfs/`
 func CheckVersionOption() ServeOption {
-	daemonVersion := version.ApiVersion
+	daemonVersion := config.ApiVersion
 
 	return ServeOption(func(n *core.IpfsNode, l net.Listener, parent *http.ServeMux) (*http.ServeMux, error) {
 		mux := http.NewServeMux()

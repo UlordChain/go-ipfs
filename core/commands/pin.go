@@ -7,21 +7,22 @@ import (
 	"io"
 	"time"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
-	core "github.com/ipfs/go-ipfs/core"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	corerepo "github.com/ipfs/go-ipfs/core/corerepo"
-	pin "github.com/ipfs/go-ipfs/pin"
-	uio "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/io"
+	bserv "github.com/udfs/go-udfs/blockservice"
+	cmds "github.com/udfs/go-udfs/commands"
+	core "github.com/udfs/go-udfs/core"
+	e "github.com/udfs/go-udfs/core/commands/e"
+	corerepo "github.com/udfs/go-udfs/core/corerepo"
+	dag "github.com/udfs/go-udfs/merkledag"
+	path "github.com/udfs/go-udfs/path"
+	resolver "github.com/udfs/go-udfs/path/resolver"
+	pin "github.com/udfs/go-udfs/pin"
+	"github.com/udfs/go-udfs/thirdparty/verifcid"
+	uio "github.com/udfs/go-udfs/unixfs/io"
 
-	dag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
-	"gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
-	"gx/ipfs/QmVUhfewLZpSaAiBYCpw2krYMaiVmFuhr2iurQLuRoU6sD/go-verifcid"
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
-	offline "gx/ipfs/QmZxjqR9Qgompju73kakSoUj3rbVndAzky3oCDiBNCxPs1/go-ipfs-exchange-offline"
-	bserv "gx/ipfs/QmbSB9Uh3wVgmiCb1fAb8zuC3qAE6un4kd1jvatUurfAmB/go-blockservice"
-	path "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
-	resolver "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path/resolver"
+	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
+	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"
+	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )
 
 var PinCmd = &cmds.Command{
@@ -184,6 +185,7 @@ collected if needed. (By default, recursively. Use -r=false for direct pins.)
 	},
 	Options: []cmdkit.Option{
 		cmdkit.BoolOption("recursive", "r", "Recursively unpin the object linked to by the specified object(s).").WithDefault(true),
+		cmdkit.BoolOption("clear", "", "Clear the cache from repo.").WithDefault(false),
 	},
 	Type: PinOutput{},
 	Run: func(req cmds.Request, res cmds.Response) {
@@ -204,6 +206,15 @@ collected if needed. (By default, recursively. Use -r=false for direct pins.)
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
 			return
+		}
+
+		clear, _, err := req.Option("clear").Bool()
+		if clear {
+			err = corerepo.Remove(n, req.Context(), removed, recursive, false)
+			if err != nil {
+				res.SetError(err, cmdkit.ErrNormal)
+				return
+			}
 		}
 
 		res.SetOutput(&PinOutput{cidsToStrings(removed)})
@@ -411,23 +422,13 @@ new pin and removing the old one.
 			return
 		}
 
-		err = n.Pinning.Flush()
-		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
-		}
-
 		res.SetOutput(&PinOutput{Pins: []string{from.String(), to.String()}})
 	},
 	Marshalers: cmds.MarshalerMap{
 		cmds.Text: func(res cmds.Response) (io.Reader, error) {
-			v, err := unwrapOutput(res.Output())
-			if err != nil {
-				return nil, err
-			}
-			added, ok := v.(*PinOutput)
+			added, ok := res.Output().(*PinOutput)
 			if !ok {
-				return nil, e.TypeErr(added, v)
+				return nil, u.ErrCast()
 			}
 
 			buf := new(bytes.Buffer)

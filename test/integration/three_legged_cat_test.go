@@ -9,14 +9,15 @@ import (
 	"testing"
 	"time"
 
-	core "github.com/ipfs/go-ipfs/core"
-	coreunix "github.com/ipfs/go-ipfs/core/coreunix"
-	mock "github.com/ipfs/go-ipfs/core/mock"
-	"github.com/ipfs/go-ipfs/thirdparty/unit"
+	core "github.com/udfs/go-udfs/core"
+	coreunix "github.com/udfs/go-udfs/core/coreunix"
+	mock "github.com/udfs/go-udfs/core/mock"
+	"github.com/udfs/go-udfs/thirdparty/unit"
 
-	mocknet "gx/ipfs/QmQiaskfWpdRJ4x2spEQjPFTUkEB87KDYu91qnNYBqvvcX/go-libp2p/p2p/net/mock"
-	testutil "gx/ipfs/QmRNhSdqzMcuRxX9A1egBeQ3BhDTguDV5HPwi8wRykkPU8/go-testutil"
-	pstore "gx/ipfs/QmeKD8YT7887Xu6Z86iZmpYNxrLogJexqxEugSmaf14k64/go-libp2p-peerstore"
+	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	testutil "gx/ipfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil"
+
+	mocknet "github.com/udfs/go-udfs/udfs/go-libp2p/p2p/net/mock"
 )
 
 func TestThreeLeggedCatTransfer(t *testing.T) {

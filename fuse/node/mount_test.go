@@ -11,13 +11,13 @@ import (
 
 	"context"
 
-	core "github.com/ipfs/go-ipfs/core"
-	ipns "github.com/ipfs/go-ipfs/fuse/ipns"
-	mount "github.com/ipfs/go-ipfs/fuse/mount"
-	namesys "github.com/ipfs/go-ipfs/namesys"
+	core "github.com/udfs/go-udfs/core"
+	ipns "github.com/udfs/go-udfs/fuse/ipns"
+	mount "github.com/udfs/go-udfs/fuse/mount"
+	namesys "github.com/udfs/go-udfs/namesys"
 
-	ci "gx/ipfs/QmRNhSdqzMcuRxX9A1egBeQ3BhDTguDV5HPwi8wRykkPU8/go-testutil/ci"
-	offroute "gx/ipfs/Qmd45r5jHr1PKMNQqifnbZy1ZQwHdtXUDJFamUEvUJE544/go-ipfs-routing/offline"
+	offroute "gx/ipfs/QmbFRJeEmEU16y3BmKKaD4a9fm5oHsEAMHe2vSB1UnfLMi/go-ipfs-routing/offline"
+	ci "gx/ipfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil/ci"
 )
 
 func maybeSkipFuseTests(t *testing.T) {

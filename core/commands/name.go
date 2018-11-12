@@ -1,9 +1,9 @@
 package commands
 
 import (
-	cmds "github.com/ipfs/go-ipfs/commands"
+	cmds "github.com/udfs/go-udfs/commands"
 
-	"gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
+	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )
 
 type IpnsEntry struct {

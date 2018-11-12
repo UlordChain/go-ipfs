@@ -7,14 +7,14 @@ import (
 	"io"
 	"strings"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
-	"github.com/ipfs/go-ipfs/core"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	path "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
+	cmds "github.com/udfs/go-udfs/commands"
+	"github.com/udfs/go-udfs/core"
+	e "github.com/udfs/go-udfs/core/commands/e"
+	path "github.com/udfs/go-udfs/path"
 
-	"gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
-	ipld "gx/ipfs/QmX5CsuHyVZeTLxgRSYkgLSDQKb9UjE8xnhQzCEJWWWFsC/go-ipld-format"
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
+	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )
 
 // KeyList is a general type for outputting lists of keys

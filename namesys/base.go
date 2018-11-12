@@ -6,8 +6,8 @@ import (
 
 	context "context"
 
-	opts "github.com/ipfs/go-ipfs/namesys/opts"
-	path "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
+	opts "github.com/udfs/go-udfs/namesys/opts"
+	path "github.com/udfs/go-udfs/path"
 )
 
 type resolver interface {

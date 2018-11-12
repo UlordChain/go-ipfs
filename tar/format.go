@@ -8,15 +8,15 @@ import (
 	"io"
 	"strings"
 
-	"github.com/ipfs/go-ipfs/dagutils"
-	importer "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/importer"
-	uio "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/io"
-	dag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
-	path "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
+	importer "github.com/udfs/go-udfs/importer"
+	dag "github.com/udfs/go-udfs/merkledag"
+	dagutil "github.com/udfs/go-udfs/merkledag/utils"
+	path "github.com/udfs/go-udfs/path"
+	uio "github.com/udfs/go-udfs/unixfs/io"
 
-	logging "gx/ipfs/QmRREK2CAZ5Re2Bd9zZFG6FeYDppUWt5cMgsoUEp3ktgSr/go-log"
-	ipld "gx/ipfs/QmX5CsuHyVZeTLxgRSYkgLSDQKb9UjE8xnhQzCEJWWWFsC/go-ipld-format"
-	chunker "gx/ipfs/QmXzBbJo2sLf3uwjNTeoWYiJV7CjAhkiA4twtLvwJSSNdK/go-ipfs-chunker"
+	chunker "gx/ipfs/QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4/go-ipfs-chunker"
+	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
 )
 
 var log = logging.Logger("tarfmt")
@@ -42,7 +42,7 @@ func ImportTar(ctx context.Context, r io.Reader, ds ipld.DAGService) (*dag.Proto
 	root := new(dag.ProtoNode)
 	root.SetData([]byte("ipfs/tar"))
 
-	e := dagutils.NewDagEditor(root, ds)
+	e := dagutil.NewDagEditor(root, ds)
 
 	for {
 		h, err := tr.Next()

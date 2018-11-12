@@ -8,10 +8,10 @@ import (
 	"text/tabwriter"
 	"time"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
+	cmds "github.com/udfs/go-udfs/commands"
+	e "github.com/udfs/go-udfs/core/commands/e"
 
-	"gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
+	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )
 
 var ActiveReqsCmd = &cmds.Command{

@@ -8,11 +8,11 @@ import (
 	"strconv"
 	"text/tabwriter"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
-	core "github.com/ipfs/go-ipfs/core"
+	cmds "github.com/udfs/go-udfs/commands"
+	core "github.com/udfs/go-udfs/core"
 
-	"gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
 	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )
 
 // P2PListenerInfoOutput is output type of ls command

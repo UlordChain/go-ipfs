@@ -2,27 +2,28 @@ package commands
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"path"
 	"sort"
 	"strings"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	repo "github.com/ipfs/go-ipfs/repo"
-	"github.com/ipfs/go-ipfs/repo/fsrepo"
+	"github.com/pkg/errors"
 
-	swarm "gx/ipfs/QmPWNZRUybw3nwJH3mpkrwB97YEQmXRkzvyh34rpJiih6Q/go-libp2p-swarm"
-	peer "gx/ipfs/QmQsErDt8Qgw1XrsXf2BpEzDgGWtB1YLsTAARBup5b6B9W/go-libp2p-peer"
+	cmds "github.com/udfs/go-udfs/commands"
+	e "github.com/udfs/go-udfs/core/commands/e"
+	repo "github.com/udfs/go-udfs/repo"
+	config "github.com/udfs/go-udfs/repo/config"
+	"github.com/udfs/go-udfs/repo/fsrepo"
+
+	inet "gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
 	mafilter "gx/ipfs/QmSMZwvs3n4GBikZ7hKzT17c3bk65FmyZo2JqtJ16swqCv/multiaddr-filter"
-	cmdkit "gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
-	config "gx/ipfs/QmTyiSs9VgdVb4pnzdjtKhcfdTkHFEaNn6xnCbZq4DTFRt/go-ipfs-config"
-	iaddr "gx/ipfs/QmWnUZVLLk2HKpZAMEsqW3EFNku1xGzG7bvvAHeEQQoi2V/go-ipfs-addr"
-	inet "gx/ipfs/QmX5J1q63BrrDTbpcHifrFbxH3cMZsvaNajy6u3zCpzBXs/go-libp2p-net"
 	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	pstore "gx/ipfs/QmeKD8YT7887Xu6Z86iZmpYNxrLogJexqxEugSmaf14k64/go-libp2p-peerstore"
+	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	iaddr "gx/ipfs/Qme4QgoVPyQqxVc4G1c2L2wc9TDa6o294rtspGMnBNRujm/go-ipfs-addr"
+	swarm "gx/ipfs/QmemVjhp1UuWPQqrWSvPcaqH3QJRMjMqNm4T2RULMkDDQe/go-libp2p-swarm"
 )
 
 type stringList struct {
@@ -87,9 +88,13 @@ var swarmPeersCmd = &cmds.Command{
 			pid := c.RemotePeer()
 			addr := c.RemoteMultiaddr()
 
+			master, _ := n.Peerstore.Get(pid, "master")
+			m, _ := master.(bool)
+
 			ci := connInfo{
-				Addr: addr.String(),
-				Peer: pid.Pretty(),
+				Addr:   addr.String(),
+				Peer:   pid.Pretty(),
+				Master: m,
 			}
 
 			/*
@@ -146,6 +151,10 @@ var swarmPeersCmd = &cmds.Command{
 				if info.Latency != "" {
 					fmt.Fprintf(buf, " %s", info.Latency)
 				}
+
+				if info.Master {
+					fmt.Fprint(buf, "   ==> <MASTER>")
+				}
 				fmt.Fprintln(buf)
 
 				for _, s := range info.Streams {
@@ -173,6 +182,7 @@ type connInfo struct {
 	Latency string
 	Muxer   string
 	Streams []streamInfo
+	Master  bool
 }
 
 func (ci *connInfo) Less(i, j int) bool {

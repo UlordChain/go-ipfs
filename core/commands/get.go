@@ -9,16 +9,18 @@ import (
 	"path/filepath"
 	"strings"
 
-	core "github.com/ipfs/go-ipfs/core"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	uarchive "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/archive"
-	dag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
-	path "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
+	core "github.com/udfs/go-udfs/core"
+	e "github.com/udfs/go-udfs/core/commands/e"
+	dag "github.com/udfs/go-udfs/merkledag"
+	path "github.com/udfs/go-udfs/path"
+	uarchive "github.com/udfs/go-udfs/unixfs/archive"
 
-	"gx/ipfs/QmPTfgFTo9PFr1PvPKyKoeMgBvYPh6cX3aDP7DHKVbnCbi/go-ipfs-cmds"
+	"context"
+	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	"gx/ipfs/QmPtj12fdwuAqj9sBSTNUxBNu8kCGNp8b3o8yUzMm5GHpq/pb"
 	tar "gx/ipfs/QmQine7gvHncNevKtG9QXxf3nXcwSj6aDDmMm52mHofEEp/tar-utils"
-	"gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
+	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"time"
 )
 
 var ErrInvalidCompressionLevel = errors.New("compression level must be between 1 and 9")
@@ -65,7 +67,7 @@ may also specify the level of compression by specifying '-l=<1-9>'.
 			return
 		}
 		p := path.Path(req.Arguments[0])
-		ctx := req.Context
+		ctx, _ := context.WithTimeout(req.Context, 2*time.Minute)
 		dn, err := core.Resolve(ctx, node.Namesys, node.Resolver, p)
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)

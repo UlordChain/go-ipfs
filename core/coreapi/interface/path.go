@@ -1,9 +1,9 @@
 package iface
 
 import (
-	ipfspath "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
+	ipfspath "github.com/udfs/go-udfs/path"
 
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
+	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 )
 
 //TODO: merge with ipfspath so we don't depend on it

@@ -7,22 +7,22 @@ import (
 	"os"
 	"strings"
 
-	core "github.com/ipfs/go-ipfs/core"
-	"github.com/ipfs/go-ipfs/core/coreunix"
-	filestore "github.com/ipfs/go-ipfs/filestore"
-	ft "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs"
-	dag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
-	dagtest "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag/test"
-	blockservice "gx/ipfs/QmbSB9Uh3wVgmiCb1fAb8zuC3qAE6un4kd1jvatUurfAmB/go-blockservice"
+	blockservice "github.com/udfs/go-udfs/blockservice"
+	core "github.com/udfs/go-udfs/core"
+	"github.com/udfs/go-udfs/core/coreunix"
+	filestore "github.com/udfs/go-udfs/filestore"
+	dag "github.com/udfs/go-udfs/merkledag"
+	dagtest "github.com/udfs/go-udfs/merkledag/test"
+	mfs "github.com/udfs/go-udfs/mfs"
+	ft "github.com/udfs/go-udfs/unixfs"
 
-	cmds "gx/ipfs/QmPTfgFTo9PFr1PvPKyKoeMgBvYPh6cX3aDP7DHKVbnCbi/go-ipfs-cmds"
+	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
 	pb "gx/ipfs/QmPtj12fdwuAqj9sBSTNUxBNu8kCGNp8b3o8yUzMm5GHpq/pb"
-	cmdkit "gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
-	files "gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit/files"
-	offline "gx/ipfs/QmZxjqR9Qgompju73kakSoUj3rbVndAzky3oCDiBNCxPs1/go-ipfs-exchange-offline"
-	bstore "gx/ipfs/QmcmpX42gtDv1fz24kau4wjS9hfwWj5VexWBKgGnWzsyag/go-ipfs-blockstore"
-	mfs "gx/ipfs/QmdghKsSDa2AD1kC4qYRnVYWqZecdSBRZjeXRdhMYYhafj/go-mfs"
+	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"
+	bstore "gx/ipfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-ipfs-blockstore"
+	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	files "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit/files"
 )
 
 // ErrDepthLimitExceeded indicates that the max depth has been exceeded.
@@ -279,13 +279,13 @@ You can now check what blocks have been created by:
 		fileAdder.Silent = silent
 		fileAdder.RawLeaves = rawblks
 		fileAdder.NoCopy = nocopy
-		fileAdder.CidBuilder = &prefix
+		fileAdder.Prefix = &prefix
 
 		if hash {
 			md := dagtest.Mock()
 			emptyDirNode := ft.EmptyDirNode()
 			// Use the same prefix for the "empty" MFS root as for the file adder.
-			emptyDirNode.SetCidBuilder(fileAdder.CidBuilder)
+			emptyDirNode.Prefix = *fileAdder.Prefix
 			mr, err := mfs.NewRoot(req.Context, md, emptyDirNode, nil)
 			if err != nil {
 				res.SetError(err, cmdkit.ErrNormal)

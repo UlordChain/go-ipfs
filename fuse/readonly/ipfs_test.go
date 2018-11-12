@@ -13,18 +13,18 @@ import (
 	"sync"
 	"testing"
 
-	core "github.com/ipfs/go-ipfs/core"
-	coreunix "github.com/ipfs/go-ipfs/core/coreunix"
-	coremock "github.com/ipfs/go-ipfs/core/mock"
-	importer "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/importer"
-	uio "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/io"
-	dag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
+	core "github.com/udfs/go-udfs/core"
+	coreunix "github.com/udfs/go-udfs/core/coreunix"
+	coremock "github.com/udfs/go-udfs/core/mock"
+	importer "github.com/udfs/go-udfs/importer"
+	dag "github.com/udfs/go-udfs/merkledag"
+	uio "github.com/udfs/go-udfs/unixfs/io"
 
 	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
-	ci "gx/ipfs/QmRNhSdqzMcuRxX9A1egBeQ3BhDTguDV5HPwi8wRykkPU8/go-testutil/ci"
 	fstest "gx/ipfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse/fs/fstestutil"
-	ipld "gx/ipfs/QmX5CsuHyVZeTLxgRSYkgLSDQKb9UjE8xnhQzCEJWWWFsC/go-ipld-format"
-	chunker "gx/ipfs/QmXzBbJo2sLf3uwjNTeoWYiJV7CjAhkiA4twtLvwJSSNdK/go-ipfs-chunker"
+	chunker "gx/ipfs/QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4/go-ipfs-chunker"
+	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	ci "gx/ipfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil/ci"
 )
 
 func maybeSkipFuseTests(t *testing.T) {

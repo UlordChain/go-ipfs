@@ -4,16 +4,16 @@ import (
 	"io"
 	"strings"
 
-	oldcmds "github.com/ipfs/go-ipfs/commands"
-	lgc "github.com/ipfs/go-ipfs/commands/legacy"
-	dag "github.com/ipfs/go-ipfs/core/commands/dag"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	ocmd "github.com/ipfs/go-ipfs/core/commands/object"
-	unixfs "github.com/ipfs/go-ipfs/core/commands/unixfs"
+	oldcmds "github.com/udfs/go-udfs/commands"
+	lgc "github.com/udfs/go-udfs/commands/legacy"
+	dag "github.com/udfs/go-udfs/core/commands/dag"
+	e "github.com/udfs/go-udfs/core/commands/e"
+	ocmd "github.com/udfs/go-udfs/core/commands/object"
+	unixfs "github.com/udfs/go-udfs/core/commands/unixfs"
 
-	"gx/ipfs/QmPTfgFTo9PFr1PvPKyKoeMgBvYPh6cX3aDP7DHKVbnCbi/go-ipfs-cmds"
-	logging "gx/ipfs/QmRREK2CAZ5Re2Bd9zZFG6FeYDppUWt5cMgsoUEp3ktgSr/go-log"
-	"gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
+	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
+	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )
 
 var log = logging.Logger("core/commands")
@@ -34,6 +34,8 @@ BASIC COMMANDS
   get <ref>     Download IPFS objects
   ls <ref>      List links from an object
   refs <ref>    List hashes of links from an object
+  push          Push a file to IPFS master node
+  localrm       Remove object from local pin and repo
 
 DATA STRUCTURE COMMANDS
   block         Interact with raw blocks in the datastore
@@ -53,6 +55,7 @@ ADVANCED COMMANDS
   stats         Various operational stats
   p2p           Libp2p stream mounting
   filestore     Manage the filestore (experimental)
+  backup        Backup objects to remote storage
 
 NETWORK COMMANDS
   id            Show info about IPFS peers
@@ -121,7 +124,7 @@ var rootSubcommands = map[string]*cmds.Command{
 	"diag":      lgc.NewCommand(DiagCmd),
 	"dns":       lgc.NewCommand(DNSCmd),
 	"id":        lgc.NewCommand(IDCmd),
-	"key":       KeyCmd,
+	"key":       lgc.NewCommand(KeyCmd),
 	"log":       lgc.NewCommand(LogCmd),
 	"ls":        lgc.NewCommand(LsCmd),
 	"mount":     lgc.NewCommand(MountCmd),
@@ -138,7 +141,11 @@ var rootSubcommands = map[string]*cmds.Command{
 	"update":    lgc.NewCommand(ExternalBinary()),
 	"urlstore":  urlStoreCmd,
 	"version":   lgc.NewCommand(VersionCmd),
-	"shutdown":  daemonShutdownCmd,
+	"shutdown":  lgc.NewCommand(daemonShutdownCmd),
+	"backup":    lgc.NewCommand(BackupCmd),
+	"push":      PushCmd,
+	"localrm":   lgc.NewCommand(LocalrmCmd),
+	"blacklist": BlacklistCmd,
 }
 
 // RootRO is the readonly version of Root

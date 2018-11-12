@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"io"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
-	"github.com/ipfs/go-ipfs/dagutils"
-
-	cmdkit "gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
+	cmds "github.com/udfs/go-udfs/commands"
+	core "github.com/udfs/go-udfs/core"
+	e "github.com/udfs/go-udfs/core/commands/e"
+	dagutils "github.com/udfs/go-udfs/merkledag/utils"
+	path "github.com/udfs/go-udfs/path"
+	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )
 
 type Changes struct {
@@ -52,7 +52,7 @@ Example:
 		cmdkit.BoolOption("verbose", "v", "Print extra information."),
 	},
 	Run: func(req cmds.Request, res cmds.Response) {
-		api, err := req.InvocContext().GetApi()
+		node, err := req.InvocContext().GetNode()
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
 			return
@@ -61,37 +61,39 @@ Example:
 		a := req.Arguments()[0]
 		b := req.Arguments()[1]
 
-		pa, err := coreiface.ParsePath(a)
+		pa, err := path.ParsePath(a)
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
 			return
 		}
 
-		pb, err := coreiface.ParsePath(b)
+		pb, err := path.ParsePath(b)
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
 			return
 		}
 
-		changes, err := api.Object().Diff(req.Context(), pa, pb)
+		ctx := req.Context()
 
-		out := make([]*dagutils.Change, len(changes))
-		for i, change := range changes {
-			out[i] = &dagutils.Change{
-				Type: change.Type,
-				Path: change.Path,
-			}
-
-			if change.Before != nil {
-				out[i].Before = change.Before.Cid()
-			}
-
-			if change.After != nil {
-				out[i].After = change.After.Cid()
-			}
+		obj_a, err := core.Resolve(ctx, node.Namesys, node.Resolver, pa)
+		if err != nil {
+			res.SetError(err, cmdkit.ErrNormal)
+			return
 		}
 
-		res.SetOutput(&Changes{out})
+		obj_b, err := core.Resolve(ctx, node.Namesys, node.Resolver, pb)
+		if err != nil {
+			res.SetError(err, cmdkit.ErrNormal)
+			return
+		}
+
+		changes, err := dagutils.Diff(ctx, node.DAG, obj_a, obj_b)
+		if err != nil {
+			res.SetError(err, cmdkit.ErrNormal)
+			return
+		}
+
+		res.SetOutput(&Changes{changes})
 	},
 	Type: Changes{},
 	Marshalers: cmds.MarshalerMap{

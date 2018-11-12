@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"strings"
 
-	core "github.com/ipfs/go-ipfs/core"
+	core "github.com/udfs/go-udfs/core"
 
 	unix "gx/ipfs/QmVGjyM9i2msKvLXwh9VosCTgP4mL91kC7hDmqnwTTx6Hu/sys/unix"
 	"gx/ipfs/QmYRGECuvQnRX73fcvPnGbYijBcGN2HbKZQ7jh26qmLiHG/semver"

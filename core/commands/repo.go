@@ -9,17 +9,22 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	oldcmds "github.com/ipfs/go-ipfs/commands"
-	lgc "github.com/ipfs/go-ipfs/commands/legacy"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	corerepo "github.com/ipfs/go-ipfs/core/corerepo"
-	fsrepo "github.com/ipfs/go-ipfs/repo/fsrepo"
+	oldcmds "github.com/udfs/go-udfs/commands"
+	lgc "github.com/udfs/go-udfs/commands/legacy"
+	e "github.com/udfs/go-udfs/core/commands/e"
+	corerepo "github.com/udfs/go-udfs/core/corerepo"
+	config "github.com/udfs/go-udfs/repo/config"
+	fsrepo "github.com/udfs/go-udfs/repo/fsrepo"
+	uio "github.com/udfs/go-udfs/unixfs/io"
 
-	cmds "gx/ipfs/QmPTfgFTo9PFr1PvPKyKoeMgBvYPh6cX3aDP7DHKVbnCbi/go-ipfs-cmds"
-	cmdkit "gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
-	config "gx/ipfs/QmTyiSs9VgdVb4pnzdjtKhcfdTkHFEaNn6xnCbZq4DTFRt/go-ipfs-config"
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
-	bstore "gx/ipfs/QmcmpX42gtDv1fz24kau4wjS9hfwWj5VexWBKgGnWzsyag/go-ipfs-blockstore"
+	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
+	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	bstore "gx/ipfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-ipfs-blockstore"
+	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+
+	"github.com/udfs/go-udfs/core"
+	"github.com/udfs/go-udfs/path"
+	"github.com/udfs/go-udfs/path/resolver"
 )
 
 type RepoVersion struct {
@@ -40,6 +45,7 @@ var RepoCmd = &cmds.Command{
 		"fsck":    lgc.NewCommand(RepoFsckCmd),
 		"version": lgc.NewCommand(repoVersionCmd),
 		"verify":  lgc.NewCommand(repoVerifyCmd),
+		"rm":      lgc.NewCommand(repoRmCmd),
 	},
 }
 
@@ -417,6 +423,135 @@ var repoVersionCmd = &oldcmds.Command{
 			}
 			return buf, nil
 
+		},
+	},
+}
+
+var repoRmCmd = &oldcmds.Command{
+	Helptext: cmdkit.HelpText{
+		Tagline: "Remove cache objects from repo.",
+		ShortDescription: `
+'ipfs repo rm' is a plumbing command that will remove the objects that are not pinned.
+`,
+	},
+	Arguments: []cmdkit.Argument{
+		cmdkit.StringArg("ipfs-path", true, true, "Path to object(s) to be removed.").EnableStdin(),
+	},
+	Options: []cmdkit.Option{
+		cmdkit.BoolOption("stream-errors", "Stream errors."),
+		cmdkit.BoolOption("quiet", "q", "Write minimal output."),
+		cmdkit.BoolOption("recursive", "r", "Recursively remove the object linked to by the specified object(s).").WithDefault(true),
+	},
+	Run: func(req oldcmds.Request, res oldcmds.Response) {
+		n, err := req.InvocContext().GetNode()
+		if err != nil {
+			res.SetError(err, cmdkit.ErrNormal)
+			return
+		}
+
+		streamErrors, _, _ := res.Request().Option("stream-errors").Bool()
+
+		// set recursive flag
+		recursive, _, err := req.Option("recursive").Bool()
+		if err != nil {
+			res.SetError(err, cmdkit.ErrNormal)
+			return
+		}
+
+		r := &resolver.Resolver{
+			DAG:         n.DAG,
+			ResolveOnce: uio.ResolveUnixfsOnce,
+		}
+
+		args := req.Arguments()
+		cids := make([]*cid.Cid, len(args))
+		for i, a := range args {
+			p, err := path.ParsePath(a)
+			if err != nil {
+				res.SetError(err, cmdkit.ErrNormal)
+				return
+			}
+
+			k, err := core.ResolveToCid(req.Context(), n.Namesys, r, p)
+			if err != nil {
+				res.SetError(err, cmdkit.ErrNormal)
+				return
+			}
+
+			cids[i] = k
+		}
+
+		gcOutChan := corerepo.RemoveAsync(n, req.Context(), cids, recursive, true)
+
+		outChan := make(chan interface{})
+		res.SetOutput(outChan)
+
+		go func() {
+			defer close(outChan)
+
+			if streamErrors {
+				errs := false
+				for res := range gcOutChan {
+					if res.Error != nil {
+						select {
+						case outChan <- &GcResult{Error: res.Error.Error()}:
+						case <-req.Context().Done():
+							return
+						}
+						errs = true
+					} else {
+						select {
+						case outChan <- &GcResult{Key: res.KeyRemoved}:
+						case <-req.Context().Done():
+							return
+						}
+					}
+				}
+				if errs {
+					res.SetError(fmt.Errorf("encountered errors during gc run"), cmdkit.ErrNormal)
+				}
+			} else {
+				err := corerepo.CollectResult(req.Context(), gcOutChan, func(k *cid.Cid) {
+					select {
+					case outChan <- &GcResult{Key: k}:
+					case <-req.Context().Done():
+					}
+				})
+				if err != nil {
+					res.SetError(err, cmdkit.ErrNormal)
+				}
+			}
+		}()
+	},
+	Type: GcResult{},
+	Marshalers: oldcmds.MarshalerMap{
+		oldcmds.Text: func(res oldcmds.Response) (io.Reader, error) {
+			v, err := unwrapOutput(res.Output())
+			if err != nil {
+				return nil, err
+			}
+
+			quiet, _, err := res.Request().Option("quiet").Bool()
+			if err != nil {
+				return nil, err
+			}
+
+			obj, ok := v.(*GcResult)
+			if !ok {
+				return nil, e.TypeErr(obj, v)
+			}
+
+			if obj.Error != "" {
+				fmt.Fprintf(res.Stderr(), "Error: %s\n", obj.Error)
+				return nil, nil
+			}
+
+			msg := obj.Key.String() + "\n"
+			if !quiet {
+				msg = "removed " + msg
+			}
+
+			return bytes.NewBufferString(msg), nil
 		},
 	},
 }

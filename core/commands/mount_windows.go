@@ -3,9 +3,9 @@ package commands
 import (
 	"errors"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
+	cmds "github.com/udfs/go-udfs/commands"
 
-	cmdkit "gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
+	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )
 
 var MountCmd = &cmds.Command{

@@ -10,22 +10,22 @@ import (
 	"path/filepath"
 	"strconv"
 
-	core "github.com/ipfs/go-ipfs/core"
-	"github.com/ipfs/go-ipfs/pin"
-	unixfs "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs"
-	balanced "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/importer/balanced"
-	ihelper "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/importer/helpers"
-	trickle "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/importer/trickle"
-	dag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
+	core "github.com/udfs/go-udfs/core"
+	balanced "github.com/udfs/go-udfs/importer/balanced"
+	ihelper "github.com/udfs/go-udfs/importer/helpers"
+	trickle "github.com/udfs/go-udfs/importer/trickle"
+	dag "github.com/udfs/go-udfs/merkledag"
+	mfs "github.com/udfs/go-udfs/mfs"
+	"github.com/udfs/go-udfs/pin"
+	unixfs "github.com/udfs/go-udfs/unixfs"
 
-	logging "gx/ipfs/QmRREK2CAZ5Re2Bd9zZFG6FeYDppUWt5cMgsoUEp3ktgSr/go-log"
-	files "gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit/files"
-	ipld "gx/ipfs/QmX5CsuHyVZeTLxgRSYkgLSDQKb9UjE8xnhQzCEJWWWFsC/go-ipld-format"
-	posinfo "gx/ipfs/QmXD4grfThQ4LwVoEEfe4dgR7ukmbV9TppM5Q4SPowp7hU/go-ipfs-posinfo"
-	chunker "gx/ipfs/QmXzBbJo2sLf3uwjNTeoWYiJV7CjAhkiA4twtLvwJSSNdK/go-ipfs-chunker"
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
-	bstore "gx/ipfs/QmcmpX42gtDv1fz24kau4wjS9hfwWj5VexWBKgGnWzsyag/go-ipfs-blockstore"
-	mfs "gx/ipfs/QmdghKsSDa2AD1kC4qYRnVYWqZecdSBRZjeXRdhMYYhafj/go-mfs"
+	posinfo "gx/ipfs/QmSHjPDw8yNgLZ7cBfX7w3Smn7PHwYhNEpd4LHQQxUg35L/go-ipfs-posinfo"
+	chunker "gx/ipfs/QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4/go-ipfs-chunker"
+	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	bstore "gx/ipfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-ipfs-blockstore"
+	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	files "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit/files"
 )
 
 var log = logging.Logger("coreunix")
@@ -46,11 +46,22 @@ type Object struct {
 	Size  string
 }
 
+type BackupResult struct {
+	ID  string
+	Msg string `json:",omitempty"`
+}
+
+type BackupOutput struct {
+	Success []*BackupResult `json:",omitempty"`
+	Failed  []*BackupResult `json:",omitempty"`
+}
+
 type AddedObject struct {
-	Name  string
-	Hash  string `json:",omitempty"`
-	Bytes int64  `json:",omitempty"`
-	Size  string `json:",omitempty"`
+	Name   string
+	Hash   string        `json:",omitempty"`
+	Bytes  int64         `json:",omitempty"`
+	Size   string        `json:",omitempty"`
+	Extend *BackupOutput `json:",omitempty"`
 }
 
 // NewAdder Returns a new Adder used for a file add operation.
@@ -89,7 +100,7 @@ type Adder struct {
 	mroot      *mfs.Root
 	unlocker   bstore.Unlocker
 	tempRoot   *cid.Cid
-	CidBuilder cid.Builder
+	Prefix     *cid.Prefix
 	liveNodes  uint64
 }
 
@@ -98,7 +109,7 @@ func (adder *Adder) mfsRoot() (*mfs.Root, error) {
 		return adder.mroot, nil
 	}
 	rnode := unixfs.EmptyDirNode()
-	rnode.SetCidBuilder(adder.CidBuilder)
+	rnode.SetPrefix(adder.Prefix)
 	mr, err := mfs.NewRoot(adder.ctx, adder.dagService, rnode, nil)
 	if err != nil {
 		return nil, err
@@ -120,11 +131,11 @@ func (adder *Adder) add(reader io.Reader) (ipld.Node, error) {
 	}
 
 	params := ihelper.DagBuilderParams{
-		Dagserv:    adder.dagService,
-		RawLeaves:  adder.RawLeaves,
-		Maxlinks:   ihelper.DefaultLinksPerBlock,
-		NoCopy:     adder.NoCopy,
-		CidBuilder: adder.CidBuilder,
+		Dagserv:   adder.dagService,
+		RawLeaves: adder.RawLeaves,
+		Maxlinks:  ihelper.DefaultLinksPerBlock,
+		NoCopy:    adder.NoCopy,
+		Prefix:    adder.Prefix,
 	}
 
 	if adder.Trickle {
@@ -201,8 +212,7 @@ func (adder *Adder) Finalize() (ipld.Node, error) {
 		return nil, err
 	}
 	var root mfs.FSNode
-	rootdir := mr.GetDirectory()
-	root = rootdir
+	root = mr.GetDirectory()
 
 	err = root.Flush()
 	if err != nil {
@@ -211,7 +221,7 @@ func (adder *Adder) Finalize() (ipld.Node, error) {
 
 	var name string
 	if !adder.Wrap {
-		children, err := rootdir.ListNames(adder.ctx)
+		children, err := root.(*mfs.Directory).ListNames(adder.ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -220,9 +230,16 @@ func (adder *Adder) Finalize() (ipld.Node, error) {
 			return nil, fmt.Errorf("expected at least one child dir, got none")
 		}
 
-		// Replace root with the first child
 		name = children[0]
-		root, err = rootdir.Child(name)
+
+		mr, err := adder.mfsRoot()
+		if err != nil {
+			return nil, err
+		}
+
+		dir := mr.GetDirectory()
+
+		root, err = dir.Child(name)
 		if err != nil {
 			return nil, err
 		}
@@ -378,9 +395,9 @@ func (adder *Adder) addNode(node ipld.Node, path string) error {
 	dir := gopath.Dir(path)
 	if dir != "." {
 		opts := mfs.MkdirOpts{
-			Mkparents:  true,
-			Flush:      false,
-			CidBuilder: adder.CidBuilder,
+			Mkparents: true,
+			Flush:     false,
+			Prefix:    adder.Prefix,
 		}
 		if err := mfs.Mkdir(mr, dir, opts); err != nil {
 			return err
@@ -443,7 +460,7 @@ func (adder *Adder) addFile(file files.File) error {
 		}
 
 		dagnode := dag.NodeWithData(sdata)
-		dagnode.SetCidBuilder(adder.CidBuilder)
+		dagnode.SetPrefix(adder.Prefix)
 		err = adder.dagService.Add(adder.ctx, dagnode)
 		if err != nil {
 			return err
@@ -482,9 +499,9 @@ func (adder *Adder) addDir(dir files.File) error {
 		return err
 	}
 	err = mfs.Mkdir(mr, dir.FileName(), mfs.MkdirOpts{
-		Mkparents:  true,
-		Flush:      false,
-		CidBuilder: adder.CidBuilder,
+		Mkparents: true,
+		Flush:     false,
+		Prefix:    adder.Prefix,
 	})
 	if err != nil {
 		return err

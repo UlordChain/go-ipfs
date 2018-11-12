@@ -6,15 +6,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ipfs/go-ipfs/core"
-	mock "github.com/ipfs/go-ipfs/core/mock"
-	namesys "github.com/ipfs/go-ipfs/namesys"
-	. "github.com/ipfs/go-ipfs/namesys/republisher"
-	path "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
+	"github.com/udfs/go-udfs/core"
+	mock "github.com/udfs/go-udfs/core/mock"
+	namesys "github.com/udfs/go-udfs/namesys"
+	. "github.com/udfs/go-udfs/namesys/republisher"
+	path "github.com/udfs/go-udfs/path"
 
-	mocknet "gx/ipfs/QmQiaskfWpdRJ4x2spEQjPFTUkEB87KDYu91qnNYBqvvcX/go-libp2p/p2p/net/mock"
 	goprocess "gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess"
-	pstore "gx/ipfs/QmeKD8YT7887Xu6Z86iZmpYNxrLogJexqxEugSmaf14k64/go-libp2p-peerstore"
+	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+
+	mocknet "github.com/udfs/go-udfs/udfs/go-libp2p/p2p/net/mock"
 )
 
 func TestRepublish(t *testing.T) {

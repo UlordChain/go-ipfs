@@ -3,21 +3,22 @@ package gc
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
-	pin "github.com/ipfs/go-ipfs/pin"
-	dag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
-	bserv "gx/ipfs/QmbSB9Uh3wVgmiCb1fAb8zuC3qAE6un4kd1jvatUurfAmB/go-blockservice"
+	"github.com/pkg/errors"
 
-	logging "gx/ipfs/QmRREK2CAZ5Re2Bd9zZFG6FeYDppUWt5cMgsoUEp3ktgSr/go-log"
-	dstore "gx/ipfs/QmVG5gxteQNEMhrS8prJSmU2C9rebtFuTd3SYZ5kE3YZ5k/go-datastore"
-	"gx/ipfs/QmVUhfewLZpSaAiBYCpw2krYMaiVmFuhr2iurQLuRoU6sD/go-verifcid"
-	ipld "gx/ipfs/QmX5CsuHyVZeTLxgRSYkgLSDQKb9UjE8xnhQzCEJWWWFsC/go-ipld-format"
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
-	offline "gx/ipfs/QmZxjqR9Qgompju73kakSoUj3rbVndAzky3oCDiBNCxPs1/go-ipfs-exchange-offline"
-	bstore "gx/ipfs/QmcmpX42gtDv1fz24kau4wjS9hfwWj5VexWBKgGnWzsyag/go-ipfs-blockstore"
+	bserv "github.com/udfs/go-udfs/blockservice"
+	dag "github.com/udfs/go-udfs/merkledag"
+	pin "github.com/udfs/go-udfs/pin"
+	"github.com/udfs/go-udfs/thirdparty/verifcid"
+
+	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"
+	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	bstore "gx/ipfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-ipfs-blockstore"
+	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	dstore "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
 )
 
 var log = logging.Logger("gc")
@@ -204,7 +205,6 @@ func ColoredSet(ctx context.Context, pn pin.Pinner, ng ipld.NodeGetter, bestEffo
 	for _, k := range pn.DirectKeys() {
 		gcs.Add(k)
 	}
-
 	err = Descendants(ctx, getLinks, gcs, pn.InternalPins())
 	if err != nil {
 		errors = true
@@ -252,4 +252,113 @@ type CannotDeleteBlockError struct {
 // useful message.
 func (e *CannotDeleteBlockError) Error() string {
 	return fmt.Sprintf("could not remove %s: %s", e.Key, e.Err)
+}
+
+// Remove remove all block by param cids, and if recursive param is true,
+// it will remove their descendants too. when checkPined is true, no pined block will be removed.
+func Remove(ctx context.Context, bs bstore.GCBlockstore, dstor dstore.Datastore, pn pin.Pinner, cids []*cid.Cid, recursive bool, checkPined bool) <-chan Result {
+
+	elock := log.EventBegin(ctx, "GC.lockWait")
+	unlocker := bs.GCLock()
+	elock.Done()
+	elock = log.EventBegin(ctx, "GC.locked")
+	emark := log.EventBegin(ctx, "GC.mark")
+
+	bsrv := bserv.New(bs, offline.Exchange(bs))
+	ds := dag.NewDAGService(bsrv)
+
+	output := make(chan Result, 128)
+
+	go func() {
+		defer close(output)
+		defer unlocker.Unlock()
+		defer elock.Done()
+
+		failed := false
+		needRemoved := cids
+		if recursive {
+			gcs := cid.NewSet()
+			cidsGetLinks := func(ctx context.Context, cid *cid.Cid) ([]*ipld.Link, error) {
+				links, err := ipld.GetLinks(ctx, ds, cid)
+				if err != nil && err != ipld.ErrNotFound {
+					failed = true
+					output <- Result{Error: &CannotFetchLinksError{cid, err}}
+				}
+				return links, nil
+			}
+			err := Descendants(ctx, cidsGetLinks, gcs, cids)
+			if err != nil {
+				failed = true
+				output <- Result{Error: err}
+				return
+			}
+			needRemoved = gcs.Keys()
+		}
+
+		emark.Append(logging.LoggableMap{
+			"blackSetSize": fmt.Sprintf("%d", len(needRemoved)),
+		})
+		emark.Done()
+		esweep := log.EventBegin(ctx, "GC.sweep")
+
+		var removed uint64
+		for _, c := range needRemoved {
+			select {
+			case <-ctx.Done():
+				output <- Result{Error: ctx.Err()}
+				return
+
+			default:
+				if checkPined {
+					_, pined, err := pn.IsPinned(c)
+					if err != nil {
+						output <- Result{Error: &CannotDeleteBlockError{c, errors.Wrap(err, "check is pined failed")}}
+						continue
+					}
+
+					if pined {
+						continue
+					}
+				}
+
+				err := bs.DeleteBlock(c)
+				removed++
+				if err != nil {
+					failed = true
+					output <- Result{Error: &CannotDeleteBlockError{c, err}}
+					//log.Errorf("Error removing key from blockstore: %s", err)
+					// continue as error is non-fatal
+					continue
+				}
+				select {
+				case output <- Result{KeyRemoved: c}:
+				case <-ctx.Done():
+					output <- Result{Error: ctx.Err()}
+					return
+				}
+			}
+		}
+
+		esweep.Append(logging.LoggableMap{
+			"whiteSetSize": fmt.Sprintf("%d", removed),
+		})
+		esweep.Done()
+		if failed {
+			output <- Result{Error: ErrCannotDeleteSomeBlocks}
+		}
+
+		defer log.EventBegin(ctx, "GC.datastore").Done()
+		gds, ok := dstor.(dstore.GCDatastore)
+		if !ok {
+			return
+		}
+
+		err := gds.CollectGarbage()
+		if err != nil {
+			output <- Result{Error: err}
+			return
+		}
+	}()
+
+	return output
 }

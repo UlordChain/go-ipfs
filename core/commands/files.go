@@ -11,26 +11,26 @@ import (
 	"sort"
 	"strings"
 
-	oldcmds "github.com/ipfs/go-ipfs/commands"
-	lgc "github.com/ipfs/go-ipfs/commands/legacy"
-	core "github.com/ipfs/go-ipfs/core"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	ft "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs"
-	uio "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/io"
-	dag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
-	bservice "gx/ipfs/QmbSB9Uh3wVgmiCb1fAb8zuC3qAE6un4kd1jvatUurfAmB/go-blockservice"
-	path "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
-	resolver "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path/resolver"
+	bservice "github.com/udfs/go-udfs/blockservice"
+	oldcmds "github.com/udfs/go-udfs/commands"
+	lgc "github.com/udfs/go-udfs/commands/legacy"
+	core "github.com/udfs/go-udfs/core"
+	e "github.com/udfs/go-udfs/core/commands/e"
+	dag "github.com/udfs/go-udfs/merkledag"
+	mfs "github.com/udfs/go-udfs/mfs"
+	path "github.com/udfs/go-udfs/path"
+	resolver "github.com/udfs/go-udfs/path/resolver"
+	ft "github.com/udfs/go-udfs/unixfs"
+	uio "github.com/udfs/go-udfs/unixfs/io"
 
+	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	humanize "gx/ipfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
-	cmds "gx/ipfs/QmPTfgFTo9PFr1PvPKyKoeMgBvYPh6cX3aDP7DHKVbnCbi/go-ipfs-cmds"
 	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	logging "gx/ipfs/QmRREK2CAZ5Re2Bd9zZFG6FeYDppUWt5cMgsoUEp3ktgSr/go-log"
-	cmdkit "gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
-	ipld "gx/ipfs/QmX5CsuHyVZeTLxgRSYkgLSDQKb9UjE8xnhQzCEJWWWFsC/go-ipld-format"
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
-	offline "gx/ipfs/QmZxjqR9Qgompju73kakSoUj3rbVndAzky3oCDiBNCxPs1/go-ipfs-exchange-offline"
-	mfs "gx/ipfs/QmdghKsSDa2AD1kC4qYRnVYWqZecdSBRZjeXRdhMYYhafj/go-mfs"
+	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"
+	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )
 
 var flog = logging.Logger("cmds/files")
@@ -868,9 +868,9 @@ Examples:
 		root := n.FilesRoot
 
 		err = mfs.Mkdir(root, dirtomake, mfs.MkdirOpts{
-			Mkparents:  dashp,
-			Flush:      flush,
-			CidBuilder: prefix,
+			Mkparents: dashp,
+			Flush:     flush,
+			Prefix:    prefix,
 		})
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
@@ -958,8 +958,8 @@ Change the cid version or hash function of the root node of a given path.
 	},
 }
 
-func updatePath(rt *mfs.Root, pth string, builder cid.Builder, flush bool) error {
-	if builder == nil {
+func updatePath(rt *mfs.Root, pth string, prefix *cid.Prefix, flush bool) error {
+	if prefix == nil {
 		return nil
 	}
 
@@ -970,7 +970,7 @@ func updatePath(rt *mfs.Root, pth string, builder cid.Builder, flush bool) error
 
 	switch n := nd.(type) {
 	case *mfs.Directory:
-		n.SetCidBuilder(builder)
+		n.SetPrefix(prefix)
 	default:
 		return fmt.Errorf("can only update directories")
 	}
@@ -1088,7 +1088,7 @@ Remove files or directories.
 	},
 }
 
-func getPrefixNew(req *cmds.Request) (cid.Builder, error) {
+func getPrefixNew(req *cmds.Request) (*cid.Prefix, error) {
 	cidVer, cidVerSet := req.Options["cid-version"].(int)
 	hashFunStr, hashFunSet := req.Options["hash"].(string)
 
@@ -1117,7 +1117,7 @@ func getPrefixNew(req *cmds.Request) (cid.Builder, error) {
 	return &prefix, nil
 }
 
-func getPrefix(req oldcmds.Request) (cid.Builder, error) {
+func getPrefix(req oldcmds.Request) (*cid.Prefix, error) {
 	cidVer, cidVerSet, _ := req.Option("cid-version").Int()
 	hashFunStr, hashFunSet, _ := req.Option("hash").String()
 
@@ -1146,7 +1146,7 @@ func getPrefix(req oldcmds.Request) (cid.Builder, error) {
 	return &prefix, nil
 }
 
-func getFileHandle(r *mfs.Root, path string, create bool, builder cid.Builder) (*mfs.File, error) {
+func getFileHandle(r *mfs.Root, path string, create bool, prefix *cid.Prefix) (*mfs.File, error) {
 	target, err := mfs.Lookup(r, path)
 	switch err {
 	case nil:
@@ -1172,12 +1172,12 @@ func getFileHandle(r *mfs.Root, path string, create bool, builder cid.Builder) (
 		if !ok {
 			return nil, fmt.Errorf("%s was not a directory", dirname)
 		}
-		if builder == nil {
-			builder = pdir.GetCidBuilder()
+		if prefix == nil {
+			prefix = pdir.GetPrefix()
 		}
 
 		nd := dag.NodeWithData(ft.FilePBData(nil, 0))
-		nd.SetCidBuilder(builder)
+		nd.SetPrefix(prefix)
 		err = pdir.AddChild(fname, nd)
 		if err != nil {
 			return nil, err

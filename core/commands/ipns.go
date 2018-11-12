@@ -6,13 +6,13 @@ import (
 	"strings"
 	"time"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	namesys "github.com/ipfs/go-ipfs/namesys"
-	nsopts "github.com/ipfs/go-ipfs/namesys/opts"
+	cmds "github.com/udfs/go-udfs/commands"
+	e "github.com/udfs/go-udfs/core/commands/e"
+	namesys "github.com/udfs/go-udfs/namesys"
+	nsopts "github.com/udfs/go-udfs/namesys/opts"
 
-	"gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
-	offline "gx/ipfs/Qmd45r5jHr1PKMNQqifnbZy1ZQwHdtXUDJFamUEvUJE544/go-ipfs-routing/offline"
+	offline "gx/ipfs/QmbFRJeEmEU16y3BmKKaD4a9fm5oHsEAMHe2vSB1UnfLMi/go-ipfs-routing/offline"
+	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )
 
 var IpnsCmd = &cmds.Command{

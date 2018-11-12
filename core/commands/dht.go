@@ -8,19 +8,19 @@ import (
 	"io"
 	"time"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	dag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
-	path "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
+	cmds "github.com/udfs/go-udfs/commands"
+	"github.com/udfs/go-udfs/core/commands/e"
+	dag "github.com/udfs/go-udfs/merkledag"
+	"github.com/udfs/go-udfs/path"
 
-	peer "gx/ipfs/QmQsErDt8Qgw1XrsXf2BpEzDgGWtB1YLsTAARBup5b6B9W/go-libp2p-peer"
-	routing "gx/ipfs/QmS4niovD1U6pRjUBXivr1zvvLBqiTKbERjFo994JU7oQS/go-libp2p-routing"
-	notif "gx/ipfs/QmS4niovD1U6pRjUBXivr1zvvLBqiTKbERjFo994JU7oQS/go-libp2p-routing/notifications"
-	"gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
 	b58 "gx/ipfs/QmWFAMPqsEyUX7gDUsRVmMWz59FxSpJ1b2v6bJ1yYzo7jY/go-base58-fast/base58"
-	ipld "gx/ipfs/QmX5CsuHyVZeTLxgRSYkgLSDQKb9UjE8xnhQzCEJWWWFsC/go-ipld-format"
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
-	pstore "gx/ipfs/QmeKD8YT7887Xu6Z86iZmpYNxrLogJexqxEugSmaf14k64/go-libp2p-peerstore"
+	"gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	"gx/ipfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
+	notif "gx/ipfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing/notifications"
+	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 )
 
 var ErrNotDHT = errors.New("routing service is not a DHT")
@@ -41,6 +41,7 @@ var DhtCmd = &cmds.Command{
 		"get":       getValueDhtCmd,
 		"put":       putValueDhtCmd,
 		"provide":   provideRefDhtCmd,
+		"routing":   routingDhtCmd,
 	},
 }
 
@@ -176,8 +177,8 @@ var findProvidersDhtCmd = &cmds.Command{
 
 		events := make(chan *notif.QueryEvent)
 		ctx := notif.RegisterForQueryEvents(req.Context(), events)
-		c, err := cid.Parse(req.Arguments()[0])
 
+		c, err := cid.Decode(req.Arguments()[0])
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
 			return
@@ -789,4 +790,36 @@ func escapeDhtKey(s string) (string, error) {
 	default:
 		return "", errors.New("invalid key")
 	}
+}
+
+var routingDhtCmd = &cmds.Command{
+	Helptext: cmdkit.HelpText{
+		Tagline: "Given a key, query the routing system for its best value.",
+		ShortDescription: `
+Outputs the best value for the given key.
+
+There may be several different values for a given key stored in the routing
+system; in this context 'best' means the record that is most desirable. There is
+no one metric for 'best': it depends entirely on the key type. For IPNS, 'best'
+is the record that is both valid and has the highest sequence number (freshest).
+Different key types can specify other 'best' rules.
+`,
+	},
+	Run: func(req cmds.Request, res cmds.Response) {
+		n, err := req.InvocContext().GetNode()
+		if err != nil {
+			res.SetError(err, cmdkit.ErrNormal)
+			return
+		}
+
+		if n.Routing == nil {
+			res.SetError(errNotOnline, cmdkit.ErrNormal)
+			return
+		}
+
+		buf := bytes.NewBuffer(nil)
+		n.DHT.WriteRoutingTable(buf)
+		res.SetOutput(buf)
+	},
+	Type: bytes.Buffer{},
 }
