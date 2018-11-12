@@ -4,11 +4,11 @@ type VerifyInfo struct {
 	ServerAddress string
 	ServerPubkey  string
 
-	Txid       string
-	Voutid     int32
-	Licversion int32
-	Secret     string
+	Txid   string
+	Voutid int32
+	Secret string
 
-	License string
-	Period  int64
+	Licversion int32
+	License    string
+	Period     int64
 }

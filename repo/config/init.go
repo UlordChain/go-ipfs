@@ -84,7 +84,6 @@ func Init(out io.Writer, nBitsForKeypair int) (*Config, error) {
 		Verify: VerifyInfo{
 			ServerAddress: "ucenter.ulord.one:5009",
 			ServerPubkey:  "03e947099921ee170da47a7acf48143c624d33950af362fc39a734b1b3188ec1e3",
-			Licversion:    -1,
 			Voutid:        -1,
 		},
 		Master: false,

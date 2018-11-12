@@ -190,10 +190,6 @@ func CheckVerifyInfo(vfi *config.VerifyInfo) error {
 		return errors.New("the field <Voutid> in verify info is not legal")
 	}
 
-	if vfi.Licversion < 0 {
-		return errors.New("the field <Licversion> in verify info is not legal ")
-	}
-
 	return nil
 }
 
@@ -222,7 +218,7 @@ func requestVerify(s inet.Stream, h host.Host, rhash string) error {
 	var err error
 
 	// check need request license
-	if time.Now().After(time.Unix(vfi.Period, 0)) || vfi.License == "" {
+	if time.Now().After(time.Unix(vfi.Period, 0)) || vfi.License == "" || vfi.Licversion == 0 {
 		log.Debug("request license...")
 
 		lbi, err := ca.RequestLicense(vfi.ServerAddress, vfi.Txid, vfi.Voutid)

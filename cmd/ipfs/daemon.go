@@ -56,7 +56,6 @@ const (
 	enableMultiplexKwd        = "enable-mplex-experiment"
 	verifyTxid                = "txid"
 	verifyVoutid              = "voutid"
-	verifyLicversion          = "licversion"
 	verifySecret              = "secret"
 
 	// apiAddrKwd    = "address-api"
@@ -176,7 +175,6 @@ Headers.
 		cmdkit.StringOption(verifyTxid, "Set the verify txid, NOTE: it will save to config."),
 		cmdkit.StringOption(verifySecret, "Set the verify sercret, NOTE: it will save to config."),
 		cmdkit.IntOption(verifyVoutid, "Set the verify voutid, NOTE: it will save to config.").WithDefault(-1),
-		cmdkit.IntOption(verifyLicversion, "Set the verify licversion,  NOTE:  it will save to config.").WithDefault(-1),
 
 		// TODO: add way to override addresses. tricky part: updating the config if also --init.
 		// cmdkit.StringOption(apiAddrKwd, "Address for the daemon rpc API (overrides config)"),
@@ -301,7 +299,6 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	txid, _ := req.Options[verifyTxid].(string)
 	secret, _ := req.Options[verifySecret].(string)
 	voutid, _ := req.Options[verifyVoutid].(int)
-	licversion, _ := req.Options[verifyLicversion].(int)
 
 	rcfg, err := repo.Config()
 	if err != nil {
@@ -316,10 +313,6 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	}
 	if voutid != -1 {
 		rcfg.Verify.Voutid = int32(voutid)
-		needSave = true
-	}
-	if licversion != -1 {
-		rcfg.Verify.Licversion = int32(licversion)
 		needSave = true
 	}
 	if secret != "" {
