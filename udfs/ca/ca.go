@@ -51,10 +51,15 @@ func MakeRandomHash() string {
 	return NewSha2Hash(buf).String()
 }
 
-func MakePrivateAddr() string {
+func MakePrivateAddr(compress ...bool) string {
 	key := make([]byte, 32)
 	rand.Read(key)
-	addr := NewPrivateAddr(key, 128, false)
+
+	compre := false
+	if len(compress) > 0 {
+		compre = compress[0]
+	}
+	addr := NewPrivateAddr(key, 128, compre)
 	//fmt.Println(
 	return addr.String()
 }

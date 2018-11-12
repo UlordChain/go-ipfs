@@ -3,87 +3,131 @@ package ca
 import (
 	"fmt"
 	"testing"
+
+	"time"
+
+	"github.com/pkg/errors"
 )
 
 var (
-	txid   = "ebfad1c5e579b42837625b421d58420f4d41cb0b2c488e74ad0bd9d5291948eb"
-	voutid = int32(0)
-
-	period = int64(1541784038)
-
-	licversion = int32(2)
-
-	privStr   = "5JCRtN29x3QRxY5uyijQGbmyU7e1pN8EXWcifTsfjqKFnYUefyZ"
-	pubkeyStr = "04626a7f8decd5a7fd8a862101a2b9e5f78ac91e2132884c293bea3f983905eced14e708dd2819d06e19fb237324b9b3bfbac4e8b8d61e1ac313b4d41dbdb0bf5f"
-	hashStr   = "353b4297f772e6b2ee191aec6b06f526464a81a058fc70f84898504ab639a00b"
-
-	signStr = "INJPgVEfoKnWMr7qGucRCTDPfi6Jo7OF9EQ0lQn1A/ZbDjJkLsLNh3k9u58zk0xzo6bU//qmiU3Gu2mlJ1jEhZ8="
-
-	ucenterPubkey = "03a00f7bf6cf623a7b5aba1b8e5086c05faa9a59e8a0f70a46bea2a2590fd00b95"
+	txid    = "ebfad1c5e579b42837625b421d58420f4d41cb0b2c488e74ad0bd9d5291948eb"
+	voutid  = int32(0)
+	privStr = "5JCRtN29x3QRxY5uyijQGbmyU7e1pN8EXWcifTsfjqKFnYUefyZ"
 
 	testServerAddress = ""
 )
 
-func Test_MakeBTCHash(t *testing.T) {
-	hash := MakeNodeInfoHash(txid, voutid, pubkeyStr, period, licversion)
-	if hash != hashStr {
-		t.FailNow()
-	}
+var secretMap = make(map[string]string, 0)
+
+func init() {
+	// register secret
+	secretMap[txid] = privStr
 }
 
-func Test_RequestSignature(t *testing.T) {
-	lbi, e := RequestLicense(testServerAddress, txid, voutid)
+func getUcenterPubkey(licversion int32) string {
+	switch licversion {
+	case 1:
+		return "03e947099921ee170da47a7acf48143c624d33950af362fc39a734b1b3188ec1e3"
+	case 2:
+		return "03a00f7bf6cf623a7b5aba1b8e5086c05faa9a59e8a0f70a46bea2a2590fd00b95"
+
+	case 999: // for local test
+		p, _ := PublicKeyFromPrivateAddr("KzAzCLFC7g4sRqdvEdngGrG2YHJYJ81i4R6Y8Kr3Xg418pB8uhd1")
+		return p
+	default:
+		return ""
+	}
+	return ""
+}
+
+func mocRequestLicense(srvAddr, txid string, voutid int32) (info *LicenseMetaInfo, e error) {
+	secret, found := secretMap[txid]
+	if !found {
+		return nil, errors.Errorf("can`t found the secret for txid=%s", txid)
+	}
+
+	// got pubkey
+	pubkeyStr, err := PublicKeyFromPrivateAddr(secret)
+	if err != nil {
+		return nil, errors.Wrap(err, "got pubkey failed")
+	}
+
+	// make node hash
+	now := time.Now()
+	year, month, day := now.Date()
+	period := time.Date(year, month, day+1, 0, 0, 0, 0, now.Location()).Unix()
+	nodeHash := MakeNodeInfoHash(txid, voutid, pubkeyStr, period, 999)
+
+	//do sign
+	s, err := Sign(nodeHash, "KzAzCLFC7g4sRqdvEdngGrG2YHJYJ81i4R6Y8Kr3Xg418pB8uhd1")
+	if err != nil {
+		return nil, errors.Wrap(err, "sign failed")
+	}
+
+	lbi := &LicenseMetaInfo{
+		License:    s,
+		Licversion: 999,
+		LicPeriod:  period,
+		Txid:       txid,
+		Voutid:     uint32(voutid),
+	}
+
+	return lbi, nil
+}
+
+func Test_Main(t *testing.T) {
+	// request license
+	//lbi, e := RequestLicense(testServerAddress, txid, voutid)
+	//if e != nil {
+	//	t.Fatal(e)
+	//}
+
+	lbi, e := mocRequestLicense(testServerAddress, txid, voutid)
 	if e != nil {
 		t.Fatal(e)
 	}
 
-	if lbi.LicPeriod != period {
-		t.FailNow()
+	fmt.Println("txid:", txid)
+	fmt.Println("voutid:", voutid)
+
+	period := lbi.LicPeriod
+	licversion := lbi.Licversion
+	license := lbi.License
+
+	fmt.Println("period:", period)
+	fmt.Println("licversion:", licversion)
+	fmt.Println("license:", license)
+
+	secret, found := secretMap[txid]
+	if !found {
+		t.Fatal(errors.Errorf("can`t found the secret for txid=%s", txid))
 	}
+	fmt.Println("secret:", secret)
 
-	if lbi.License != signStr {
-		t.FailNow()
-	}
-
-}
-
-func Test_VerifySignature(t *testing.T) {
-	ok, err := VerifySignature(hashStr, signStr, ucenterPubkey)
+	// got pubkey
+	pubkeyStr, err := PublicKeyFromPrivateAddr(secret)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(errors.Wrap(err, "got pubkey failed"))
 	}
+	fmt.Println("pubkeyStr:", pubkeyStr)
+
+	// make node hash
+	nodeHash := MakeNodeInfoHash(txid, voutid, pubkeyStr, period, licversion)
+	fmt.Println("nodeHash:", nodeHash)
+
+	// verify license
+	ok, err := VerifySignature(nodeHash, license, getUcenterPubkey(licversion))
+	if err != nil {
+		t.Fatal(errors.Wrap(err, "verify license error"))
+	}
+
 	if !ok {
-		t.FailNow()
+		t.Fatal(errors.New("verify license failed"))
 	}
+
+	fmt.Println("finish")
 }
 
 func Test_MakePrivateAddr(t *testing.T) {
-	fmt.Println(MakePrivateAddr())
-}
-
-func Test_PublicKeyFromPrivateAddr(t *testing.T) {
-	pub, err := PublicKeyFromPrivateAddr(privStr)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if pub != pubkeyStr {
-		t.FailNow()
-	}
-}
-
-func Test_Sign(t *testing.T) {
-	hash := MakeRandomHash()
-	b64, err := Sign(hash, privStr)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	ok, err := VerifySignature(hash, b64, pubkeyStr)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !ok {
-		t.FailNow()
-	}
+	fmt.Println(MakePrivateAddr(true))
 }
