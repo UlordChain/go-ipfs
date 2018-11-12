@@ -89,8 +89,9 @@ func Init(out io.Writer, nBitsForKeypair int) (*Config, error) {
 		},
 		Master: false,
 		Blacklist: Blacklist{
-			Interval: "300s",
-			Period:   "168h",
+			DirAddress: "/ipns/QmbETUnWes7zdwZkkMGgPRtpZAYpFPxrUrCYy7fWi7JjFY/blacklistdir",
+			Interval:   "300s",
+			Period:     "168h",
 		},
 	}
 

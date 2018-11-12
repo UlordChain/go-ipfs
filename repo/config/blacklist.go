@@ -1,6 +1,7 @@
 package config
 
 type Blacklist struct {
-	Interval string
-	Period   string
+	DirAddress string
+	Interval   string
+	Period     string
 }

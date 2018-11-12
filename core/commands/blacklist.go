@@ -34,7 +34,6 @@ import (
 )
 
 const (
-	blacklistDir     = "/ipns/QmbETUnWes7zdwZkkMGgPRtpZAYpFPxrUrCYy7fWi7JjFY/blacklistdir"
 	timeFormatLayout = "2006-01-02 15:04:05 -0700 MST"
 )
 
@@ -90,7 +89,17 @@ var BlacklistCmd = &cmds.Command{
 }
 
 func getBlacklistFiles(ctx context.Context, n *core.IpfsNode) ([]*format.Link, error) {
-	node, err := core.Resolve(ctx, n.Namesys, n.Resolver, blacklistDir)
+	cfg, err := n.Repo.Config()
+	if err != nil {
+		return nil, errors.Wrap(err, "get config failed")
+	}
+
+	p, err := path.ParsePath(cfg.Blacklist.DirAddress)
+	if err != nil {
+		return nil, errors.Wrap(err, "parse config.Blacklist.DirAddress field failed")
+	}
+
+	node, err := core.Resolve(ctx, n.Namesys, n.Resolver, p)
 	if err != nil {
 		return nil, errors.Errorf("read blacklist directory failed: %v\n", err.Error())
 	}
