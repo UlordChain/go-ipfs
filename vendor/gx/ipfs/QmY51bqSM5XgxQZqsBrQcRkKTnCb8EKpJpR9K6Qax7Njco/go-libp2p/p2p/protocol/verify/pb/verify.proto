@@ -14,6 +14,5 @@ message Verify {
   optional string pubkey = 4;
   optional string license = 5;
   optional int32 licversion = 6;
-  // 为避免发送方始终使用相同的内容进行签名来代表自己身份，这里要求服务端提供的随机内容进行签名来验证身份
   optional string randomSign = 7;
 }
