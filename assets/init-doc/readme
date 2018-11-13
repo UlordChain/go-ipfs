@@ -1,14 +1,14 @@
-Hello and Welcome to IPFS!
+Hello and Welcome to UDFS!
 
-██╗██████╗ ███████╗███████╗
-██║██╔══██╗██╔════╝██╔════╝
-██║██████╔╝█████╗  ███████╗
-██║██╔═══╝ ██╔══╝  ╚════██║
-██║██║     ██║     ███████║
-╚═╝╚═╝     ╚═╝     ╚══════╝
+██╗   ██╗██████╗ ███████╗███████╗
+██║   ██║██╔══██╗██╔════╝██╔════╝
+██║   ██║██║  ██║█████╗  ███████╗
+██║   ██║██║  ██║██╔══╝  ╚════██║
+ ██████╔╝██████╔╝██║     ███████║
+ ╚═════╝ ╚═════╝ ╚═╝     ╚══════╝
 
 If you're seeing this, you have successfully installed
-IPFS and are now interfacing with the ipfs merkledag!
+UDFS and are now interfacing with the udfs merkledag!
 
  -------------------------------------------------------
 | Warning:                                              |

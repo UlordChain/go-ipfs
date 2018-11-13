@@ -226,7 +226,7 @@ func addDefaultAssets(out io.Writer, repoRoot string) error {
 		return err
 	}
 
-	_, err = fmt.Fprintf(out, "\n\tipfs cat /ipfs/%s/readme\n\n", dkey)
+	_, err = fmt.Fprintf(out, "\n\tudfs cat /ipfs/%s/readme\n\n", dkey)
 	return err
 }
 
