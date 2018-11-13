@@ -5,7 +5,7 @@ type VerifyInfo struct {
 	Voutid int32
 	Secret string
 
-	Licversion int32
-	License    string
-	Period     int64
+	Licversion int32  `json:",omitempty"`
+	License    string `json:",omitempty"`
+	Period     int64  `json:",omitempty"`
 }
