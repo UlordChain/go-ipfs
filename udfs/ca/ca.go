@@ -263,3 +263,111 @@ func Sign(hashInHex, pri string) (string, error) {
 
 	return base64.StdEncoding.EncodeToString(sb[:]), nil
 }
+
+type UcenterPubkeyMap struct {
+	MsgVersion int32 // 111
+	Num        int32 //
+	NodeType   int32 // 2
+
+	V2key map[int32]string
+}
+
+func RequestUcenterPublicKeyMap(servAddr string, txid string, voutid int32) (info *UcenterPubkeyMap, e error) {
+	type RequestMsg struct {
+		size      int32
+		version   int32
+		timestamp int64
+		questtype int32
+		txid      string
+		vountid   int32
+	}
+
+	msg := RequestMsg{
+		size:      requestMsgSize,
+		version:   requestMsgVersion,
+		timestamp: requestMsgTimestamp,
+		questtype: 2,
+		txid:      txid,
+		vountid:   voutid,
+	}
+
+	b := bytes.NewBuffer(nil)
+	binary.Write(b, binary.BigEndian, msg.size)
+	binary.Write(b, binary.LittleEndian, msg.version)
+	binary.Write(b, binary.LittleEndian, msg.timestamp)
+	binary.Write(b, binary.LittleEndian, msg.questtype)
+	WriteVlen(b, uint64(len(msg.txid)))
+	b.Write([]byte(msg.txid))
+	binary.Write(b, binary.LittleEndian, msg.vountid)
+
+	if b.Len()-4 != int(msg.size) {
+		e = errors.New("error request license message length")
+		return
+	}
+
+	conn, err := net.Dial("tcp", servAddr)
+	if err != nil {
+		e = errors.Wrap(err, "dial license center service failed")
+		return
+	}
+	defer conn.Close()
+
+	_, err = conn.Write(b.Bytes())
+	if err != nil {
+		e = errors.Wrap(err, "write request license message failed")
+		return
+	}
+
+	// read response
+	var size int32
+	err = binary.Read(conn, binary.BigEndian, &size)
+	if err != nil {
+		e = errors.Wrap(err, "read response license message failed")
+		return
+	}
+
+	res := &UcenterPubkeyMap{
+		V2key: make(map[int32]string, 0),
+	}
+
+	err = binary.Read(conn, binary.LittleEndian, &res.MsgVersion)
+	if err != nil {
+		e = errors.Wrap(err, "read response license message field <msgversion> failed")
+		return
+	}
+
+	err = binary.Read(conn, binary.LittleEndian, &res.Num)
+	if err != nil {
+		e = errors.Wrap(err, "read response license message field <num> failed")
+		return
+	}
+	err = binary.Read(conn, binary.LittleEndian, &res.NodeType)
+	if err != nil {
+		e = errors.Wrap(err, "read response license message field <nodetype> failed")
+		return
+	}
+
+	var (
+		ver int32
+		key string
+	)
+	for i := int32(0); i < res.Num; i++ {
+		err = binary.Read(conn, binary.LittleEndian, &ver)
+		if err != nil {
+			e = errors.Wrapf(err, "read version failed from the %d index", i)
+			return
+		}
+
+		key, err = ReadString(conn)
+		if err != nil {
+			e = errors.Wrapf(err, "read pubkey failed from the %s jindex", i)
+			return
+		}
+
+		res.V2key[ver] = key
+	}
+
+	info = res
+	e = nil
+	return
+}

@@ -334,6 +334,12 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 			re.SetError(errors.Wrap(err, "check verify info failed"), cmdkit.ErrNormal)
 			return
 		}
+
+		err = verify.CheckUCenterInfo(&rcfg.UCenter)
+		if err != nil {
+			re.SetError(errors.Wrap(err, "check ucenter info failed"), cmdkit.ErrNormal)
+			return
+		}
 	}
 
 	// Start assembling node config

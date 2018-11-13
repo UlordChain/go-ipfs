@@ -93,6 +93,55 @@ func doVerify(mes *pb.Verify, rhash string, srvPubkey string) error {
 	return nil
 }
 
+func getServerPubkey(c inet.Conn, h host.Host, licversion int32) (string, error) {
+	for _, sp := range gcfg.UCenter.ServerPubkeys {
+		if sp.Licversion == licversion {
+			return sp.Pubkey, nil
+		}
+	}
+
+	// request
+	upm, err := ca.RequestUcenterPublicKeyMap(gcfg.UCenter.ServerAddress, gcfg.Verify.Txid, gcfg.Verify.Voutid)
+	if err != nil {
+		return "", errors.Wrap(err, "request ucenter public key map failed")
+	}
+
+	if len(upm.V2key) < len(gcfg.UCenter.ServerPubkeys) {
+		return "", errors.New("request ucenter public key map less than already known")
+	}
+
+	var vps []*config.VersionPubkey
+	var ret string
+	for ver, key := range upm.V2key {
+		vps = append(vps, &config.VersionPubkey{
+			Licversion: ver,
+			Pubkey:     key,
+		})
+
+		if ver == licversion {
+			ret = key
+		}
+	}
+	gcfg.UCenter.ServerPubkeys = vps
+
+	// save
+	repoInf, err := h.Peerstore().Get(c.LocalPeer(), "repo")
+	if err != nil {
+		return "", errors.Wrap(err, "got repo object from peerstore failed")
+	}
+
+	err = repoInf.(repo.Repo).SetConfig(gcfg)
+	if err != nil {
+		return "", errors.Wrap(err, "save config for new ucenter public key to file failed")
+	}
+
+	if ret == "" {
+		return "", errors.Errorf("can`t get the ucenter public key for licversion=%d\n", licversion)
+	}
+
+	return ret, nil
+}
+
 // VerifyConn verify whether this connection is legal, if not, must close this connection
 func VerifyConn(c inet.Conn, h host.Host) error {
 	var err error
@@ -163,7 +212,11 @@ func VerifyConn(c inet.Conn, h host.Host) error {
 
 	log.Debugf("received verify msg for %s : %v\n", c.RemotePeer(), mes)
 
-	err = doVerify(mes, rhash, gcfg.Verify.ServerPubkey)
+	ucenterPubkey, err := getServerPubkey(c, h, mes.GetLicversion())
+	if err != nil {
+		return errors.Wrap(err, "get ucenter public key failed")
+	}
+	err = doVerify(mes, rhash, ucenterPubkey)
 	if err != nil {
 		return errors.Wrapf(err, "verify %v failed", c.RemotePeer())
 	}
@@ -172,12 +225,6 @@ func VerifyConn(c inet.Conn, h host.Host) error {
 }
 
 func CheckVerifyInfo(vfi *config.VerifyInfo) error {
-	if vfi.ServerAddress == "" {
-		return errors.New("the field <ServerAddress> in verify into is not set")
-	}
-	if vfi.ServerPubkey == "" {
-		return errors.New("the field <ServerPubkey> in verify into is not set")
-	}
 	if len(vfi.Txid) == 0 {
 		return errors.New("the field <Txid> in verify info is not set")
 	}
@@ -188,6 +235,14 @@ func CheckVerifyInfo(vfi *config.VerifyInfo) error {
 
 	if vfi.Voutid < 0 {
 		return errors.New("the field <Voutid> in verify info is not legal")
+	}
+
+	return nil
+}
+
+func CheckUCenterInfo(info *config.UCenterInfo) error {
+	if info.ServerAddress == "" {
+		return errors.New("the field <ServerAddress> in verify into is not set")
 	}
 
 	return nil
@@ -221,7 +276,7 @@ func requestVerify(s inet.Stream, h host.Host, rhash string) error {
 	if time.Now().After(time.Unix(vfi.Period, 0)) || vfi.License == "" || vfi.Licversion == 0 {
 		log.Debug("request license...")
 
-		lbi, err := ca.RequestLicense(vfi.ServerAddress, vfi.Txid, vfi.Voutid)
+		lbi, err := ca.RequestLicense(gcfg.UCenter.ServerAddress, vfi.Txid, vfi.Voutid)
 		if err != nil {
 			return errors.Wrap(err, "request license failed")
 		}

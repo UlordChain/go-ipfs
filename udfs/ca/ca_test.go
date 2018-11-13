@@ -41,6 +41,10 @@ func getUcenterPubkey(licversion int32) string {
 }
 
 func mocRequestLicense(srvAddr, txid string, voutid int32) (info *LicenseMetaInfo, e error) {
+	if srvAddr != "" {
+		return RequestLicense(testServerAddress, txid, voutid)
+	}
+
 	secret, found := secretMap[txid]
 	if !found {
 		return nil, errors.Errorf("can`t found the secret for txid=%s", txid)
@@ -77,11 +81,6 @@ func mocRequestLicense(srvAddr, txid string, voutid int32) (info *LicenseMetaInf
 
 func Test_Main(t *testing.T) {
 	// request license
-	//lbi, e := RequestLicense(testServerAddress, txid, voutid)
-	//if e != nil {
-	//	t.Fatal(e)
-	//}
-
 	lbi, e := mocRequestLicense(testServerAddress, txid, voutid)
 	if e != nil {
 		t.Fatal(e)
@@ -130,4 +129,8 @@ func Test_Main(t *testing.T) {
 
 func Test_MakePrivateAddr(t *testing.T) {
 	fmt.Println(MakePrivateAddr(true))
+}
+
+func Test_RequestUcenterPublicKeyMap(t *testing.T) {
+	fmt.Println(RequestUcenterPublicKeyMap(testServerAddress, txid, voutid))
 }
