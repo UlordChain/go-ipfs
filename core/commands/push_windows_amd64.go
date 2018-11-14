@@ -1,4 +1,3 @@
-// +build windows,amd64
 package commands
 
 import (
