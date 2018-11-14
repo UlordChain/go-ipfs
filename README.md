@@ -347,6 +347,3 @@ DHT: https://github.com/libp2p/go-libp2p-kad-dht <br>
 PubSub: https://github.com/libp2p/go-floodsub <br>
 libp2p: https://github.com/libp2p/go-libp2p
 
-## License
-
-MIT
