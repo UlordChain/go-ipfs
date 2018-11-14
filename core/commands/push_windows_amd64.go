@@ -1,4 +1,4 @@
-// +build !windows,amd64
+// +build windows,amd64
 package commands
 
 import (
@@ -30,13 +30,7 @@ import (
 
 	"encoding/csv"
 
-	"strconv"
-
 	"sync"
-
-	"os/exec"
-
-	"syscall"
 
 	"github.com/ipfs/go-ipfs/core/corerepo"
 )
@@ -531,12 +525,7 @@ func (t *pushRecord) Write(k, v string) {
 			return
 		}
 
-		err = t.lock(t.f.Fd())
-		if err != nil {
-			log.Warning("locak file %s failed: %v\n", t.filename, err)
-			t.f.Close()
-			return
-		}
+		log.Warning("windows version udfs will not lock the push record file before write to it!")
 
 		t.w = csv.NewWriter(t.f)
 	})
@@ -556,98 +545,11 @@ func (t *pushRecord) Write(k, v string) {
 	log.Debug("write record:", k, v)
 }
 
-//加锁
-func (t *pushRecord) lock(fd uintptr) error {
-	return syscall.Flock(int(fd), syscall.LOCK_EX|syscall.LOCK_NB)
-}
-
-//释放锁
-func (t *pushRecord) unlock(fd uintptr) error {
-	return syscall.Flock(int(fd), syscall.LOCK_UN)
-}
-
 func (t *pushRecord) Clear(ctx context.Context) {
 	// file already opened
 	if t.f != nil {
 		return
 	}
 
-	f, err := os.Open(t.filename)
-	if err != nil {
-		if !os.IsNotExist(err) {
-			log.Warningf("read push record file %s failed: %v\n", t.filename, err)
-		}
-		return
-	}
-	err = t.lock(f.Fd())
-	if err == syscall.EWOULDBLOCK {
-		f.Close()
-		return
-	}
-
-	rmFile := true
-	defer func() {
-		t.unlock(f.Fd())
-		f.Close()
-		if rmFile {
-			os.Remove(t.filename)
-		}
-	}()
-
-	// parse the bs
-	r := csv.NewReader(f)
-	r.FieldsPerRecord = 2
-
-	hashes := make(map[string]int, 0)
-	rcd, err := r.Read()
-	for err == nil && rcd != nil {
-		n, err := strconv.Atoi(rcd[1])
-		if err != nil {
-			log.Warningf("push record file %s record %s convert failed: %v\n", t.filename, rcd, err)
-			rmFile = false
-			return
-		}
-
-		if _, found := hashes[rcd[0]]; found {
-			hashes[rcd[0]] += n
-		} else {
-			hashes[rcd[0]] = n
-		}
-
-		rcd, err = r.Read()
-	}
-
-	if err != nil && err != io.EOF {
-		log.Warningf("read line from push record file %s failed: %v\n", t.filename, err)
-		rmFile = false
-		return
-	}
-
-	// handle
-	pathes := make([]string, 0, len(hashes))
-	for k, v := range hashes {
-		if v == 0 {
-			continue
-		}
-
-		if v < 0 {
-			log.Warningf("push record file %s record %s value = %d\n", t.filename, k, v)
-			rmFile = false
-			continue
-		}
-
-		pathes = append(pathes, k)
-	}
-
-	log.Debug("hashes need to unpined: ", pathes)
-	if len(pathes) > 0 {
-		args := []string{"pin", "rm"}
-		args = append(args, pathes...)
-		bs, err := exec.CommandContext(ctx, "ipfs", args...).CombinedOutput()
-		if err != nil && !strings.Contains(err.Error(), "exit status 1") {
-			log.Warning("do unpin failed:", err, string(bs))
-			rmFile = false
-			return
-		}
-	}
+	log.Warning("windows version udfs will not hanlde the push record file!")
 }
