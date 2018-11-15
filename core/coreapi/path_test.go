@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
-	"github.com/ipfs/go-ipfs/core/coreapi/interface/options"
+	coreiface "github.com/udfs/go-udfs/core/coreapi/interface"
+	"github.com/udfs/go-udfs/core/coreapi/interface/options"
 )
 
 func TestMutablePath(t *testing.T) {

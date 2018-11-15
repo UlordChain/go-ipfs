@@ -5,10 +5,10 @@ import (
 	"io"
 	"net/http"
 
-	filestore "github.com/ipfs/go-ipfs/filestore"
-	balanced "github.com/ipfs/go-ipfs/importer/balanced"
-	ihelper "github.com/ipfs/go-ipfs/importer/helpers"
-	trickle "github.com/ipfs/go-ipfs/importer/trickle"
+	filestore "github.com/udfs/go-udfs/filestore"
+	balanced "github.com/udfs/go-udfs/importer/balanced"
+	ihelper "github.com/udfs/go-udfs/importer/helpers"
+	trickle "github.com/udfs/go-udfs/importer/trickle"
 
 	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"

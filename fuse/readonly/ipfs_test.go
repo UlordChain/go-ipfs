@@ -13,12 +13,12 @@ import (
 	"sync"
 	"testing"
 
-	core "github.com/ipfs/go-ipfs/core"
-	coreunix "github.com/ipfs/go-ipfs/core/coreunix"
-	coremock "github.com/ipfs/go-ipfs/core/mock"
-	importer "github.com/ipfs/go-ipfs/importer"
-	dag "github.com/ipfs/go-ipfs/merkledag"
-	uio "github.com/ipfs/go-ipfs/unixfs/io"
+	core "github.com/udfs/go-udfs/core"
+	coreunix "github.com/udfs/go-udfs/core/coreunix"
+	coremock "github.com/udfs/go-udfs/core/mock"
+	importer "github.com/udfs/go-udfs/importer"
+	dag "github.com/udfs/go-udfs/merkledag"
+	uio "github.com/udfs/go-udfs/unixfs/io"
 
 	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
 	fstest "gx/ipfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse/fs/fstestutil"

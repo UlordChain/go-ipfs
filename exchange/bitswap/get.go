@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	notifications "github.com/ipfs/go-ipfs/exchange/bitswap/notifications"
+	notifications "github.com/udfs/go-udfs/exchange/bitswap/notifications"
 
 	blocks "gx/ipfs/QmVzK524a2VWLqyvtBeiHKsUAWYgeAk4DBeZoY7vpNPNRx/go-block-format"
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"

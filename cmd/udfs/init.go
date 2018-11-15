@@ -10,12 +10,12 @@ import (
 	"path"
 	"strings"
 
-	assets "github.com/ipfs/go-ipfs/assets"
-	oldcmds "github.com/ipfs/go-ipfs/commands"
-	core "github.com/ipfs/go-ipfs/core"
-	namesys "github.com/ipfs/go-ipfs/namesys"
-	config "github.com/ipfs/go-ipfs/repo/config"
-	fsrepo "github.com/ipfs/go-ipfs/repo/fsrepo"
+	assets "github.com/udfs/go-udfs/assets"
+	oldcmds "github.com/udfs/go-udfs/commands"
+	core "github.com/udfs/go-udfs/core"
+	namesys "github.com/udfs/go-udfs/namesys"
+	config "github.com/udfs/go-udfs/repo/config"
+	fsrepo "github.com/udfs/go-udfs/repo/fsrepo"
 
 	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
@@ -226,7 +226,7 @@ func addDefaultAssets(out io.Writer, repoRoot string) error {
 		return err
 	}
 
-	_, err = fmt.Fprintf(out, "\n\tipfs cat /ipfs/%s/readme\n\n", dkey)
+	_, err = fmt.Fprintf(out, "\n\tudfs cat /ipfs/%s/readme\n\n", dkey)
 	return err
 }
 

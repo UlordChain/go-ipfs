@@ -5,8 +5,8 @@ import (
 	"path"
 	"runtime"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
-	config "github.com/ipfs/go-ipfs/repo/config"
+	cmds "github.com/udfs/go-udfs/commands"
+	config "github.com/udfs/go-udfs/repo/config"
 
 	manet "gx/ipfs/QmV6FjemM1K8oXjrvuq3wuVWWoU2TLDPmNnKrxHzY3v6Ai/go-multiaddr-net"
 	sysi "gx/ipfs/QmZRjKbHa6DenStpQJFiaPcEwkZqrx7TH6xTf342LDU3qM/go-sysinfo"

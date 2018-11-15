@@ -18,11 +18,11 @@ import (
 
 	"gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
-	"github.com/ipfs/go-ipfs/core"
-	"github.com/ipfs/go-ipfs/core/commands/e"
-	corerepo "github.com/ipfs/go-ipfs/core/corerepo"
-	"github.com/ipfs/go-ipfs/core/coreunix"
+	cmds "github.com/udfs/go-udfs/commands"
+	"github.com/udfs/go-udfs/core"
+	"github.com/udfs/go-udfs/core/commands/e"
+	corerepo "github.com/udfs/go-udfs/core/corerepo"
+	"github.com/udfs/go-udfs/core/coreunix"
 )
 
 const ProtocolBackup protocol.ID = "/backup/0.0.1"

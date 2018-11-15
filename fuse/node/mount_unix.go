@@ -8,10 +8,10 @@ import (
 	"strings"
 	"sync"
 
-	core "github.com/ipfs/go-ipfs/core"
-	ipns "github.com/ipfs/go-ipfs/fuse/ipns"
-	mount "github.com/ipfs/go-ipfs/fuse/mount"
-	rofs "github.com/ipfs/go-ipfs/fuse/readonly"
+	core "github.com/udfs/go-udfs/core"
+	ipns "github.com/udfs/go-udfs/fuse/ipns"
+	mount "github.com/udfs/go-udfs/fuse/mount"
+	rofs "github.com/udfs/go-udfs/fuse/readonly"
 
 	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
 )

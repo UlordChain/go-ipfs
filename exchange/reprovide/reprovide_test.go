@@ -12,7 +12,7 @@ import (
 	ds "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
 	dssync "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore/sync"
 
-	. "github.com/ipfs/go-ipfs/exchange/reprovide"
+	. "github.com/udfs/go-udfs/exchange/reprovide"
 )
 
 func TestReprovide(t *testing.T) {

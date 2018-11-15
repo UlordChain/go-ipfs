@@ -9,22 +9,22 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	oldcmds "github.com/ipfs/go-ipfs/commands"
-	lgc "github.com/ipfs/go-ipfs/commands/legacy"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	corerepo "github.com/ipfs/go-ipfs/core/corerepo"
-	config "github.com/ipfs/go-ipfs/repo/config"
-	fsrepo "github.com/ipfs/go-ipfs/repo/fsrepo"
-	uio "github.com/ipfs/go-ipfs/unixfs/io"
+	oldcmds "github.com/udfs/go-udfs/commands"
+	lgc "github.com/udfs/go-udfs/commands/legacy"
+	e "github.com/udfs/go-udfs/core/commands/e"
+	corerepo "github.com/udfs/go-udfs/core/corerepo"
+	config "github.com/udfs/go-udfs/repo/config"
+	fsrepo "github.com/udfs/go-udfs/repo/fsrepo"
+	uio "github.com/udfs/go-udfs/unixfs/io"
 
 	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 	bstore "gx/ipfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-ipfs-blockstore"
 	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 
-	"github.com/ipfs/go-ipfs/core"
-	"github.com/ipfs/go-ipfs/path"
-	"github.com/ipfs/go-ipfs/path/resolver"
+	"github.com/udfs/go-udfs/core"
+	"github.com/udfs/go-udfs/path"
+	"github.com/udfs/go-udfs/path/resolver"
 )
 
 type RepoVersion struct {

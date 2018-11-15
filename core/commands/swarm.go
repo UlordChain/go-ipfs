@@ -10,11 +10,11 @@ import (
 
 	"github.com/pkg/errors"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	repo "github.com/ipfs/go-ipfs/repo"
-	config "github.com/ipfs/go-ipfs/repo/config"
-	"github.com/ipfs/go-ipfs/repo/fsrepo"
+	cmds "github.com/udfs/go-udfs/commands"
+	e "github.com/udfs/go-udfs/core/commands/e"
+	repo "github.com/udfs/go-udfs/repo"
+	config "github.com/udfs/go-udfs/repo/config"
+	"github.com/udfs/go-udfs/repo/fsrepo"
 
 	inet "gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
 	mafilter "gx/ipfs/QmSMZwvs3n4GBikZ7hKzT17c3bk65FmyZo2JqtJ16swqCv/multiaddr-filter"

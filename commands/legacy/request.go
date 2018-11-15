@@ -11,7 +11,7 @@ import (
 	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit/files"
 
-	oldcmds "github.com/ipfs/go-ipfs/commands"
+	oldcmds "github.com/udfs/go-udfs/commands"
 )
 
 // requestWrapper implements a oldcmds.Request from an Request

@@ -6,12 +6,12 @@ import (
 	"io/ioutil"
 	"testing"
 
-	bserv "github.com/ipfs/go-ipfs/blockservice"
-	core "github.com/ipfs/go-ipfs/core"
-	importer "github.com/ipfs/go-ipfs/importer"
-	merkledag "github.com/ipfs/go-ipfs/merkledag"
-	ft "github.com/ipfs/go-ipfs/unixfs"
-	uio "github.com/ipfs/go-ipfs/unixfs/io"
+	bserv "github.com/udfs/go-udfs/blockservice"
+	core "github.com/udfs/go-udfs/core"
+	importer "github.com/udfs/go-udfs/importer"
+	merkledag "github.com/udfs/go-udfs/merkledag"
+	ft "github.com/udfs/go-udfs/unixfs"
+	uio "github.com/udfs/go-udfs/unixfs/io"
 
 	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
 	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"

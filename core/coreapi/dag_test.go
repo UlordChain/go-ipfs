@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
-	opt "github.com/ipfs/go-ipfs/core/coreapi/interface/options"
+	coreiface "github.com/udfs/go-udfs/core/coreapi/interface"
+	opt "github.com/udfs/go-udfs/core/coreapi/interface/options"
 
 	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
 )

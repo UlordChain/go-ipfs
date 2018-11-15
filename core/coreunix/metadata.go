@@ -1,9 +1,9 @@
 package coreunix
 
 import (
-	core "github.com/ipfs/go-ipfs/core"
-	dag "github.com/ipfs/go-ipfs/merkledag"
-	ft "github.com/ipfs/go-ipfs/unixfs"
+	core "github.com/udfs/go-udfs/core"
+	dag "github.com/udfs/go-udfs/merkledag"
+	ft "github.com/udfs/go-udfs/unixfs"
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 )
 

@@ -5,12 +5,12 @@ import (
 	fmt "fmt"
 	gopath "path"
 
-	core "github.com/ipfs/go-ipfs/core"
-	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
-	namesys "github.com/ipfs/go-ipfs/namesys"
-	ipfspath "github.com/ipfs/go-ipfs/path"
-	resolver "github.com/ipfs/go-ipfs/path/resolver"
-	uio "github.com/ipfs/go-ipfs/unixfs/io"
+	core "github.com/udfs/go-udfs/core"
+	coreiface "github.com/udfs/go-udfs/core/coreapi/interface"
+	namesys "github.com/udfs/go-udfs/namesys"
+	ipfspath "github.com/udfs/go-udfs/path"
+	resolver "github.com/udfs/go-udfs/path/resolver"
+	uio "github.com/udfs/go-udfs/unixfs/io"
 
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"

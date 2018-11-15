@@ -11,14 +11,14 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ipfs/go-ipfs/blockservice"
-	"github.com/ipfs/go-ipfs/core"
-	"github.com/ipfs/go-ipfs/core/coreunix"
-	"github.com/ipfs/go-ipfs/filestore"
-	dag "github.com/ipfs/go-ipfs/merkledag"
-	dagtest "github.com/ipfs/go-ipfs/merkledag/test"
-	"github.com/ipfs/go-ipfs/mfs"
-	ft "github.com/ipfs/go-ipfs/unixfs"
+	"github.com/udfs/go-udfs/blockservice"
+	"github.com/udfs/go-udfs/core"
+	"github.com/udfs/go-udfs/core/coreunix"
+	"github.com/udfs/go-udfs/filestore"
+	dag "github.com/udfs/go-udfs/merkledag"
+	dagtest "github.com/udfs/go-udfs/merkledag/test"
+	"github.com/udfs/go-udfs/mfs"
+	ft "github.com/udfs/go-udfs/unixfs"
 	"github.com/pkg/errors"
 
 	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
@@ -41,7 +41,7 @@ import (
 
 	"syscall"
 
-	"github.com/ipfs/go-ipfs/core/corerepo"
+	"github.com/udfs/go-udfs/core/corerepo"
 )
 
 var PushCmd = &cmds.Command{

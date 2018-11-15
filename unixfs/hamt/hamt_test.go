@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
-	dag "github.com/ipfs/go-ipfs/merkledag"
-	mdtest "github.com/ipfs/go-ipfs/merkledag/test"
-	dagutils "github.com/ipfs/go-ipfs/merkledag/utils"
-	ft "github.com/ipfs/go-ipfs/unixfs"
+	dag "github.com/udfs/go-udfs/merkledag"
+	mdtest "github.com/udfs/go-udfs/merkledag/test"
+	dagutils "github.com/udfs/go-udfs/merkledag/utils"
+	ft "github.com/udfs/go-udfs/unixfs"
 
 	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
 )

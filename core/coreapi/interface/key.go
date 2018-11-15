@@ -3,7 +3,7 @@ package iface
 import (
 	"context"
 
-	options "github.com/ipfs/go-ipfs/core/coreapi/interface/options"
+	options "github.com/udfs/go-udfs/core/coreapi/interface/options"
 )
 
 // Key specifies the interface to Keys in KeyAPI Keystore

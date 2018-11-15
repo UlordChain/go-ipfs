@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	config "github.com/ipfs/go-ipfs/repo/config"
+	config "github.com/udfs/go-udfs/repo/config"
 )
 
 type testcasecheckversion struct {

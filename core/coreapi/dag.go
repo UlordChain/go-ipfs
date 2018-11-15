@@ -7,9 +7,9 @@ import (
 
 	gopath "path"
 
-	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
-	caopts "github.com/ipfs/go-ipfs/core/coreapi/interface/options"
-	coredag "github.com/ipfs/go-ipfs/core/coredag"
+	coreiface "github.com/udfs/go-udfs/core/coreapi/interface"
+	caopts "github.com/udfs/go-udfs/core/coreapi/interface/options"
+	coredag "github.com/udfs/go-udfs/core/coredag"
 
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"

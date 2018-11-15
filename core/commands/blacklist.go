@@ -25,11 +25,11 @@ import (
 
 	"path/filepath"
 
-	"github.com/ipfs/go-ipfs/core"
-	"github.com/ipfs/go-ipfs/core/corerepo"
-	"github.com/ipfs/go-ipfs/core/coreunix"
-	"github.com/ipfs/go-ipfs/merkledag"
-	"github.com/ipfs/go-ipfs/path"
+	"github.com/udfs/go-udfs/core"
+	"github.com/udfs/go-udfs/core/corerepo"
+	"github.com/udfs/go-udfs/core/coreunix"
+	"github.com/udfs/go-udfs/merkledag"
+	"github.com/udfs/go-udfs/path"
 	"github.com/pkg/errors"
 )
 

@@ -8,10 +8,10 @@ import (
 	"math"
 	"testing"
 
-	"github.com/ipfs/go-ipfs/core"
-	coreunix "github.com/ipfs/go-ipfs/core/coreunix"
-	mock "github.com/ipfs/go-ipfs/core/mock"
-	"github.com/ipfs/go-ipfs/thirdparty/unit"
+	"github.com/udfs/go-udfs/core"
+	coreunix "github.com/udfs/go-udfs/core/coreunix"
+	mock "github.com/udfs/go-udfs/core/mock"
+	"github.com/udfs/go-udfs/thirdparty/unit"
 
 	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
 	testutil "gx/ipfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil"

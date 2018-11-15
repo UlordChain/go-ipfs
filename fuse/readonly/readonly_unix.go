@@ -10,11 +10,11 @@ import (
 	"os"
 	"syscall"
 
-	core "github.com/ipfs/go-ipfs/core"
-	mdag "github.com/ipfs/go-ipfs/merkledag"
-	path "github.com/ipfs/go-ipfs/path"
-	uio "github.com/ipfs/go-ipfs/unixfs/io"
-	ftpb "github.com/ipfs/go-ipfs/unixfs/pb"
+	core "github.com/udfs/go-udfs/core"
+	mdag "github.com/udfs/go-udfs/merkledag"
+	path "github.com/udfs/go-udfs/path"
+	uio "github.com/udfs/go-udfs/unixfs/io"
+	ftpb "github.com/udfs/go-udfs/unixfs/pb"
 
 	lgbl "gx/ipfs/QmRPkGkHLB72caXgdDYnoaWigXNWx95BcYDKV1n3KTEpaG/go-libp2p-loggables"
 	fuse "gx/ipfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse"

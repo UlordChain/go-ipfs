@@ -3,8 +3,8 @@ package reprovide
 import (
 	"context"
 
-	merkledag "github.com/ipfs/go-ipfs/merkledag"
-	pin "github.com/ipfs/go-ipfs/pin"
+	merkledag "github.com/udfs/go-udfs/merkledag"
+	pin "github.com/udfs/go-udfs/pin"
 
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"

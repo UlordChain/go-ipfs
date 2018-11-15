@@ -5,7 +5,7 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/ipfs/go-ipfs/udfs/ca/secp256k1"
+	"github.com/udfs/go-udfs/udfs/ca/secp256k1"
 )
 
 // Get ECDSA public key in bitcoin protocol format, from the give private key

@@ -8,10 +8,10 @@ import (
 
 	"github.com/pkg/errors"
 
-	bserv "github.com/ipfs/go-ipfs/blockservice"
-	dag "github.com/ipfs/go-ipfs/merkledag"
-	pin "github.com/ipfs/go-ipfs/pin"
-	"github.com/ipfs/go-ipfs/thirdparty/verifcid"
+	bserv "github.com/udfs/go-udfs/blockservice"
+	dag "github.com/udfs/go-udfs/merkledag"
+	pin "github.com/udfs/go-udfs/pin"
+	"github.com/udfs/go-udfs/thirdparty/verifcid"
 
 	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"

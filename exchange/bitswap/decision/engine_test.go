@@ -9,7 +9,7 @@ import (
 	"sync"
 	"testing"
 
-	message "github.com/ipfs/go-ipfs/exchange/bitswap/message"
+	message "github.com/udfs/go-udfs/exchange/bitswap/message"
 
 	blocks "gx/ipfs/QmVzK524a2VWLqyvtBeiHKsUAWYgeAk4DBeZoY7vpNPNRx/go-block-format"
 	blockstore "gx/ipfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-ipfs-blockstore"

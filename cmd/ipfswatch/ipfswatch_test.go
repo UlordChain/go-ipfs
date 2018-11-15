@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/ipfs/go-ipfs/thirdparty/assert"
+	"github.com/udfs/go-udfs/thirdparty/assert"
 )
 
 func TestIsHidden(t *testing.T) {

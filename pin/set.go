@@ -9,8 +9,8 @@ import (
 	"hash/fnv"
 	"sort"
 
-	"github.com/ipfs/go-ipfs/merkledag"
-	"github.com/ipfs/go-ipfs/pin/internal/pb"
+	"github.com/udfs/go-udfs/merkledag"
+	"github.com/udfs/go-udfs/pin/internal/pb"
 
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 	"gx/ipfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"

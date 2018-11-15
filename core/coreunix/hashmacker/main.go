@@ -10,10 +10,10 @@ import (
 
 	"os"
 
-	"github.com/ipfs/go-ipfs/core"
-	"github.com/ipfs/go-ipfs/core/coreunix"
-	"github.com/ipfs/go-ipfs/repo"
-	"github.com/ipfs/go-ipfs/repo/config"
+	"github.com/udfs/go-udfs/core"
+	"github.com/udfs/go-udfs/core/coreunix"
+	"github.com/udfs/go-udfs/repo"
+	"github.com/udfs/go-udfs/repo/config"
 )
 
 func main() {

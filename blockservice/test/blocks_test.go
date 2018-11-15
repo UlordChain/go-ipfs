@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/ipfs/go-ipfs/blockservice"
+	. "github.com/udfs/go-udfs/blockservice"
 
 	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
 	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"

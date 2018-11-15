@@ -9,8 +9,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	util "github.com/ipfs/go-ipfs/blocks/blockstoreutil"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
+	util "github.com/udfs/go-udfs/blocks/blockstoreutil"
+	e "github.com/udfs/go-udfs/core/commands/e"
 
 	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"

@@ -8,13 +8,13 @@ import (
 
 	"gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
-	core "github.com/ipfs/go-ipfs/core"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	"github.com/ipfs/go-ipfs/core/corerepo"
-	"github.com/ipfs/go-ipfs/path"
-	"github.com/ipfs/go-ipfs/path/resolver"
-	uio "github.com/ipfs/go-ipfs/unixfs/io"
+	cmds "github.com/udfs/go-udfs/commands"
+	core "github.com/udfs/go-udfs/core"
+	e "github.com/udfs/go-udfs/core/commands/e"
+	"github.com/udfs/go-udfs/core/corerepo"
+	"github.com/udfs/go-udfs/path"
+	"github.com/udfs/go-udfs/path/resolver"
+	uio "github.com/udfs/go-udfs/unixfs/io"
 )
 
 var LocalrmCmd = &cmds.Command{

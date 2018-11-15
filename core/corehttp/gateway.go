@@ -5,11 +5,11 @@ import (
 	"net"
 	"net/http"
 
-	core "github.com/ipfs/go-ipfs/core"
-	coreapi "github.com/ipfs/go-ipfs/core/coreapi"
-	config "github.com/ipfs/go-ipfs/repo/config"
+	core "github.com/udfs/go-udfs/core"
+	coreapi "github.com/udfs/go-udfs/core/coreapi"
+	config "github.com/udfs/go-udfs/repo/config"
 
-	id "gx/ipfs/QmY51bqSM5XgxQZqsBrQcRkKTnCb8EKpJpR9K6Qax7Njco/go-libp2p/p2p/protocol/identify"
+	id "github.com/udfs/go-udfs/udfs/go-libp2p/p2p/protocol/identify"
 )
 
 type GatewayConfig struct {

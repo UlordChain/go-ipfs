@@ -10,12 +10,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ipfs/go-ipfs/blockservice"
-	"github.com/ipfs/go-ipfs/core"
-	dag "github.com/ipfs/go-ipfs/merkledag"
-	"github.com/ipfs/go-ipfs/pin/gc"
-	"github.com/ipfs/go-ipfs/repo"
-	"github.com/ipfs/go-ipfs/repo/config"
+	"github.com/udfs/go-udfs/blockservice"
+	"github.com/udfs/go-udfs/core"
+	dag "github.com/udfs/go-udfs/merkledag"
+	"github.com/udfs/go-udfs/pin/gc"
+	"github.com/udfs/go-udfs/repo"
+	"github.com/udfs/go-udfs/repo/config"
 
 	pi "gx/ipfs/QmSHjPDw8yNgLZ7cBfX7w3Smn7PHwYhNEpd4LHQQxUg35L/go-ipfs-posinfo"
 	blocks "gx/ipfs/QmVzK524a2VWLqyvtBeiHKsUAWYgeAk4DBeZoY7vpNPNRx/go-block-format"
