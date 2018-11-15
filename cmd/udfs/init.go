@@ -128,7 +128,7 @@ func initWithDefaults(out io.Writer, repoRoot string, profile string) error {
 }
 
 func doInit(out io.Writer, repoRoot string, empty bool, nBitsForKeypair int, confProfiles []string, conf *config.Config, master bool) error {
-	if _, err := fmt.Fprintf(out, "initializing IPFS node at %s\n", repoRoot); err != nil {
+	if _, err := fmt.Fprintf(out, "initializing UDFS node at %s\n", repoRoot); err != nil {
 		return err
 	}
 
