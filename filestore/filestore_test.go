@@ -7,7 +7,7 @@ import (
 	"math/rand"
 	"testing"
 
-	dag "github.com/udfs/go-udfs/merkledag"
+	dag "github.com/UlordChain/go-udfs/merkledag"
 
 	posinfo "gx/ipfs/QmSHjPDw8yNgLZ7cBfX7w3Smn7PHwYhNEpd4LHQQxUg35L/go-ipfs-posinfo"
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"

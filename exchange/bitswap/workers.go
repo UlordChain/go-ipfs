@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	bsmsg "github.com/udfs/go-udfs/exchange/bitswap/message"
+	bsmsg "github.com/UlordChain/go-udfs/exchange/bitswap/message"
 
 	process "gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess"
 	procctx "gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess/context"

@@ -3,8 +3,8 @@ package fsrepo
 import (
 	"os"
 
-	homedir "github.com/udfs/go-udfs/Godeps/_workspace/src/github.com/mitchellh/go-homedir"
-	"github.com/udfs/go-udfs/repo/config"
+	homedir "github.com/UlordChain/go-udfs/Godeps/_workspace/src/github.com/mitchellh/go-homedir"
+	"github.com/UlordChain/go-udfs/repo/config"
 )
 
 // BestKnownPath returns the best known fsrepo path. If the ENV override is

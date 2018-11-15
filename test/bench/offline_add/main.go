@@ -9,9 +9,9 @@ import (
 	"path"
 	"testing"
 
-	"github.com/udfs/go-udfs/Godeps/_workspace/src/github.com/jbenet/go-random"
-	"github.com/udfs/go-udfs/repo/config"
-	"github.com/udfs/go-udfs/thirdparty/unit"
+	"github.com/UlordChain/go-udfs/Godeps/_workspace/src/github.com/jbenet/go-random"
+	"github.com/UlordChain/go-udfs/repo/config"
+	"github.com/UlordChain/go-udfs/thirdparty/unit"
 )
 
 func main() {

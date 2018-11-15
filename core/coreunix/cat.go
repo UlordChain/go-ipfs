@@ -3,10 +3,10 @@ package coreunix
 import (
 	"context"
 
-	core "github.com/udfs/go-udfs/core"
-	path "github.com/udfs/go-udfs/path"
-	resolver "github.com/udfs/go-udfs/path/resolver"
-	uio "github.com/udfs/go-udfs/unixfs/io"
+	core "github.com/UlordChain/go-udfs/core"
+	path "github.com/UlordChain/go-udfs/path"
+	resolver "github.com/UlordChain/go-udfs/path/resolver"
+	uio "github.com/UlordChain/go-udfs/unixfs/io"
 )
 
 func Cat(ctx context.Context, n *core.IpfsNode, pstr string) (uio.DagReader, error) {

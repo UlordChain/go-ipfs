@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"path"
 
-	dag "github.com/udfs/go-udfs/merkledag"
+	dag "github.com/UlordChain/go-udfs/merkledag"
 
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"

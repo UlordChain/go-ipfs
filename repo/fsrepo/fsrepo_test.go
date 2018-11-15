@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/udfs/go-udfs/repo/config"
-	"github.com/udfs/go-udfs/thirdparty/assert"
+	"github.com/UlordChain/go-udfs/repo/config"
+	"github.com/UlordChain/go-udfs/thirdparty/assert"
 	datastore "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
 )
 

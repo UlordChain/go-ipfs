@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/udfs/go-udfs",
+	"ImportPath": "github.com/UlordChain/go-udfs",
 	"GoVersion": "go1.5.2",
 	"Packages": [
 		"./..."

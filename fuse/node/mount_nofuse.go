@@ -5,7 +5,7 @@ package node
 import (
 	"errors"
 
-	core "github.com/udfs/go-udfs/core"
+	core "github.com/UlordChain/go-udfs/core"
 )
 
 func Mount(node *core.IpfsNode, fsdir, nsdir string) error {

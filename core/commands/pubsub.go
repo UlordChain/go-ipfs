@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	core "github.com/udfs/go-udfs/core"
-	e "github.com/udfs/go-udfs/core/commands/e"
+	core "github.com/UlordChain/go-udfs/core"
+	e "github.com/UlordChain/go-udfs/core/commands/e"
 
 	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	blocks "gx/ipfs/QmVzK524a2VWLqyvtBeiHKsUAWYgeAk4DBeZoY7vpNPNRx/go-block-format"

@@ -3,7 +3,7 @@ package commands
 import (
 	"testing"
 
-	"github.com/udfs/go-udfs/namesys"
+	"github.com/UlordChain/go-udfs/namesys"
 
 	tu "gx/ipfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil"
 	ipns "gx/ipfs/Qmdue1XShFNi3mpizGx9NR9hyNEj6U2wEW93yGhKqKCFGN/go-ipns"

@@ -3,10 +3,10 @@ package ipns
 import (
 	"context"
 
-	"github.com/udfs/go-udfs/core"
-	nsys "github.com/udfs/go-udfs/namesys"
-	path "github.com/udfs/go-udfs/path"
-	ft "github.com/udfs/go-udfs/unixfs"
+	"github.com/UlordChain/go-udfs/core"
+	nsys "github.com/UlordChain/go-udfs/namesys"
+	path "github.com/UlordChain/go-udfs/path"
+	ft "github.com/UlordChain/go-udfs/unixfs"
 	ci "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
 )
 

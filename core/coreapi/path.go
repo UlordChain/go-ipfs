@@ -5,12 +5,12 @@ import (
 	fmt "fmt"
 	gopath "path"
 
-	core "github.com/udfs/go-udfs/core"
-	coreiface "github.com/udfs/go-udfs/core/coreapi/interface"
-	namesys "github.com/udfs/go-udfs/namesys"
-	ipfspath "github.com/udfs/go-udfs/path"
-	resolver "github.com/udfs/go-udfs/path/resolver"
-	uio "github.com/udfs/go-udfs/unixfs/io"
+	core "github.com/UlordChain/go-udfs/core"
+	coreiface "github.com/UlordChain/go-udfs/core/coreapi/interface"
+	namesys "github.com/UlordChain/go-udfs/namesys"
+	ipfspath "github.com/UlordChain/go-udfs/path"
+	resolver "github.com/UlordChain/go-udfs/path/resolver"
+	uio "github.com/UlordChain/go-udfs/unixfs/io"
 
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"

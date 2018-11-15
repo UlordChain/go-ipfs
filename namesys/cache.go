@@ -3,7 +3,7 @@ package namesys
 import (
 	"time"
 
-	path "github.com/udfs/go-udfs/path"
+	path "github.com/UlordChain/go-udfs/path"
 )
 
 func (ns *mpns) cacheGet(name string) (path.Path, bool) {

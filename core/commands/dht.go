@@ -8,10 +8,10 @@ import (
 	"io"
 	"time"
 
-	cmds "github.com/udfs/go-udfs/commands"
-	"github.com/udfs/go-udfs/core/commands/e"
-	dag "github.com/udfs/go-udfs/merkledag"
-	"github.com/udfs/go-udfs/path"
+	cmds "github.com/UlordChain/go-udfs/commands"
+	"github.com/UlordChain/go-udfs/core/commands/e"
+	dag "github.com/UlordChain/go-udfs/merkledag"
+	"github.com/UlordChain/go-udfs/path"
 
 	b58 "gx/ipfs/QmWFAMPqsEyUX7gDUsRVmMWz59FxSpJ1b2v6bJ1yYzo7jY/go-base58-fast/base58"
 	"gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"

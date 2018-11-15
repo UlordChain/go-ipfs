@@ -6,8 +6,8 @@ import (
 
 	context "context"
 
-	opts "github.com/udfs/go-udfs/namesys/opts"
-	path "github.com/udfs/go-udfs/path"
+	opts "github.com/UlordChain/go-udfs/namesys/opts"
+	path "github.com/UlordChain/go-udfs/path"
 	proquint "gx/ipfs/QmYnf27kzqR2cxt6LFZdrAFJuQd6785fTkBvMuEj9EeRxM/proquint"
 )
 

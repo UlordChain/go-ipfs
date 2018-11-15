@@ -11,8 +11,8 @@ import (
 
 	lgbl "gx/ipfs/QmRPkGkHLB72caXgdDYnoaWigXNWx95BcYDKV1n3KTEpaG/go-libp2p-loggables"
 
-	config "github.com/udfs/go-udfs/repo/config"
-	math2 "github.com/udfs/go-udfs/thirdparty/math2"
+	config "github.com/UlordChain/go-udfs/repo/config"
+	math2 "github.com/UlordChain/go-udfs/thirdparty/math2"
 
 	inet "gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
 	goprocess "gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess"

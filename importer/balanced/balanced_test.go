@@ -9,10 +9,10 @@ import (
 	mrand "math/rand"
 	"testing"
 
-	h "github.com/udfs/go-udfs/importer/helpers"
-	dag "github.com/udfs/go-udfs/merkledag"
-	mdtest "github.com/udfs/go-udfs/merkledag/test"
-	uio "github.com/udfs/go-udfs/unixfs/io"
+	h "github.com/UlordChain/go-udfs/importer/helpers"
+	dag "github.com/UlordChain/go-udfs/merkledag"
+	mdtest "github.com/UlordChain/go-udfs/merkledag/test"
+	uio "github.com/UlordChain/go-udfs/unixfs/io"
 
 	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
 	chunker "gx/ipfs/QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4/go-ipfs-chunker"

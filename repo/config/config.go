@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/udfs/go-udfs/Godeps/_workspace/src/github.com/mitchellh/go-homedir"
+	"github.com/UlordChain/go-udfs/Godeps/_workspace/src/github.com/mitchellh/go-homedir"
 )
 
 // Config is used to load ipfs config files.

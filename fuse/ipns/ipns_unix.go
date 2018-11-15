@@ -11,12 +11,12 @@ import (
 	"io"
 	"os"
 
-	core "github.com/udfs/go-udfs/core"
-	dag "github.com/udfs/go-udfs/merkledag"
-	mfs "github.com/udfs/go-udfs/mfs"
-	namesys "github.com/udfs/go-udfs/namesys"
-	path "github.com/udfs/go-udfs/path"
-	ft "github.com/udfs/go-udfs/unixfs"
+	core "github.com/UlordChain/go-udfs/core"
+	dag "github.com/UlordChain/go-udfs/merkledag"
+	mfs "github.com/UlordChain/go-udfs/mfs"
+	namesys "github.com/UlordChain/go-udfs/namesys"
+	path "github.com/UlordChain/go-udfs/path"
+	ft "github.com/UlordChain/go-udfs/unixfs"
 
 	fuse "gx/ipfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse"
 	fs "gx/ipfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse/fs"

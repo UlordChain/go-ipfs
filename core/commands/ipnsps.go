@@ -5,8 +5,8 @@ import (
 	"io"
 	"strings"
 
-	cmds "github.com/udfs/go-udfs/commands"
-	e "github.com/udfs/go-udfs/core/commands/e"
+	cmds "github.com/UlordChain/go-udfs/commands"
+	e "github.com/UlordChain/go-udfs/core/commands/e"
 
 	record "gx/ipfs/QmVsp2KdPYE6M8ryzCk5KHLo3zprcY5hBDaYx6uPCFUdxA/go-libp2p-record"
 	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"

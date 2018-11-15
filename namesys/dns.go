@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	opts "github.com/udfs/go-udfs/namesys/opts"
-	path "github.com/udfs/go-udfs/path"
+	opts "github.com/UlordChain/go-udfs/namesys/opts"
+	path "github.com/UlordChain/go-udfs/path"
 	isd "gx/ipfs/QmZmmuAXgX73UQmX1jRKjTGmjzq24Jinqkq8vzkBtno4uX/go-is-domain"
 )
 

@@ -6,8 +6,8 @@ import (
 
 	context "context"
 
-	"github.com/udfs/go-udfs/core"
-	fsrepo "github.com/udfs/go-udfs/repo/fsrepo"
+	"github.com/UlordChain/go-udfs/core"
+	fsrepo "github.com/UlordChain/go-udfs/repo/fsrepo"
 
 	humanize "gx/ipfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
 )

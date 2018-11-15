@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	ipath "github.com/udfs/go-udfs/path"
+	ipath "github.com/UlordChain/go-udfs/path"
 
-	coreiface "github.com/udfs/go-udfs/core/coreapi/interface"
-	opt "github.com/udfs/go-udfs/core/coreapi/interface/options"
+	coreiface "github.com/UlordChain/go-udfs/core/coreapi/interface"
+	opt "github.com/UlordChain/go-udfs/core/coreapi/interface/options"
 )
 
 var rnd = rand.New(rand.NewSource(0x62796532303137))

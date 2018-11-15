@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"io"
 
-	oldcmds "github.com/udfs/go-udfs/commands"
-	lgc "github.com/udfs/go-udfs/commands/legacy"
-	e "github.com/udfs/go-udfs/core/commands/e"
-	bitswap "github.com/udfs/go-udfs/exchange/bitswap"
-	decision "github.com/udfs/go-udfs/exchange/bitswap/decision"
+	oldcmds "github.com/UlordChain/go-udfs/commands"
+	lgc "github.com/UlordChain/go-udfs/commands/legacy"
+	e "github.com/UlordChain/go-udfs/core/commands/e"
+	bitswap "github.com/UlordChain/go-udfs/exchange/bitswap"
+	decision "github.com/UlordChain/go-udfs/exchange/bitswap/decision"
 
 	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	"gx/ipfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"

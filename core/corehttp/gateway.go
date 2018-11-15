@@ -5,9 +5,9 @@ import (
 	"net"
 	"net/http"
 
-	core "github.com/udfs/go-udfs/core"
-	coreapi "github.com/udfs/go-udfs/core/coreapi"
-	config "github.com/udfs/go-udfs/repo/config"
+	core "github.com/UlordChain/go-udfs/core"
+	coreapi "github.com/UlordChain/go-udfs/core/coreapi"
+	config "github.com/UlordChain/go-udfs/repo/config"
 
 	id "gx/ipfs/QmY51bqSM5XgxQZqsBrQcRkKTnCb8EKpJpR9K6Qax7Njco/go-libp2p/p2p/protocol/identify"
 )

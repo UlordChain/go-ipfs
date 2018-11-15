@@ -4,8 +4,8 @@
 package readonly
 
 import (
-	core "github.com/udfs/go-udfs/core"
-	mount "github.com/udfs/go-udfs/fuse/mount"
+	core "github.com/UlordChain/go-udfs/core"
+	mount "github.com/UlordChain/go-udfs/fuse/mount"
 )
 
 // Mount mounts IPFS at a given location, and returns a mount.Mount instance.

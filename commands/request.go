@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/udfs/go-udfs/core"
-	"github.com/udfs/go-udfs/repo/config"
+	"github.com/UlordChain/go-udfs/core"
+	"github.com/UlordChain/go-udfs/repo/config"
 
 	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"

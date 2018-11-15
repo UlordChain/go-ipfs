@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	config "github.com/udfs/go-udfs/repo/config"
+	config "github.com/UlordChain/go-udfs/repo/config"
 )
 
 // note: to test sorting of the mountpoints in the disk spec they are

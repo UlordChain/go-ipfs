@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"sort"
 
-	coreiface "github.com/udfs/go-udfs/core/coreapi/interface"
-	caopts "github.com/udfs/go-udfs/core/coreapi/interface/options"
-	ipfspath "github.com/udfs/go-udfs/path"
+	coreiface "github.com/UlordChain/go-udfs/core/coreapi/interface"
+	caopts "github.com/UlordChain/go-udfs/core/coreapi/interface/options"
+	ipfspath "github.com/UlordChain/go-udfs/path"
 
 	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 	crypto "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"

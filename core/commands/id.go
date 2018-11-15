@@ -8,9 +8,9 @@ import (
 	"io"
 	"strings"
 
-	cmds "github.com/udfs/go-udfs/commands"
-	core "github.com/udfs/go-udfs/core"
-	e "github.com/udfs/go-udfs/core/commands/e"
+	cmds "github.com/UlordChain/go-udfs/commands"
+	core "github.com/UlordChain/go-udfs/core"
+	e "github.com/UlordChain/go-udfs/core/commands/e"
 
 	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
 	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"

@@ -5,10 +5,10 @@ import (
 	"sync"
 	"time"
 
-	engine "github.com/udfs/go-udfs/exchange/bitswap/decision"
-	bsmsg "github.com/udfs/go-udfs/exchange/bitswap/message"
-	bsnet "github.com/udfs/go-udfs/exchange/bitswap/network"
-	wantlist "github.com/udfs/go-udfs/exchange/bitswap/wantlist"
+	engine "github.com/UlordChain/go-udfs/exchange/bitswap/decision"
+	bsmsg "github.com/UlordChain/go-udfs/exchange/bitswap/message"
+	bsnet "github.com/UlordChain/go-udfs/exchange/bitswap/network"
+	wantlist "github.com/UlordChain/go-udfs/exchange/bitswap/wantlist"
 
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"

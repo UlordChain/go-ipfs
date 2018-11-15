@@ -17,10 +17,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/udfs/go-udfs/core"
-	path "github.com/udfs/go-udfs/path"
-	resolver "github.com/udfs/go-udfs/path/resolver"
-	uio "github.com/udfs/go-udfs/unixfs/io"
+	"github.com/UlordChain/go-udfs/core"
+	path "github.com/UlordChain/go-udfs/path"
+	resolver "github.com/UlordChain/go-udfs/path/resolver"
+	uio "github.com/UlordChain/go-udfs/unixfs/io"
 
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 )

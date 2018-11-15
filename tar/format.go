@@ -8,11 +8,11 @@ import (
 	"io"
 	"strings"
 
-	importer "github.com/udfs/go-udfs/importer"
-	dag "github.com/udfs/go-udfs/merkledag"
-	dagutil "github.com/udfs/go-udfs/merkledag/utils"
-	path "github.com/udfs/go-udfs/path"
-	uio "github.com/udfs/go-udfs/unixfs/io"
+	importer "github.com/UlordChain/go-udfs/importer"
+	dag "github.com/UlordChain/go-udfs/merkledag"
+	dagutil "github.com/UlordChain/go-udfs/merkledag/utils"
+	path "github.com/UlordChain/go-udfs/path"
+	uio "github.com/UlordChain/go-udfs/unixfs/io"
 
 	chunker "gx/ipfs/QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4/go-ipfs-chunker"
 	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"

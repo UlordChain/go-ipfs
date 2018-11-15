@@ -5,9 +5,9 @@ import (
 	"errors"
 	"time"
 
-	keystore "github.com/udfs/go-udfs/keystore"
-	namesys "github.com/udfs/go-udfs/namesys"
-	path "github.com/udfs/go-udfs/path"
+	keystore "github.com/UlordChain/go-udfs/keystore"
+	namesys "github.com/UlordChain/go-udfs/namesys"
+	path "github.com/UlordChain/go-udfs/path"
 
 	goprocess "gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess"
 	gpctx "gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess/context"

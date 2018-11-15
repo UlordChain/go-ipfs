@@ -10,10 +10,10 @@ import (
 
 	"os"
 
-	"github.com/udfs/go-udfs/core"
-	"github.com/udfs/go-udfs/core/coreunix"
-	"github.com/udfs/go-udfs/repo"
-	"github.com/udfs/go-udfs/repo/config"
+	"github.com/UlordChain/go-udfs/core"
+	"github.com/UlordChain/go-udfs/core/coreunix"
+	"github.com/UlordChain/go-udfs/repo"
+	"github.com/UlordChain/go-udfs/repo/config"
 )
 
 func main() {

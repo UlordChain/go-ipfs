@@ -6,11 +6,11 @@ import (
 	"io"
 	"os"
 
-	oldCmds "github.com/udfs/go-udfs/commands"
-	lgc "github.com/udfs/go-udfs/commands/legacy"
-	"github.com/udfs/go-udfs/core"
-	e "github.com/udfs/go-udfs/core/commands/e"
-	"github.com/udfs/go-udfs/filestore"
+	oldCmds "github.com/UlordChain/go-udfs/commands"
+	lgc "github.com/UlordChain/go-udfs/commands/legacy"
+	"github.com/UlordChain/go-udfs/core"
+	e "github.com/UlordChain/go-udfs/core/commands/e"
+	"github.com/UlordChain/go-udfs/filestore"
 
 	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"

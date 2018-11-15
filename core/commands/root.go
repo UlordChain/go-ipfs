@@ -4,12 +4,12 @@ import (
 	"io"
 	"strings"
 
-	oldcmds "github.com/udfs/go-udfs/commands"
-	lgc "github.com/udfs/go-udfs/commands/legacy"
-	dag "github.com/udfs/go-udfs/core/commands/dag"
-	e "github.com/udfs/go-udfs/core/commands/e"
-	ocmd "github.com/udfs/go-udfs/core/commands/object"
-	unixfs "github.com/udfs/go-udfs/core/commands/unixfs"
+	oldcmds "github.com/UlordChain/go-udfs/commands"
+	lgc "github.com/UlordChain/go-udfs/commands/legacy"
+	dag "github.com/UlordChain/go-udfs/core/commands/dag"
+	e "github.com/UlordChain/go-udfs/core/commands/e"
+	ocmd "github.com/UlordChain/go-udfs/core/commands/object"
+	unixfs "github.com/UlordChain/go-udfs/core/commands/unixfs"
 
 	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"

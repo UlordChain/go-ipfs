@@ -3,9 +3,9 @@ package core_test
 import (
 	"testing"
 
-	core "github.com/udfs/go-udfs/core"
-	coremock "github.com/udfs/go-udfs/core/mock"
-	path "github.com/udfs/go-udfs/path"
+	core "github.com/UlordChain/go-udfs/core"
+	coremock "github.com/UlordChain/go-udfs/core/mock"
+	path "github.com/UlordChain/go-udfs/path"
 )
 
 func TestResolveNoComponents(t *testing.T) {

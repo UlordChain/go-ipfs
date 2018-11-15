@@ -6,7 +6,7 @@ import (
 	"io"
 	"testing"
 
-	oldcmds "github.com/udfs/go-udfs/commands"
+	oldcmds "github.com/UlordChain/go-udfs/commands"
 	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )

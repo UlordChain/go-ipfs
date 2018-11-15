@@ -12,8 +12,8 @@ import (
 	"sync"
 	"testing"
 
-	core "github.com/udfs/go-udfs/core"
-	namesys "github.com/udfs/go-udfs/namesys"
+	core "github.com/UlordChain/go-udfs/core"
+	namesys "github.com/UlordChain/go-udfs/namesys"
 
 	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
 	fstest "gx/ipfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse/fs/fstestutil"

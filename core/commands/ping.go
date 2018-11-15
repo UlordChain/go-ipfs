@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	cmds "github.com/udfs/go-udfs/commands"
-	core "github.com/udfs/go-udfs/core"
+	cmds "github.com/UlordChain/go-udfs/commands"
+	core "github.com/UlordChain/go-udfs/core"
 
 	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
 	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"

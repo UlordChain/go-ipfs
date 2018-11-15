@@ -4,9 +4,9 @@ import (
 	"context"
 	"io"
 
-	coreiface "github.com/udfs/go-udfs/core/coreapi/interface"
-	coreunix "github.com/udfs/go-udfs/core/coreunix"
-	uio "github.com/udfs/go-udfs/unixfs/io"
+	coreiface "github.com/UlordChain/go-udfs/core/coreapi/interface"
+	coreunix "github.com/UlordChain/go-udfs/core/coreunix"
+	uio "github.com/UlordChain/go-udfs/unixfs/io"
 
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"

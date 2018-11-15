@@ -10,7 +10,7 @@ cat <<EOL
 package loader
 
 import (
-	"github.com/udfs/go-udfs/plugin"
+	"github.com/UlordChain/go-udfs/plugin"
 EOL
 
 to_preload | while read -r name path num; do

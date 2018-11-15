@@ -5,8 +5,8 @@ import (
 	"encoding/binary"
 	"testing"
 
-	bserv "github.com/udfs/go-udfs/blockservice"
-	dag "github.com/udfs/go-udfs/merkledag"
+	bserv "github.com/UlordChain/go-udfs/blockservice"
+	dag "github.com/UlordChain/go-udfs/merkledag"
 
 	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"

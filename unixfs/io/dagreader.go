@@ -5,9 +5,9 @@ import (
 	"errors"
 	"io"
 
-	mdag "github.com/udfs/go-udfs/merkledag"
-	ft "github.com/udfs/go-udfs/unixfs"
-	ftpb "github.com/udfs/go-udfs/unixfs/pb"
+	mdag "github.com/UlordChain/go-udfs/merkledag"
+	ft "github.com/UlordChain/go-udfs/unixfs"
+	ftpb "github.com/UlordChain/go-udfs/unixfs/pb"
 
 	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
 )

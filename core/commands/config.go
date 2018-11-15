@@ -11,11 +11,11 @@ import (
 	"os/exec"
 	"strings"
 
-	cmds "github.com/udfs/go-udfs/commands"
-	e "github.com/udfs/go-udfs/core/commands/e"
-	repo "github.com/udfs/go-udfs/repo"
-	config "github.com/udfs/go-udfs/repo/config"
-	fsrepo "github.com/udfs/go-udfs/repo/fsrepo"
+	cmds "github.com/UlordChain/go-udfs/commands"
+	e "github.com/UlordChain/go-udfs/core/commands/e"
+	repo "github.com/UlordChain/go-udfs/repo"
+	config "github.com/UlordChain/go-udfs/repo/config"
+	fsrepo "github.com/UlordChain/go-udfs/repo/fsrepo"
 
 	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )

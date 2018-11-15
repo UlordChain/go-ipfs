@@ -8,11 +8,11 @@ import (
 	"errors"
 	"io"
 
-	help "github.com/udfs/go-udfs/importer/helpers"
-	trickle "github.com/udfs/go-udfs/importer/trickle"
-	mdag "github.com/udfs/go-udfs/merkledag"
-	ft "github.com/udfs/go-udfs/unixfs"
-	uio "github.com/udfs/go-udfs/unixfs/io"
+	help "github.com/UlordChain/go-udfs/importer/helpers"
+	trickle "github.com/UlordChain/go-udfs/importer/trickle"
+	mdag "github.com/UlordChain/go-udfs/merkledag"
+	ft "github.com/UlordChain/go-udfs/unixfs"
+	uio "github.com/UlordChain/go-udfs/unixfs/io"
 
 	chunker "gx/ipfs/QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4/go-ipfs-chunker"
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"

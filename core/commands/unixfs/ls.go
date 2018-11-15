@@ -9,15 +9,15 @@ import (
 
 	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 
-	cmds "github.com/udfs/go-udfs/commands"
-	core "github.com/udfs/go-udfs/core"
-	e "github.com/udfs/go-udfs/core/commands/e"
-	merkledag "github.com/udfs/go-udfs/merkledag"
-	path "github.com/udfs/go-udfs/path"
-	resolver "github.com/udfs/go-udfs/path/resolver"
-	unixfs "github.com/udfs/go-udfs/unixfs"
-	uio "github.com/udfs/go-udfs/unixfs/io"
-	unixfspb "github.com/udfs/go-udfs/unixfs/pb"
+	cmds "github.com/UlordChain/go-udfs/commands"
+	core "github.com/UlordChain/go-udfs/core"
+	e "github.com/UlordChain/go-udfs/core/commands/e"
+	merkledag "github.com/UlordChain/go-udfs/merkledag"
+	path "github.com/UlordChain/go-udfs/path"
+	resolver "github.com/UlordChain/go-udfs/path/resolver"
+	unixfs "github.com/UlordChain/go-udfs/unixfs"
+	uio "github.com/UlordChain/go-udfs/unixfs/io"
+	unixfspb "github.com/UlordChain/go-udfs/unixfs/pb"
 )
 
 type LsLink struct {

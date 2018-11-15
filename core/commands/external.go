@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"strings"
 
-	cmds "github.com/udfs/go-udfs/commands"
+	cmds "github.com/UlordChain/go-udfs/commands"
 
 	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )

@@ -4,10 +4,10 @@ import (
 	"io"
 	"strings"
 
-	cmds "github.com/udfs/go-udfs/commands"
-	e "github.com/udfs/go-udfs/core/commands/e"
-	namesys "github.com/udfs/go-udfs/namesys"
-	nsopts "github.com/udfs/go-udfs/namesys/opts"
+	cmds "github.com/UlordChain/go-udfs/commands"
+	e "github.com/UlordChain/go-udfs/core/commands/e"
+	namesys "github.com/UlordChain/go-udfs/namesys"
+	nsopts "github.com/UlordChain/go-udfs/namesys/opts"
 
 	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )

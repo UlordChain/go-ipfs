@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	opts "github.com/udfs/go-udfs/namesys/opts"
-	path "github.com/udfs/go-udfs/path"
+	opts "github.com/UlordChain/go-udfs/namesys/opts"
+	path "github.com/UlordChain/go-udfs/path"
 
 	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
 	lru "gx/ipfs/QmVYxfoJQiZijTgPNHCHgHELvQpbsJNTg6Crmc3dQkj3yy/golang-lru"

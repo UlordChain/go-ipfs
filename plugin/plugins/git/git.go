@@ -6,8 +6,8 @@ import (
 	"io"
 	"math"
 
-	"github.com/udfs/go-udfs/core/coredag"
-	"github.com/udfs/go-udfs/plugin"
+	"github.com/UlordChain/go-udfs/core/coredag"
+	"github.com/UlordChain/go-udfs/plugin"
 
 	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
 	"gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"

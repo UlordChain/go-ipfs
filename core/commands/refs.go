@@ -7,10 +7,10 @@ import (
 	"io"
 	"strings"
 
-	cmds "github.com/udfs/go-udfs/commands"
-	"github.com/udfs/go-udfs/core"
-	e "github.com/udfs/go-udfs/core/commands/e"
-	path "github.com/udfs/go-udfs/path"
+	cmds "github.com/UlordChain/go-udfs/commands"
+	"github.com/UlordChain/go-udfs/core"
+	e "github.com/UlordChain/go-udfs/core/commands/e"
+	path "github.com/UlordChain/go-udfs/path"
 
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"

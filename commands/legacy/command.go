@@ -5,7 +5,7 @@ import (
 
 	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 
-	oldcmds "github.com/udfs/go-udfs/commands"
+	oldcmds "github.com/UlordChain/go-udfs/commands"
 	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
 )
 

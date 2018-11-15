@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/udfs/go-udfs/core"
-	mock "github.com/udfs/go-udfs/core/mock"
-	namesys "github.com/udfs/go-udfs/namesys"
-	. "github.com/udfs/go-udfs/namesys/republisher"
-	path "github.com/udfs/go-udfs/path"
+	"github.com/UlordChain/go-udfs/core"
+	mock "github.com/UlordChain/go-udfs/core/mock"
+	namesys "github.com/UlordChain/go-udfs/namesys"
+	. "github.com/UlordChain/go-udfs/namesys/republisher"
+	path "github.com/UlordChain/go-udfs/path"
 
 	goprocess "gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess"
 	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"

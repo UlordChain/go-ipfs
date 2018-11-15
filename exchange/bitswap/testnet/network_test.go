@@ -5,8 +5,8 @@ import (
 	"sync"
 	"testing"
 
-	bsmsg "github.com/udfs/go-udfs/exchange/bitswap/message"
-	bsnet "github.com/udfs/go-udfs/exchange/bitswap/network"
+	bsmsg "github.com/UlordChain/go-udfs/exchange/bitswap/message"
+	bsnet "github.com/UlordChain/go-udfs/exchange/bitswap/network"
 
 	delay "gx/ipfs/QmRJVNatYJwTAHgdSM1Xef9QVQ1Ch3XHdmcrykjP5Y4soL/go-ipfs-delay"
 	blocks "gx/ipfs/QmVzK524a2VWLqyvtBeiHKsUAWYgeAk4DBeZoY7vpNPNRx/go-block-format"

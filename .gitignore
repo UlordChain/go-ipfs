@@ -25,3 +25,8 @@ go-ipfs-source.tar.gz
 ipfs_linux
 .idea
 .vscode
+.DS_Store
+cmd/docker/ipfs_publish.sh
+cmd/docker/ulord_publish.sh
+cmd/docker/ipfs_linux
+cmd/udfs/udfs

@@ -11,12 +11,12 @@ import (
 	"testing"
 	"time"
 
-	random "github.com/udfs/go-udfs/Godeps/_workspace/src/github.com/jbenet/go-random"
+	random "github.com/UlordChain/go-udfs/Godeps/_workspace/src/github.com/jbenet/go-random"
 
-	"github.com/udfs/go-udfs/core"
-	coreunix "github.com/udfs/go-udfs/core/coreunix"
-	mock "github.com/udfs/go-udfs/core/mock"
-	"github.com/udfs/go-udfs/thirdparty/unit"
+	"github.com/UlordChain/go-udfs/core"
+	coreunix "github.com/UlordChain/go-udfs/core/coreunix"
+	mock "github.com/UlordChain/go-udfs/core/mock"
+	"github.com/UlordChain/go-udfs/thirdparty/unit"
 
 	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
 	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"

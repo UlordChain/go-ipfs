@@ -7,11 +7,11 @@ import (
 	"math"
 	"strings"
 
-	cmds "github.com/udfs/go-udfs/commands"
-	e "github.com/udfs/go-udfs/core/commands/e"
-	coredag "github.com/udfs/go-udfs/core/coredag"
-	path "github.com/udfs/go-udfs/path"
-	pin "github.com/udfs/go-udfs/pin"
+	cmds "github.com/UlordChain/go-udfs/commands"
+	e "github.com/UlordChain/go-udfs/core/commands/e"
+	coredag "github.com/UlordChain/go-udfs/core/coredag"
+	path "github.com/UlordChain/go-udfs/path"
+	pin "github.com/UlordChain/go-udfs/pin"
 
 	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"

@@ -9,11 +9,11 @@ import (
 	"strconv"
 	"strings"
 
-	oldcmds "github.com/udfs/go-udfs/commands"
-	core "github.com/udfs/go-udfs/core"
-	corecommands "github.com/udfs/go-udfs/core/commands"
-	path "github.com/udfs/go-udfs/path"
-	config "github.com/udfs/go-udfs/repo/config"
+	oldcmds "github.com/UlordChain/go-udfs/commands"
+	core "github.com/UlordChain/go-udfs/core"
+	corecommands "github.com/UlordChain/go-udfs/core/commands"
+	path "github.com/UlordChain/go-udfs/path"
+	config "github.com/UlordChain/go-udfs/repo/config"
 
 	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	cmdsHttp "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds/http"

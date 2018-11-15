@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	tn "github.com/udfs/go-udfs/exchange/bitswap/testnet"
+	tn "github.com/UlordChain/go-udfs/exchange/bitswap/testnet"
 
 	delay "gx/ipfs/QmRJVNatYJwTAHgdSM1Xef9QVQ1Ch3XHdmcrykjP5Y4soL/go-ipfs-delay"
 	blockstore "gx/ipfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-ipfs-blockstore"

@@ -8,7 +8,7 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/udfs/go-udfs/udfs/ca/bech32"
+	"github.com/UlordChain/go-udfs/udfs/ca/bech32"
 )
 
 type BtcAddr struct {

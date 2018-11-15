@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 
-	random "github.com/udfs/go-udfs/Godeps/_workspace/src/github.com/jbenet/go-random"
+	random "github.com/UlordChain/go-udfs/Godeps/_workspace/src/github.com/jbenet/go-random"
 )
 
 type Reader struct {

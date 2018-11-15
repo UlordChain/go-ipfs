@@ -3,9 +3,9 @@ package commands
 import (
 	"fmt"
 
-	"github.com/udfs/go-udfs/commands"
-	"github.com/udfs/go-udfs/core"
-	"github.com/udfs/go-udfs/repo/config"
+	"github.com/UlordChain/go-udfs/commands"
+	"github.com/UlordChain/go-udfs/core"
+	"github.com/UlordChain/go-udfs/repo/config"
 )
 
 // GetNode extracts the node from the environment.

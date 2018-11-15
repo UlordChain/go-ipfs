@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/udfs/go-udfs/pin"
+	"github.com/UlordChain/go-udfs/pin"
 
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 	bs "gx/ipfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-ipfs-blockstore"

@@ -3,10 +3,10 @@ package coremock
 import (
 	"context"
 
-	commands "github.com/udfs/go-udfs/commands"
-	core "github.com/udfs/go-udfs/core"
-	"github.com/udfs/go-udfs/repo"
-	config "github.com/udfs/go-udfs/repo/config"
+	commands "github.com/UlordChain/go-udfs/commands"
+	core "github.com/UlordChain/go-udfs/core"
+	"github.com/UlordChain/go-udfs/repo"
+	config "github.com/UlordChain/go-udfs/repo/config"
 
 	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
 	host "gx/ipfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"

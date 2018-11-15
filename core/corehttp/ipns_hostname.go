@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	core "github.com/udfs/go-udfs/core"
-	namesys "github.com/udfs/go-udfs/namesys"
-	nsopts "github.com/udfs/go-udfs/namesys/opts"
+	core "github.com/UlordChain/go-udfs/core"
+	namesys "github.com/UlordChain/go-udfs/namesys"
+	nsopts "github.com/UlordChain/go-udfs/namesys/opts"
 
 	isd "gx/ipfs/QmZmmuAXgX73UQmX1jRKjTGmjzq24Jinqkq8vzkBtno4uX/go-is-domain"
 )

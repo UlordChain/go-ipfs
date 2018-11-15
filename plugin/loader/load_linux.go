@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"plugin"
 
-	iplugin "github.com/udfs/go-udfs/plugin"
+	iplugin "github.com/UlordChain/go-udfs/plugin"
 )
 
 func init() {

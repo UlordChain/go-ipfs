@@ -6,12 +6,12 @@ import (
 	"strings"
 	"time"
 
-	cmds "github.com/udfs/go-udfs/commands"
-	"github.com/udfs/go-udfs/core"
-	e "github.com/udfs/go-udfs/core/commands/e"
-	ns "github.com/udfs/go-udfs/namesys"
-	nsopts "github.com/udfs/go-udfs/namesys/opts"
-	path "github.com/udfs/go-udfs/path"
+	cmds "github.com/UlordChain/go-udfs/commands"
+	"github.com/UlordChain/go-udfs/core"
+	e "github.com/UlordChain/go-udfs/core/commands/e"
+	ns "github.com/UlordChain/go-udfs/namesys"
+	nsopts "github.com/UlordChain/go-udfs/namesys/opts"
+	path "github.com/UlordChain/go-udfs/path"
 
 	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )

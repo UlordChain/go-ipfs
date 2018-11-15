@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"testing"
 
-	config "github.com/udfs/go-udfs/repo/config"
+	config "github.com/UlordChain/go-udfs/repo/config"
 )
 
 func TestConfig(t *testing.T) {

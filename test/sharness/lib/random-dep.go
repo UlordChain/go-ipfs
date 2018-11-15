@@ -4,6 +4,6 @@
 package randomdep
 
 import (
-	_ "github.com/udfs/go-udfs/Godeps/_workspace/src/github.com/jbenet/go-random"
-	_ "github.com/udfs/go-udfs/Godeps/_workspace/src/github.com/jbenet/go-random-files"
+	_ "github.com/UlordChain/go-udfs/Godeps/_workspace/src/github.com/jbenet/go-random"
+	_ "github.com/UlordChain/go-udfs/Godeps/_workspace/src/github.com/jbenet/go-random-files"
 )

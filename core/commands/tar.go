@@ -4,13 +4,13 @@ import (
 	"io"
 	"strings"
 
-	cmds "github.com/udfs/go-udfs/commands"
-	core "github.com/udfs/go-udfs/core"
-	e "github.com/udfs/go-udfs/core/commands/e"
-	"github.com/udfs/go-udfs/core/coreunix"
-	dag "github.com/udfs/go-udfs/merkledag"
-	path "github.com/udfs/go-udfs/path"
-	tar "github.com/udfs/go-udfs/tar"
+	cmds "github.com/UlordChain/go-udfs/commands"
+	core "github.com/UlordChain/go-udfs/core"
+	e "github.com/UlordChain/go-udfs/core/commands/e"
+	"github.com/UlordChain/go-udfs/core/coreunix"
+	dag "github.com/UlordChain/go-udfs/merkledag"
+	path "github.com/UlordChain/go-udfs/path"
+	tar "github.com/UlordChain/go-udfs/tar"
 
 	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 )

@@ -6,10 +6,10 @@ import (
 	"errors"
 	"time"
 
-	"github.com/udfs/go-udfs/core"
-	mfs "github.com/udfs/go-udfs/mfs"
-	gc "github.com/udfs/go-udfs/pin/gc"
-	repo "github.com/udfs/go-udfs/repo"
+	"github.com/UlordChain/go-udfs/core"
+	mfs "github.com/UlordChain/go-udfs/mfs"
+	gc "github.com/UlordChain/go-udfs/pin/gc"
+	repo "github.com/UlordChain/go-udfs/repo"
 
 	humanize "gx/ipfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"

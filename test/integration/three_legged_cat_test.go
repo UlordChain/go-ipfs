@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
-	core "github.com/udfs/go-udfs/core"
-	coreunix "github.com/udfs/go-udfs/core/coreunix"
-	mock "github.com/udfs/go-udfs/core/mock"
-	"github.com/udfs/go-udfs/thirdparty/unit"
+	core "github.com/UlordChain/go-udfs/core"
+	coreunix "github.com/UlordChain/go-udfs/core/coreunix"
+	mock "github.com/UlordChain/go-udfs/core/mock"
+	"github.com/UlordChain/go-udfs/thirdparty/unit"
 
 	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
 	testutil "gx/ipfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil"

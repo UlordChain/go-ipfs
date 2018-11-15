@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	wantlist "github.com/udfs/go-udfs/exchange/bitswap/wantlist"
+	wantlist "github.com/UlordChain/go-udfs/exchange/bitswap/wantlist"
 
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 	pq "gx/ipfs/QmZUbTDJ39JpvtFCSubiWeUTQRvMA1tVE5RZCJrY4oeAsC/go-ipfs-pq"

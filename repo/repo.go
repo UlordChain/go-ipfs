@@ -4,9 +4,9 @@ import (
 	"errors"
 	"io"
 
-	filestore "github.com/udfs/go-udfs/filestore"
-	keystore "github.com/udfs/go-udfs/keystore"
-	config "github.com/udfs/go-udfs/repo/config"
+	filestore "github.com/UlordChain/go-udfs/filestore"
+	keystore "github.com/UlordChain/go-udfs/keystore"
+	config "github.com/UlordChain/go-udfs/repo/config"
 
 	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
 	ds "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"

@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/udfs/go-udfs/thirdparty/assert"
+	"github.com/UlordChain/go-udfs/thirdparty/assert"
 )
 
 func TestIsHidden(t *testing.T) {

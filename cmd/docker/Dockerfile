@@ -1,4 +1,3 @@
 From alpine
-ADD ./ipfs_linux /usr/local/bin/ipfs
+ADD ./ipfs_linux /usr/local/bin/udfs
 EXPOSE 4001 5001
-CMD ["ipfs", "daemon", "--init"]

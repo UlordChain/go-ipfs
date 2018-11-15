@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"errors"
 
-	"github.com/udfs/go-udfs/udfs/ca/secp256k1"
+	"github.com/UlordChain/go-udfs/udfs/ca/secp256k1"
 )
 
 type PublicKey struct {

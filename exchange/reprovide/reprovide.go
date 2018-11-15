@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/udfs/go-udfs/thirdparty/verifcid"
+	"github.com/UlordChain/go-udfs/thirdparty/verifcid"
 
 	backoff "gx/ipfs/QmPJUtEJsm5YLUWhF6imvyCH8KZXRJa9Wup7FDMwTy5Ufz/backoff"
 	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"

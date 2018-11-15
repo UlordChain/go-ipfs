@@ -43,8 +43,8 @@ package balanced
 import (
 	"errors"
 
-	h "github.com/udfs/go-udfs/importer/helpers"
-	ft "github.com/udfs/go-udfs/unixfs"
+	h "github.com/UlordChain/go-udfs/importer/helpers"
+	ft "github.com/UlordChain/go-udfs/unixfs"
 
 	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
 )

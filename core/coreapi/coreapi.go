@@ -14,8 +14,8 @@ Interfaces here aren't yet completely stable.
 package coreapi
 
 import (
-	core "github.com/udfs/go-udfs/core"
-	coreiface "github.com/udfs/go-udfs/core/coreapi/interface"
+	core "github.com/UlordChain/go-udfs/core"
+	coreiface "github.com/UlordChain/go-udfs/core/coreapi/interface"
 )
 
 type CoreAPI struct {
