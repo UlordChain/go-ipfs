@@ -21,12 +21,12 @@ import (
 	fsrepo "github.com/udfs/go-udfs/repo/fsrepo"
 	migrate "github.com/udfs/go-udfs/repo/fsrepo/migrations"
 
-	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	mprome "gx/ipfs/QmUDtdqVcetYfRUnfhzrRQzPSgW1gf57MsMQSiLZpNkjbg/go-metrics-prometheus"
-	"gx/ipfs/QmV6FjemM1K8oXjrvuq3wuVWWoU2TLDPmNnKrxHzY3v6Ai/go-multiaddr-net"
-	"gx/ipfs/QmYYv3QFnfQbiwmi1tpkgKF8o4xFnZoBrvpupTiGJwL9nH/client_golang/prometheus"
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	cmds "gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	mprome "gx/udfs/QmUDtdqVcetYfRUnfhzrRQzPSgW1gf57MsMQSiLZpNkjbg/go-metrics-prometheus"
+	"gx/udfs/QmV6FjemM1K8oXjrvuq3wuVWWoU2TLDPmNnKrxHzY3v6Ai/go-multiaddr-net"
+	"gx/udfs/QmYYv3QFnfQbiwmi1tpkgKF8o4xFnZoBrvpupTiGJwL9nH/client_golang/prometheus"
+	ma "gx/udfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 const (
@@ -34,7 +34,7 @@ const (
 	enableGCKwd               = "enable-gc"
 	initOptionKwd             = "init"
 	initProfileOptionKwd      = "init-profile"
-	ipfsMountKwd              = "mount-ipfs"
+	udfsMountKwd              = "mount-udfs"
 	ipnsMountKwd              = "mount-ipns"
 	migrateKwd                = "migrate"
 	mountKwd                  = "mount"
@@ -57,31 +57,31 @@ const (
 
 var daemonCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Run a network-connected IPFS node.",
+		Tagline: "Run a network-connected UDFS node.",
 		ShortDescription: `
-'ipfs daemon' runs a persistent ipfs daemon that can serve commands
-over the network. Most applications that use IPFS will do so by
+'udfs daemon' runs a persistent udfs daemon that can serve commands
+over the network. Most applications that use UDFS will do so by
 communicating with a daemon over the HTTP API. While the daemon is
-running, calls to 'ipfs' commands will be sent over the network to
+running, calls to 'udfs' commands will be sent over the network to
 the daemon.
 `,
 		LongDescription: `
 The daemon will start listening on ports on the network, which are
-documented in (and can be modified through) 'ipfs config Addresses'.
+documented in (and can be modified through) 'udfs config Addresses'.
 For example, to change the 'Gateway' port:
 
-  ipfs config Addresses.Gateway /ip4/127.0.0.1/tcp/8082
+  udfs config Addresses.Gateway /ip4/127.0.0.1/tcp/8082
 
 The API address can be changed the same way:
 
-  ipfs config Addresses.API /ip4/127.0.0.1/tcp/5002
+  udfs config Addresses.API /ip4/127.0.0.1/tcp/5002
 
 Make sure to restart the daemon after changing addresses.
 
 By default, the gateway is only accessible locally. To expose it to
 other computers in the network, use 0.0.0.0 as the ip address:
 
-  ipfs config Addresses.Gateway /ip4/0.0.0.0/tcp/8080
+  udfs config Addresses.Gateway /ip4/0.0.0.0/tcp/8080
 
 Be careful if you expose the API. It is a security risk, as anyone could
 control your node remotely. If you need to control the node remotely,
@@ -90,12 +90,12 @@ make sure to protect the port as you would other services or database
 
 HTTP Headers
 
-ipfs supports passing arbitrary headers to the API and Gateway. You can
+udfs supports passing arbitrary headers to the API and Gateway. You can
 do this by setting headers on the API.HTTPHeaders and Gateway.HTTPHeaders
 keys:
 
-  ipfs config --json API.HTTPHeaders.X-Special-Header '["so special :)"]'
-  ipfs config --json Gateway.HTTPHeaders.X-Special-Header '["so special :)"]'
+  udfs config --json API.HTTPHeaders.X-Special-Header '["so special :)"]'
+  udfs config --json Gateway.HTTPHeaders.X-Special-Header '["so special :)"]'
 
 Note that the value of the keys is an _array_ of strings. This is because
 headers can have more than one value, and it is convenient to pass through
@@ -105,9 +105,9 @@ CORS Headers (for API)
 
 You can setup CORS headers the same way:
 
-  ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '["example.com"]'
-  ipfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '["PUT", "GET", "POST"]'
-  ipfs config --json API.HTTPHeaders.Access-Control-Allow-Credentials '["true"]'
+  udfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '["example.com"]'
+  udfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '["PUT", "GET", "POST"]'
+  udfs config --json API.HTTPHeaders.Access-Control-Allow-Credentials '["true"]'
 
 Shutdown
 
@@ -116,28 +116,28 @@ or send a SIGTERM signal to it (e.g. with 'kill'). It may take a while for the
 daemon to shutdown gracefully, but it can be killed forcibly by sending a
 second signal.
 
-IPFS_PATH environment variable
+UDFS_PATH environment variable
 
-ipfs uses a repository in the local file system. By default, the repo is
-located at ~/.ipfs. To change the repo location, set the $IPFS_PATH
+udfs uses a repository in the local file system. By default, the repo is
+located at ~/.udfs. To change the repo location, set the $UDFS_PATH
 environment variable:
 
-  export IPFS_PATH=/path/to/ipfsrepo
+  export UDFS_PATH=/path/to/udfsrepo
 
 Routing
 
-IPFS by default will use a DHT for content routing. There is a highly
+UDFS by default will use a DHT for content routing. There is a highly
 experimental alternative that operates the DHT in a 'client only' mode that
 can be enabled by running the daemon as:
 
-  ipfs daemon --routing=dhtclient
+  udfs daemon --routing=dhtclient
 
 This will later be transitioned into a config option once it gets out of the
 'experimental' stage.
 
 DEPRECATION NOTICE
 
-Previously, ipfs used an environment variable as seen below:
+Previously, udfs used an environment variable as seen below:
 
   export API_ORIGIN="http://localhost:8888/"
 
@@ -148,12 +148,12 @@ Headers.
 	},
 
 	Options: []cmdkit.Option{
-		cmdkit.BoolOption(initOptionKwd, "Initialize ipfs with default settings if not already initialized"),
-		cmdkit.StringOption(initProfileOptionKwd, "Configuration profiles to apply for --init. See ipfs init --help for more"),
+		cmdkit.BoolOption(initOptionKwd, "Initialize udfs with default settings if not already initialized"),
+		cmdkit.StringOption(initProfileOptionKwd, "Configuration profiles to apply for --init. See udfs init --help for more"),
 		cmdkit.StringOption(routingOptionKwd, "Overrides the routing option").WithDefault(routingOptionDefaultKwd),
-		cmdkit.BoolOption(mountKwd, "Mounts IPFS to the filesystem"),
+		cmdkit.BoolOption(mountKwd, "Mounts UDFS to the filesystem"),
 		cmdkit.BoolOption(writableKwd, "Enable writing objects (with POST, PUT and DELETE)"),
-		cmdkit.StringOption(ipfsMountKwd, "Path to the mountpoint for IPFS (if using --mount). Defaults to config setting."),
+		cmdkit.StringOption(udfsMountKwd, "Path to the mountpoint for UDFS (if using --mount). Defaults to config setting."),
 		cmdkit.StringOption(ipnsMountKwd, "Path to the mountpoint for IPNS (if using --mount). Defaults to config setting."),
 		cmdkit.BoolOption(unrestrictedApiAccessKwd, "Allow API access to unlisted hashes"),
 		cmdkit.BoolOption(unencryptTransportKwd, "Disable transport encryption (for debugging protocols)"),
@@ -161,7 +161,7 @@ Headers.
 		cmdkit.BoolOption(adjustFDLimitKwd, "Check and raise file descriptor limits if needed").WithDefault(true),
 		cmdkit.BoolOption(offlineKwd, "Run offline. Do not connect to the rest of the network but provide local API."),
 		cmdkit.BoolOption(migrateKwd, "If true, assume yes at the migrate prompt. If false, assume no."),
-		cmdkit.BoolOption(enableFloodSubKwd, "Instantiate the ipfs daemon with the experimental pubsub feature enabled."),
+		cmdkit.BoolOption(enableFloodSubKwd, "Instantiate the udfs daemon with the experimental pubsub feature enabled."),
 		cmdkit.BoolOption(enableIPNSPubSubKwd, "Enable IPNS record distribution through pubsub; enables pubsub."),
 		cmdkit.BoolOption(enableMultiplexKwd, "Add the experimental 'go-multiplex' stream muxer to libp2p on construction.").WithDefault(true),
 
@@ -178,7 +178,7 @@ Headers.
 // and don't provide a convenient http.Handler entry point, such as
 // expvar and http/pprof.
 func defaultMux(path string) corehttp.ServeOption {
-	return func(node *core.IpfsNode, _ net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
+	return func(node *core.UdfsNode, _ net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
 		mux.Handle(path, http.DefaultServeMux)
 		return mux, nil
 	}
@@ -250,7 +250,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 
 		if !domigrate {
 			fmt.Println("Not running migrations of fs-repo now.")
-			fmt.Println("Please get fs-repo-migrations from https://dist.ipfs.io")
+			fmt.Println("Please get fs-repo-migrations from https://dist.udfs.io")
 			re.SetError(fmt.Errorf("fs-repo requires migration"), cmdkit.ErrNormal)
 			return
 		}
@@ -260,7 +260,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 			fmt.Println("The migrations of fs-repo failed:")
 			fmt.Printf("  %s\n", err)
 			fmt.Println("If you think this is a bug, please file an issue and include this whole log output.")
-			fmt.Println("  https://github.com/ipfs/fs-repo-migrations")
+			fmt.Println("  https://github.com/udfs/fs-repo-migrations")
 			re.SetError(err, cmdkit.ErrNormal)
 			return
 		}
@@ -354,7 +354,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 		}
 	}()
 
-	cctx.ConstructNode = func() (*core.IpfsNode, error) {
+	cctx.ConstructNode = func() (*core.UdfsNode, error) {
 		return node, nil
 	}
 
@@ -398,7 +398,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	}
 
 	// initialize metrics collector
-	prometheus.MustRegister(&corehttp.IpfsNodeCollector{Node: node})
+	prometheus.MustRegister(&corehttp.UdfsNodeCollector{Node: node})
 
 	if !offline {
 		commands.SetupBackupHandler(node)
@@ -450,14 +450,14 @@ func serveHTTPApi(req *cmds.Request, cctx *oldcmds.Context) (<-chan error, error
 	apiMaddr = apiLis.Multiaddr()
 	fmt.Printf("API server listening on %s\n", apiMaddr)
 
-	// by default, we don't let you load arbitrary ipfs objects through the api,
+	// by default, we don't let you load arbitrary udfs objects through the api,
 	// because this would open up the api to scripting vulnerabilities.
 	// only the webui objects are allowed.
 	// if you know what you're doing, go ahead and pass --unrestricted-api.
 	unrestricted, _ := req.Options[unrestrictedApiAccessKwd].(bool)
 	gatewayOpt := corehttp.GatewayOption(false, corehttp.WebUIPaths...)
 	if unrestricted {
-		gatewayOpt = corehttp.GatewayOption(true, "/ipfs", "/ipns")
+		gatewayOpt = corehttp.GatewayOption(true, "/udfs", "/ipns")
 	}
 
 	var opts = []corehttp.ServeOption{
@@ -495,7 +495,7 @@ func serveHTTPApi(req *cmds.Request, cctx *oldcmds.Context) (<-chan error, error
 }
 
 // printSwarmAddrs prints the addresses of the host
-func printSwarmAddrs(node *core.IpfsNode) {
+func printSwarmAddrs(node *core.UdfsNode) {
 	if !node.OnlineMode() {
 		fmt.Println("Swarm not listening, running in offline mode.")
 		return
@@ -561,7 +561,7 @@ func serveHTTPGateway(req *cmds.Request, cctx *oldcmds.Context) (<-chan error, e
 		corehttp.CommandsROOption(*cctx),
 		corehttp.VersionOption(),
 		corehttp.IPNSHostnameOption(),
-		corehttp.GatewayOption(writable, "/ipfs", "/ipns"),
+		corehttp.GatewayOption(writable, "/udfs", "/ipns"),
 	}
 
 	if len(cfg.Gateway.RootRedirect) > 0 {
@@ -588,9 +588,9 @@ func mountFuse(req *cmds.Request, cctx *oldcmds.Context) error {
 		return fmt.Errorf("mountFuse: GetConfig() failed: %s", err)
 	}
 
-	fsdir, found := req.Options[ipfsMountKwd].(string)
+	fsdir, found := req.Options[udfsMountKwd].(string)
 	if !found {
-		fsdir = cfg.Mounts.IPFS
+		fsdir = cfg.Mounts.UDFS
 	}
 
 	nsdir, found := req.Options[ipnsMountKwd].(string)
@@ -607,12 +607,12 @@ func mountFuse(req *cmds.Request, cctx *oldcmds.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("IPFS mounted at: %s\n", fsdir)
+	fmt.Printf("UDFS mounted at: %s\n", fsdir)
 	fmt.Printf("IPNS mounted at: %s\n", nsdir)
 	return nil
 }
 
-func maybeRunGC(req *cmds.Request, node *core.IpfsNode) (<-chan error, error) {
+func maybeRunGC(req *cmds.Request, node *core.UdfsNode) (<-chan error, error) {
 	enableGC, _ := req.Options[enableGCKwd].(bool)
 	if !enableGC {
 		return nil, nil

@@ -3,11 +3,11 @@ package identify.pb;
 message Identify {
 
   // protocolVersion determines compatibility between peers
-  optional string protocolVersion = 5; // e.g. ipfs/1.0.0
+  optional string protocolVersion = 5; // e.g. udfs/1.0.0
 
   // agentVersion is like a UserAgent string in browsers, or client version in bittorrent
   // includes the client name and client.
-  optional string agentVersion = 6; // e.g. go-ipfs/0.1.0
+  optional string agentVersion = 6; // e.g. go-udfs/0.1.0
 
   // publicKey is this node's public key (which also gives its node.ID)
   // - may not need to be sent, as secure channel implies it has been sent.

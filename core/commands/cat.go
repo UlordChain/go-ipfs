@@ -9,8 +9,8 @@ import (
 	core "github.com/udfs/go-udfs/core"
 	coreunix "github.com/udfs/go-udfs/core/coreunix"
 
-	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	cmds "gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 	"time"
 )
 
@@ -18,12 +18,12 @@ const progressBarMinSize = 1024 * 1024 * 8 // show progress bar for outputs > 8M
 
 var CatCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline:          "Show IPFS object data.",
-		ShortDescription: "Displays the data contained by an IPFS or IPNS object(s) at the given path.",
+		Tagline:          "Show UDFS object data.",
+		ShortDescription: "Displays the data contained by an UDFS or IPNS object(s) at the given path.",
 	},
 
 	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("ipfs-path", true, true, "The path to the IPFS object(s) to be outputted.").EnableStdin(),
+		cmdkit.StringArg("udfs-path", true, true, "The path to the UDFS object(s) to be outputted.").EnableStdin(),
 	},
 	Options: []cmdkit.Option{
 		cmdkit.IntOption("offset", "o", "Byte offset to begin reading from."),
@@ -134,7 +134,7 @@ var CatCmd = &cmds.Command{
 	},
 }
 
-func cat(ctx context.Context, node *core.IpfsNode, paths []string, offset int64, max int64) ([]io.Reader, uint64, error) {
+func cat(ctx context.Context, node *core.UdfsNode, paths []string, offset int64, max int64) ([]io.Reader, uint64, error) {
 	readers := make([]io.Reader, 0, len(paths))
 	length := uint64(0)
 	if max == 0 {

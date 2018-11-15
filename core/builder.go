@@ -19,19 +19,19 @@ import (
 	"github.com/udfs/go-udfs/thirdparty/verifbs"
 	uio "github.com/udfs/go-udfs/unixfs/io"
 
-	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"
-	goprocessctx "gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess/context"
-	record "gx/ipfs/QmVsp2KdPYE6M8ryzCk5KHLo3zprcY5hBDaYx6uPCFUdxA/go-libp2p-record"
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	bstore "gx/ipfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-ipfs-blockstore"
-	p2phost "gx/ipfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	ipns "gx/ipfs/Qmdue1XShFNi3mpizGx9NR9hyNEj6U2wEW93yGhKqKCFGN/go-ipns"
-	ci "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
-	ds "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
-	retry "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore/retrystore"
-	dsync "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore/sync"
-	metrics "gx/ipfs/QmekzFM3hPZjTjUFGTABdQkEnQ3PTiMstY198PwSFr5w1Q/go-metrics-interface"
+	offline "gx/udfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-udfs-exchange-offline"
+	goprocessctx "gx/udfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess/context"
+	record "gx/udfs/QmVsp2KdPYE6M8ryzCk5KHLo3zprcY5hBDaYx6uPCFUdxA/go-libp2p-record"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	bstore "gx/udfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-udfs-blockstore"
+	p2phost "gx/udfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	ipns "gx/udfs/Qmdue1XShFNi3mpizGx9NR9hyNEj6U2wEW93yGhKqKCFGN/go-ipns"
+	ci "gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	ds "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
+	retry "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore/retrystore"
+	dsync "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore/sync"
+	metrics "gx/udfs/QmekzFM3hPZjTjUFGTABdQkEnQ3PTiMstY198PwSFr5w1Q/go-metrics-interface"
 
 	libp2p "github.com/udfs/go-udfs/udfs/go-libp2p"
 )
@@ -40,7 +40,7 @@ type BuildCfg struct {
 	// If online is set, the node will have networking enabled
 	Online bool
 
-	// ExtraOpts is a map of extra options used to configure the ipfs nodes creation
+	// ExtraOpts is a map of extra options used to configure the udfs nodes creation
 	ExtraOpts map[string]bool
 
 	// If permanent then node should run more expensive processes
@@ -125,8 +125,8 @@ func defaultRepo(dstore repo.Datastore) (repo.Repo, error) {
 	}, nil
 }
 
-// NewNode constructs and returns an IpfsNode using the given cfg.
-func NewNode(ctx context.Context, cfg *BuildCfg) (*IpfsNode, error) {
+// NewNode constructs and returns an UdfsNode using the given cfg.
+func NewNode(ctx context.Context, cfg *BuildCfg) (*UdfsNode, error) {
 	if cfg == nil {
 		cfg = new(BuildCfg)
 	}
@@ -136,9 +136,9 @@ func NewNode(ctx context.Context, cfg *BuildCfg) (*IpfsNode, error) {
 		return nil, err
 	}
 
-	ctx = metrics.CtxScope(ctx, "ipfs")
+	ctx = metrics.CtxScope(ctx, "udfs")
 
-	n := &IpfsNode{
+	n := &UdfsNode{
 		mode:      offlineMode,
 		Repo:      cfg.Repo,
 		ctx:       ctx,
@@ -174,7 +174,7 @@ func isTooManyFDError(err error) bool {
 	return false
 }
 
-func setupNode(ctx context.Context, n *IpfsNode, cfg *BuildCfg) error {
+func setupNode(ctx context.Context, n *UdfsNode, cfg *BuildCfg) error {
 	// setup local peer ID (private key is loaded in online setup)
 	if err := n.loadID(); err != nil {
 		return err
@@ -238,7 +238,7 @@ func setupNode(ctx context.Context, n *IpfsNode, cfg *BuildCfg) error {
 		hostOption = func(ctx context.Context, id peer.ID, ps pstore.Peerstore, options ...libp2p.Option) (p2phost.Host, error) {
 			return innerHostOption(ctx, id, ps, append(options, libp2p.NoSecurity)...)
 		}
-		log.Warningf(`Your IPFS node has been configured to run WITHOUT ENCRYPTED CONNECTIONS.
+		log.Warningf(`Your UDFS node has been configured to run WITHOUT ENCRYPTED CONNECTIONS.
 		You will not be able to connect to any nodes configured to use encrypted connections`)
 	}
 

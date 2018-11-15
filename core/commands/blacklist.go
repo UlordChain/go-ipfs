@@ -7,11 +7,11 @@ import (
 
 	"io"
 
-	"gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	format "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	"gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	format "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
 
-	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 
 	"time"
 
@@ -90,7 +90,7 @@ var BlacklistCmd = &cmds.Command{
 	},
 }
 
-func getBlacklistFiles(ctx context.Context, n *core.IpfsNode) ([]*format.Link, error) {
+func getBlacklistFiles(ctx context.Context, n *core.UdfsNode) ([]*format.Link, error) {
 	node, err := core.Resolve(ctx, n.Namesys, n.Resolver, blacklistDir)
 	if err != nil {
 		return nil, errors.Errorf("read blacklist directory failed: %v\n", err.Error())
@@ -119,7 +119,7 @@ func getBlacklistFiles(ctx context.Context, n *core.IpfsNode) ([]*format.Link, e
 	return nil, nil
 }
 
-func refreshBlacklist(ctx context.Context, n *core.IpfsNode, minFailed int) error {
+func refreshBlacklist(ctx context.Context, n *core.UdfsNode, minFailed int) error {
 	links, err := getBlacklistFiles(ctx, n)
 	if err != nil {
 		return errors.Wrap(err, "get blacklist files failed")
@@ -160,7 +160,7 @@ func refreshBlacklist(ctx context.Context, n *core.IpfsNode, minFailed int) erro
 	return nil
 }
 
-func handleBlacklistFile(ctx context.Context, n *core.IpfsNode, minFailed int, c *cid.Cid) error {
+func handleBlacklistFile(ctx context.Context, n *core.UdfsNode, minFailed int, c *cid.Cid) error {
 
 	dagReader, err := coreunix.Cat(ctx, n, path.FromCid(c).String())
 	if err != nil {
@@ -193,7 +193,7 @@ func handleBlacklistFile(ctx context.Context, n *core.IpfsNode, minFailed int, c
 
 }
 
-func RunBlacklistRefreshService(ctx context.Context, n *core.IpfsNode) error {
+func RunBlacklistRefreshService(ctx context.Context, n *core.UdfsNode) error {
 	conf, err := n.Repo.Config()
 	if err != nil {
 		return errors.Wrap(err, "got config failed")
@@ -241,7 +241,7 @@ func RunBlacklistRefreshService(ctx context.Context, n *core.IpfsNode) error {
 
 }
 
-func handleBlacklistRecord(ctx context.Context, n *core.IpfsNode, record []string) error {
+func handleBlacklistRecord(ctx context.Context, n *core.UdfsNode, record []string) error {
 	c, err := pathToCid(record[0])
 	if err != nil {
 		return errors.Errorf("got blacklist record cid failed from %v: %v\n", record, err.Error())

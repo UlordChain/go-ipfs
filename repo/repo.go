@@ -8,17 +8,17 @@ import (
 	keystore "github.com/udfs/go-udfs/keystore"
 	config "github.com/udfs/go-udfs/repo/config"
 
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	ds "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
+	ma "gx/udfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	ds "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
 )
 
 var (
 	ErrApiNotRunning = errors.New("api not running")
 )
 
-// Repo represents all persistent data of a given ipfs node.
+// Repo represents all persistent data of a given udfs node.
 type Repo interface {
-	// Config returns the ipfs configuration file from the repo. Changes made
+	// Config returns the udfs configuration file from the repo. Changes made
 	// to the returned config are not automatically persisted.
 	Config() (*config.Config, error)
 

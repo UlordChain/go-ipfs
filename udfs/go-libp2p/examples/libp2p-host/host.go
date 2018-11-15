@@ -5,7 +5,7 @@ import (
 	"crypto/rand"
 	"fmt"
 
-	crypto "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	crypto "gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
 
 	libp2p "github.com/udfs/go-udfs/udfs/go-libp2p"
 )

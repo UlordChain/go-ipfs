@@ -9,13 +9,13 @@ test_description="test node bootstrapping"
 
 . lib/test-lib.sh
 
-test_init_ipfs
+test_init_udfs
 
 test_expect_success "disable mdns" '
-  ipfs config Discovery.MDNS.Enabled false --json
+  udfs config Discovery.MDNS.Enabled false --json
 '
 
-test_launch_ipfs_daemon
+test_launch_udfs_daemon
 
 test_expect_success "setup iptb nodes" '
   iptb init -n 5 -f --bootstrap=none --port=0
@@ -26,7 +26,7 @@ test_expect_success "start up iptb nodes" '
 '
 
 test_expect_success "check peers works" '
-  ipfs swarm peers >peers_out
+  udfs swarm peers >peers_out
 '
 
 test_expect_success "correct number of peers" '
@@ -57,13 +57,13 @@ test_expect_success "reset iptb nodes" '
 '
 
 test_expect_success "set bootstrap addrs" '
-  bsn_peer_id=$(ipfs id -f "<id>") &&
-  BADDR="/ip4/127.0.0.1/tcp/$SWARM_PORT/ipfs/$bsn_peer_id" &&
-  ipfsi 0 bootstrap add $BADDR &&
-  ipfsi 1 bootstrap add $BADDR &&
-  ipfsi 2 bootstrap add $BADDR &&
-  ipfsi 3 bootstrap add $BADDR &&
-  ipfsi 4 bootstrap add $BADDR
+  bsn_peer_id=$(udfs id -f "<id>") &&
+  BADDR="/ip4/127.0.0.1/tcp/$SWARM_PORT/udfs/$bsn_peer_id" &&
+  udfsi 0 bootstrap add $BADDR &&
+  udfsi 1 bootstrap add $BADDR &&
+  udfsi 2 bootstrap add $BADDR &&
+  udfsi 3 bootstrap add $BADDR &&
+  udfsi 4 bootstrap add $BADDR
 '
 
 test_expect_success "start up iptb nodes" '
@@ -71,14 +71,14 @@ test_expect_success "start up iptb nodes" '
 '
 
 test_expect_success "check peers works" '
-  ipfs swarm peers > peers_out
+  udfs swarm peers > peers_out
 '
 
 test_expect_success "correct number of peers" '
   test `cat peers_out | wc -l` = 5
 '
 
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 test_expect_success "bring down iptb nodes" '
   iptb stop

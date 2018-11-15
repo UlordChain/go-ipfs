@@ -8,19 +8,19 @@ import (
 	"github.com/udfs/go-udfs/repo"
 	config "github.com/udfs/go-udfs/repo/config"
 
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	host "gx/ipfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
-	testutil "gx/ipfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	datastore "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
-	syncds "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore/sync"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	host "gx/udfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
+	testutil "gx/udfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	datastore "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
+	syncds "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore/sync"
 
 	libp2p "github.com/udfs/go-udfs/udfs/go-libp2p"
 	mocknet "github.com/udfs/go-udfs/udfs/go-libp2p/p2p/net/mock"
 )
 
-// NewMockNode constructs an IpfsNode for use in tests.
-func NewMockNode() (*core.IpfsNode, error) {
+// NewMockNode constructs an UdfsNode for use in tests.
+func NewMockNode() (*core.UdfsNode, error) {
 	ctx := context.Background()
 
 	// effectively offline, only peer in its network
@@ -64,11 +64,11 @@ func MockCmdsCtx() (commands.Context, error) {
 
 	return commands.Context{
 		Online:     true,
-		ConfigRoot: "/tmp/.mockipfsconfig",
+		ConfigRoot: "/tmp/.mockudfsconfig",
 		LoadConfig: func(path string) (*config.Config, error) {
 			return &conf, nil
 		},
-		ConstructNode: func() (*core.IpfsNode, error) {
+		ConstructNode: func() (*core.UdfsNode, error) {
 			return node, nil
 		},
 	}, nil

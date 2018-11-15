@@ -15,25 +15,25 @@ if ! test_have_prereq PLUGIN; then
   test_done
 fi
 
-test_init_ipfs
+test_init_udfs
 
-# from https://github.com/ipfs/go-ipld-git/blob/master/make-test-repo.sh
+# from https://github.com/udfs/go-ipld-git/blob/master/make-test-repo.sh
 test_expect_success "prepare test data" '
   tar xzf ../t0280-plugin-git-data/git.tar.gz
 '
 
 test_dag_git() {
   test_expect_success "add objects via dag put" '
-    find objects -type f -exec ipfs dag put --format=git --input-enc=zlib {} \; -exec echo \; > hashes
+    find objects -type f -exec udfs dag put --format=git --input-enc=zlib {} \; -exec echo \; > hashes
   '
 
   test_expect_success "successfully get added objects" '
-    cat hashes | xargs -i ipfs dag get -- {} > /dev/null
+    cat hashes | xargs -i udfs dag get -- {} > /dev/null
   '
 
   test_expect_success "path traversals work" '
     echo \"YmxvYiA3ACcsLnB5Zgo=\" > file1 &&
-    ipfs dag get z8mWaJh5RLq16Zwgtd8gZxd63P4hgwNNx/object/parents/0/tree/dir2/hash/f3/hash > out1
+    udfs dag get z8mWaJh5RLq16Zwgtd8gZxd63P4hgwNNx/object/parents/0/tree/dir2/hash/f3/hash > out1
   '
 
   test_expect_success "outputs look correct" '
@@ -45,8 +45,8 @@ test_dag_git() {
 #test_dag_git
 
 # should work online
-test_launch_ipfs_daemon
+test_launch_udfs_daemon
 test_dag_git
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 test_done

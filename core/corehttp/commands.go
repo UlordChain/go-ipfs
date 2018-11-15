@@ -15,8 +15,8 @@ import (
 	path "github.com/udfs/go-udfs/path"
 	config "github.com/udfs/go-udfs/repo/config"
 
-	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	cmdsHttp "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds/http"
+	cmds "gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	cmdsHttp "gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds/http"
 )
 
 var (
@@ -29,12 +29,12 @@ This functionality is deprecated, and will be removed in future versions.
 Instead, try either adding headers to the config, or passing them via
 cli arguments:
 
-	ipfs config API.HTTPHeaders 'Access-Control-Allow-Origin' '*'
-	ipfs daemon
+	udfs config API.HTTPHeaders 'Access-Control-Allow-Origin' '*'
+	udfs daemon
 
 or
 
-	ipfs daemon --api-http-header 'Access-Control-Allow-Origin: *'
+	udfs daemon --api-http-header 'Access-Control-Allow-Origin: *'
 `
 
 // APIPath is the path at which the API is mounted.
@@ -77,7 +77,7 @@ func addHeadersFromConfig(c *cmdsHttp.ServerConfig, nc *config.Config) {
 	for h, v := range nc.API.HTTPHeaders {
 		c.Headers[h] = v
 	}
-	c.Headers["Server"] = []string{"go-ipfs/" + config.CurrentVersionNumber}
+	c.Headers["Server"] = []string{"go-udfs/" + config.CurrentVersionNumber}
 }
 
 func addCORSDefaults(c *cmdsHttp.ServerConfig) {
@@ -117,7 +117,7 @@ func patchCORSVars(c *cmdsHttp.ServerConfig, addr net.Addr) {
 }
 
 func commandsOption(cctx oldcmds.Context, command *cmds.Command) ServeOption {
-	return func(n *core.IpfsNode, l net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
+	return func(n *core.UdfsNode, l net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
 
 		cfg := cmdsHttp.NewServerConfig()
 		cfg.SetAllowedMethods("GET", "POST", "PUT")
@@ -150,11 +150,11 @@ func CommandsROOption(cctx oldcmds.Context) ServeOption {
 	return commandsOption(cctx, corecommands.RootRO)
 }
 
-// CheckVersionOption returns a ServeOption that checks whether the client ipfs version matches. Does nothing when the user agent string does not contain `/go-ipfs/`
+// CheckVersionOption returns a ServeOption that checks whether the client udfs version matches. Does nothing when the user agent string does not contain `/go-udfs/`
 func CheckVersionOption() ServeOption {
 	daemonVersion := config.ApiVersion
 
-	return ServeOption(func(n *core.IpfsNode, l net.Listener, parent *http.ServeMux) (*http.ServeMux, error) {
+	return ServeOption(func(n *core.UdfsNode, l net.Listener, parent *http.ServeMux) (*http.ServeMux, error) {
 		mux := http.NewServeMux()
 		parent.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			if strings.HasPrefix(r.URL.Path, APIPath) {
@@ -164,8 +164,8 @@ func CheckVersionOption() ServeOption {
 				// backwards compatibility to previous version check
 				if len(pth) >= 2 && pth[1] != "version" {
 					clientVersion := r.UserAgent()
-					// skips check if client is not go-ipfs
-					if strings.Contains(clientVersion, "/go-ipfs/") && daemonVersion != clientVersion {
+					// skips check if client is not go-udfs
+					if strings.Contains(clientVersion, "/go-udfs/") && daemonVersion != clientVersion {
 						http.Error(w, fmt.Sprintf("%s (%s != %s)", errAPIVersionMismatch, daemonVersion, clientVersion), http.StatusBadRequest)
 						return
 					}

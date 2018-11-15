@@ -13,21 +13,21 @@ import (
 	path "github.com/udfs/go-udfs/path"
 	pin "github.com/udfs/go-udfs/pin"
 
-	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
-	files "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit/files"
+	mh "gx/udfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	cmdkit "gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
+	files "gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit/files"
 )
 
 var DagCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Interact with ipld dag objects.",
 		ShortDescription: `
-'ipfs dag' is used for creating and manipulating dag objects.
+'udfs dag' is used for creating and manipulating dag objects.
 
 This subcommand is currently an experimental feature, but it is intended
-to deprecate and replace the existing 'ipfs object' command moving forward.
+to deprecate and replace the existing 'udfs object' command moving forward.
 		`,
 	},
 	Subcommands: map[string]*cmds.Command{
@@ -50,9 +50,9 @@ type ResolveOutput struct {
 
 var DagPutCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Add a dag node to ipfs.",
+		Tagline: "Add a dag node to udfs.",
 		ShortDescription: `
-'ipfs dag put' accepts input from a file or stdin and parses it
+'udfs dag put' accepts input from a file or stdin and parses it
 into an object of the specified format.
 `,
 	},
@@ -185,9 +185,9 @@ into an object of the specified format.
 
 var DagGetCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Get a dag node from ipfs.",
+		Tagline: "Get a dag node from udfs.",
 		ShortDescription: `
-'ipfs dag get' fetches a dag node from ipfs and prints it out in the specified
+'udfs dag get' fetches a dag node from udfs and prints it out in the specified
 format.
 `,
 	},
@@ -232,7 +232,7 @@ var DagResolveCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Resolve ipld block",
 		ShortDescription: `
-'ipfs dag resolve' fetches a dag node from ipfs, prints it's address and remaining path.
+'udfs dag resolve' fetches a dag node from udfs, prints it's address and remaining path.
 `,
 	},
 	Arguments: []cmdkit.Argument{

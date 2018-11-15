@@ -17,10 +17,10 @@ import (
 	fsrepo "github.com/udfs/go-udfs/repo/fsrepo"
 	uio "github.com/udfs/go-udfs/unixfs/io"
 
-	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	bstore "gx/ipfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-ipfs-blockstore"
-	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	cmds "gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	bstore "gx/udfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-udfs-blockstore"
+	cmdkit "gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 
 	"github.com/udfs/go-udfs/core"
 	"github.com/udfs/go-udfs/path"
@@ -33,9 +33,9 @@ type RepoVersion struct {
 
 var RepoCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Manipulate the IPFS repo.",
+		Tagline: "Manipulate the UDFS repo.",
 		ShortDescription: `
-'ipfs repo' is a plumbing command used to manipulate the repo.
+'udfs repo' is a plumbing command used to manipulate the repo.
 `,
 	},
 
@@ -59,7 +59,7 @@ var repoGcCmd = &oldcmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Perform a garbage collection sweep on the repo.",
 		ShortDescription: `
-'ipfs repo gc' is a plumbing command that will sweep the local
+'udfs repo gc' is a plumbing command that will sweep the local
 set of stored objects and remove ones that are not pinned in
 order to reclaim hard disk space.
 `,
@@ -156,7 +156,7 @@ var repoStatCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Get stats for the currently used repo.",
 		ShortDescription: `
-'ipfs repo stat' provides information about the local set of
+'udfs repo stat' provides information about the local set of
 stored objects. It outputs:
 
 RepoSize        int Size in bytes that the repo is currently taking.
@@ -242,8 +242,8 @@ var RepoFsckCmd = &oldcmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Remove repo lockfiles.",
 		ShortDescription: `
-'ipfs repo fsck' is a plumbing command that will remove repo and level db
-lockfiles, as well as the api file. This command can only run when no ipfs
+'udfs repo fsck' is a plumbing command that will remove repo and level db
+lockfiles, as well as the api file. This command can only run when no udfs
 daemons are running.
 `,
 	},
@@ -386,7 +386,7 @@ var repoVersionCmd = &oldcmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Show the repo version.",
 		ShortDescription: `
-'ipfs repo version' returns the current repo version.
+'udfs repo version' returns the current repo version.
 `,
 	},
 
@@ -419,7 +419,7 @@ var repoVersionCmd = &oldcmds.Command{
 			if quiet {
 				buf = bytes.NewBufferString(fmt.Sprintf("fs-repo@%s\n", response.Version))
 			} else {
-				buf = bytes.NewBufferString(fmt.Sprintf("ipfs repo version fs-repo@%s\n", response.Version))
+				buf = bytes.NewBufferString(fmt.Sprintf("udfs repo version fs-repo@%s\n", response.Version))
 			}
 			return buf, nil
 
@@ -431,11 +431,11 @@ var repoRmCmd = &oldcmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Remove cache objects from repo.",
 		ShortDescription: `
-'ipfs repo rm' is a plumbing command that will remove the objects that are not pinned.
+'udfs repo rm' is a plumbing command that will remove the objects that are not pinned.
 `,
 	},
 	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("ipfs-path", true, true, "Path to object(s) to be removed.").EnableStdin(),
+		cmdkit.StringArg("udfs-path", true, true, "Path to object(s) to be removed.").EnableStdin(),
 	},
 	Options: []cmdkit.Option{
 		cmdkit.BoolOption("stream-errors", "Stream errors."),

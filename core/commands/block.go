@@ -12,11 +12,11 @@ import (
 	util "github.com/udfs/go-udfs/blocks/blockstoreutil"
 	e "github.com/udfs/go-udfs/core/commands/e"
 
-	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	blocks "gx/ipfs/QmVzK524a2VWLqyvtBeiHKsUAWYgeAk4DBeZoY7vpNPNRx/go-block-format"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	mh "gx/udfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
+	blocks "gx/udfs/QmVzK524a2VWLqyvtBeiHKsUAWYgeAk4DBeZoY7vpNPNRx/go-block-format"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 type BlockStat struct {
@@ -30,9 +30,9 @@ func (bs BlockStat) String() string {
 
 var BlockCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Interact with raw IPFS blocks.",
+		Tagline: "Interact with raw UDFS blocks.",
 		ShortDescription: `
-'ipfs block' is a plumbing command used to manipulate raw IPFS blocks.
+'udfs block' is a plumbing command used to manipulate raw UDFS blocks.
 Reads from stdin or writes to stdout, and <key> is a base58 encoded
 multihash.
 `,
@@ -48,10 +48,10 @@ multihash.
 
 var blockStatCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Print information of a raw IPFS block.",
+		Tagline: "Print information of a raw UDFS block.",
 		ShortDescription: `
-'ipfs block stat' is a plumbing command for retrieving information
-on raw IPFS blocks. It outputs the following to stdout:
+'udfs block stat' is a plumbing command for retrieving information
+on raw UDFS blocks. It outputs the following to stdout:
 
 	Key  - the base58 encoded multihash
 	Size - the size of the block in bytes
@@ -92,9 +92,9 @@ on raw IPFS blocks. It outputs the following to stdout:
 
 var blockGetCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Get a raw IPFS block.",
+		Tagline: "Get a raw UDFS block.",
 		ShortDescription: `
-'ipfs block get' is a plumbing command for retrieving raw IPFS blocks.
+'udfs block get' is a plumbing command for retrieving raw UDFS blocks.
 It outputs to stdout, and <key> is a base58 encoded multihash.
 `,
 	},
@@ -118,9 +118,9 @@ It outputs to stdout, and <key> is a base58 encoded multihash.
 
 var blockPutCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Store input as an IPFS block.",
+		Tagline: "Store input as an UDFS block.",
 		ShortDescription: `
-'ipfs block put' is a plumbing command for storing raw IPFS blocks.
+'udfs block put' is a plumbing command for storing raw UDFS blocks.
 It reads from stdin, and <key> is a base58 encoded multihash.
 
 By default CIDv0 is going to be generated. Setting 'mhtype' to anything other
@@ -129,7 +129,7 @@ than 'sha2-256' or format to anything other than 'v0' will result in CIDv1.
 	},
 
 	Arguments: []cmdkit.Argument{
-		cmdkit.FileArg("data", true, false, "The data to be stored as an IPFS block.").EnableStdin(),
+		cmdkit.FileArg("data", true, false, "The data to be stored as an UDFS block.").EnableStdin(),
 	},
 	Options: []cmdkit.Option{
 		cmdkit.StringOption("format", "f", "cid format for blocks to be created with."),
@@ -268,9 +268,9 @@ func getBlockForKey(ctx context.Context, env cmds.Environment, skey string) (blo
 
 var blockRmCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Remove IPFS block(s).",
+		Tagline: "Remove UDFS block(s).",
 		ShortDescription: `
-'ipfs block rm' is a plumbing command for removing raw ipfs blocks.
+'udfs block rm' is a plumbing command for removing raw udfs blocks.
 It takes a list of base58 encoded multihashes to remove.
 `,
 	},

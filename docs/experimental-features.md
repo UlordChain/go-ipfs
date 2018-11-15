@@ -1,26 +1,26 @@
-# Experimental features of go-ipfs
+# Experimental features of go-udfs
 
-This document contains a list of experimental features in go-ipfs.
+This document contains a list of experimental features in go-udfs.
 These features, commands, and APIs aren't mature, and you shouldn't rely on them.
 Once they reach maturity, there's going to be mention in the changelog and
 release posts. If they don't reach maturity, the same applies, and their code is
 removed.
 
-Subscribe to https://github.com/ipfs/go-ipfs/issues/3397 to get updates.
+Subscribe to https://github.com/udfs/go-udfs/issues/3397 to get updates.
 
-When you add a new experimental feature to go-ipfs, or change an experimental
+When you add a new experimental feature to go-udfs, or change an experimental
 feature, you MUST please make a PR updating this document, and link the PR in
 the above issue.
 
-- [ipfs pubsub](#ipfs-pubsub)
+- [udfs pubsub](#udfs-pubsub)
 - [Client mode DHT routing](#client-mode-dht-routing)
 - [go-multiplex stream muxer](#go-multiplex-stream-muxer)
 - [Raw leaves for unixfs files](#raw-leaves-for-unixfs-files)
-- [ipfs filestore](#ipfs-filestore)
-- [ipfs urlstore](#ipfs-urlstore)
+- [udfs filestore](#udfs-filestore)
+- [udfs urlstore](#udfs-urlstore)
 - [BadgerDB datastore](#badger-datastore)
 - [Private Networks](#private-networks)
-- [ipfs p2p](#ipfs-p2p)
+- [udfs p2p](#udfs-p2p)
 - [Circuit Relay](#circuit-relay)
 - [Plugins](#plugins)
 - [Directory Sharding / HAMT](#directory-sharding-hamt)
@@ -28,7 +28,7 @@ the above issue.
 
 ---
 
-## ipfs pubsub
+## udfs pubsub
 
 ### State
 
@@ -41,7 +41,7 @@ experimental, default-disabled.
 ### How to enable
 
 run your daemon with the `--enable-pubsub-experiment` flag. Then use the
-`ipfs pubsub` commands.
+`udfs pubsub` commands.
 
 ### Road to being a real feature
 - [ ] Needs more people to use and report on how well it works
@@ -91,9 +91,9 @@ export LIBP2P_MUX_PREFS="/mplex/6.7.0 /yamux/1.0.0 /spdy/3.1.0"
 ```
 
 To check which stream muxer is being used between any two given peers, check the
-json output of the `ipfs swarm peers` command, you'll see something like this:
+json output of the `udfs swarm peers` command, you'll see something like this:
 ```
-$ ipfs swarm peers -v --enc=json | jq .
+$ udfs swarm peers -v --enc=json | jq .
 {
   "Peers": [
     {
@@ -103,13 +103,13 @@ $ ipfs swarm peers -v --enc=json | jq .
       "Muxer": "*peerstream_multiplex.conn",
       "Streams": [
         {
-          "Protocol": "/ipfs/bitswap/1.1.0"
+          "Protocol": "/udfs/bitswap/1.1.0"
         },
         {
-          "Protocol": "/ipfs/kad/1.0.0"
+          "Protocol": "/udfs/kad/1.0.0"
         },
         {
-          "Protocol": "/ipfs/kad/1.0.0"
+          "Protocol": "/udfs/kad/1.0.0"
         }
       ]
     },
@@ -133,14 +133,14 @@ experimental.
 master, 0.4.5
 
 ### How to enable
-Use `--raw-leaves` flag when calling `ipfs add`.
+Use `--raw-leaves` flag when calling `udfs add`.
 
 ### Road to being a real feature
 - [ ] Needs more people to use and report on how well it works.
 
 ---
 
-## ipfs filestore
+## udfs filestore
 Allows files to be added without duplicating the space they take up on disk.
 
 ### State
@@ -150,12 +150,12 @@ experimental.
 master, 0.4.7
 
 ### How to enable
-Modify your ipfs config:
+Modify your udfs config:
 ```
-ipfs config --json Experimental.FilestoreEnabled true
+udfs config --json Experimental.FilestoreEnabled true
 ```
 
-And then pass the `--nocopy` flag when running `ipfs add`
+And then pass the `--nocopy` flag when running `udfs add`
 
 ### Road to being a real feature
 - [ ] Needs more people to use and report on how well it works.
@@ -165,8 +165,8 @@ And then pass the `--nocopy` flag when running `ipfs add`
 
 ---
 
-## ipfs urlstore
-Allows ipfs to retrieve blocks contents via a url instead of storing it in the datastore
+## udfs urlstore
+Allows udfs to retrieve blocks contents via a url instead of storing it in the datastore
 
 ### State
 experimental.
@@ -175,9 +175,9 @@ experimental.
 ???.
 
 ### How to enable
-Modify your ipfs config:
+Modify your udfs config:
 ```
-ipfs config --json Experimental.UrlstoreEnabled true
+udfs config --json Experimental.UrlstoreEnabled true
 ```
 
 ### Road to being a real feature
@@ -187,7 +187,7 @@ ipfs config --json Experimental.UrlstoreEnabled true
 
 ## Private Networks
 
-Allows ipfs to only connect to other peers who have a shared secret key.
+Allows udfs to only connect to other peers who have a shared secret key.
 
 ### State
 Experimental
@@ -196,14 +196,14 @@ Experimental
 master, 0.4.7
 
 ### How to enable
-Generate a pre-shared-key using [ipfs-swarm-key-gen](https://github.com/Kubuxu/go-ipfs-swarm-key-gen)):
+Generate a pre-shared-key using [udfs-swarm-key-gen](https://github.com/Kubuxu/go-udfs-swarm-key-gen)):
 ```
-go get github.com/Kubuxu/go-ipfs-swarm-key-gen/ipfs-swarm-key-gen
-ipfs-swarm-key-gen > ~/.ipfs/swarm.key
+go get github.com/Kubuxu/go-udfs-swarm-key-gen/udfs-swarm-key-gen
+udfs-swarm-key-gen > ~/.udfs/swarm.key
 ```
 
 To join a given private network, get the key file from someone in the network
-and save it to `~/.ipfs/swarm.key` (If you are using a custom `$IPFS_PATH`, put
+and save it to `~/.udfs/swarm.key` (If you are using a custom `$UDFS_PATH`, put
 it in there instead).
 
 When using this feature, you will not be able to connect to the default bootstrap
@@ -212,17 +212,17 @@ your own bootstrap nodes.
 
 First, to prevent your node from even trying to connect to the default bootstrap nodes, run:
 ```bash
-ipfs bootstrap rm --all
+udfs bootstrap rm --all
 ```
 
 Then add your own bootstrap peers with:
 ```bash
-ipfs bootstrap add <multiaddr>
+udfs bootstrap add <multiaddr>
 ```
 
 For example:
 ```
-ipfs bootstrap add /ip4/104.236.76.40/tcp/4001/ipfs/QmSoLV4Bbm51jM9C4gDYZQ9Cy3U6aXMJDAbzgu2fzaDs64
+udfs bootstrap add /ip4/104.236.76.40/tcp/4001/udfs/QmSoLV4Bbm51jM9C4gDYZQ9Cy3U6aXMJDAbzgu2fzaDs64
 ```
 
 Bootstrap nodes are no different from all other nodes in the network apart from
@@ -238,7 +238,7 @@ configured, the daemon will fail to start.
 
 ---
 
-## ipfs p2p
+## udfs p2p
 Allows to tunnel TCP connections through Libp2p streams
 
 ### State
@@ -250,18 +250,18 @@ master, 0.4.10
 ### How to enable
 P2P command needs to be enabled in config
 
-`ipfs config --json Experimental.Libp2pStreamMounting true`
+`udfs config --json Experimental.Libp2pStreamMounting true`
 
 ### How to use
 
 Basic usage:
 
 - Open a listener on one node (node A)
-`ipfs p2p listener open p2p-test /ip4/127.0.0.1/tcp/10101`
+`udfs p2p listener open p2p-test /ip4/127.0.0.1/tcp/10101`
 - Where `/ip4/127.0.0.1/tcp/10101` put address of application you want to pass
   p2p connections to
 - On the other node, connect to the listener on node A
-`ipfs p2p stream dial $NODE_A_PEERID p2p-test /ip4/127.0.0.1/tcp/10102`
+`udfs p2p stream dial $NODE_A_PEERID p2p-test /ip4/127.0.0.1/tcp/10102`
 - Node B is now listening for a connection on TCP at 127.0.0.1:10102, connect
   your application there to complete the connection
 
@@ -299,16 +299,16 @@ already online node would have to be restarted.
 In order to connect peers QmA and QmB through a relay node QmRelay:
 
 - Both peers should connect to the relay:
-`ipfs swarm connect /transport/address/ipfs/QmRelay`
+`udfs swarm connect /transport/address/udfs/QmRelay`
 - Peer QmA can then connect to peer QmB using the relay:
-`ipfs swarm connect /ipfs/QmRelay/p2p-circuit/ipfs/QmB`
+`udfs swarm connect /udfs/QmRelay/p2p-circuit/udfs/QmB`
 
 Peers can also connect with an unspecific relay address, which will
 try to dial through known relays:
-`ipfs swarm connect /p2p-circuit/ipfs/QmB`
+`udfs swarm connect /p2p-circuit/udfs/QmB`
 
 Peers can see their (unspecific) relay address in the output of
-`ipfs swarm addrs listen`
+`udfs swarm addrs listen`
 
 ### Road to being a real feature
 
@@ -352,13 +352,13 @@ See [Plugin docs](./plugins.md)
  ### Basic Usage
 
  ```
- $ ipfs init --profile=badgerds
+ $ udfs init --profile=badgerds
  ```
  or
  ```
- [BACKUP ~/.ipfs]
- $ ipfs config profile apply badgerds
- $ ipfs-ds-convert convert
+ [BACKUP ~/.udfs]
+ $ udfs config profile apply badgerds
+ $ udfs-ds-convert convert
  ```
 
 ###
@@ -382,13 +382,13 @@ size of unixfs directories is limited by the maximum block size
 ### Basic Usage:
 
 ```
-ipfs config --json Experimental.ShardingEnabled true
+udfs config --json Experimental.ShardingEnabled true
 ```
 
 ### Road to being a real feature
 
 - [ ] Make sure that objects that don't have to be sharded aren't
-- [ ] Generalize sharding and define a new layer between IPLD and IPFS
+- [ ] Generalize sharding and define a new layer between IPLD and UDFS
 
 ---
 

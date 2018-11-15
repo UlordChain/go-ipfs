@@ -59,10 +59,10 @@ test_expect_success "docker image API is up" '
     -q -O - http://localhost:5001/api/v0/version >/dev/null"
 '
 
-test_expect_success "simple ipfs add/cat can be run in docker container" '
+test_expect_success "simple udfs add/cat can be run in docker container" '
   expected="Hello Worlds" &&
-  HASH=$(docker_exec "$DOC_ID" "echo $(cat expected) | ipfs add | cut -d' ' -f2") &&
-  docker_exec "$DOC_ID" "ipfs cat $HASH" >actual &&
+  HASH=$(docker_exec "$DOC_ID" "echo $(cat expected) | udfs add | cut -d' ' -f2") &&
+  docker_exec "$DOC_ID" "udfs cat $HASH" >actual &&
   test_cmp expected actual
 '
 
@@ -70,7 +70,7 @@ read testcode <<EOF
   docker exec -i "$DOC_ID" wget --retry-connrefused --waitretry=1 --timeout=30 -t 30 \
     -q -O - http://localhost:8080/version | grep Commit | cut -d" " -f2 >actual ; \
   test -s actual ; \
-  docker exec -i "$DOC_ID" ipfs version --enc json \
+  docker exec -i "$DOC_ID" udfs version --enc json \
     | sed 's/^.*"Commit":"\\\([^"]*\\\)".*$/\\\1/g' >expected ; \
   test -s expected ; \
   test_cmp expected actual

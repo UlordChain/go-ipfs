@@ -12,9 +12,9 @@ import (
 	e "github.com/udfs/go-udfs/core/commands/e"
 	"github.com/udfs/go-udfs/filestore"
 
-	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	cmds "gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 var FileStoreCmd = &cmds.Command{
@@ -230,7 +230,7 @@ var dupsFileStore = &oldCmds.Command{
 	Type:       RefWrapper{},
 }
 
-func getFilestore(env interface{}) (*core.IpfsNode, *filestore.Filestore, error) {
+func getFilestore(env interface{}) (*core.UdfsNode, *filestore.Filestore, error) {
 	n, err := GetNode(env)
 	if err != nil {
 		return nil, nil, err

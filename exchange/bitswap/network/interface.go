@@ -5,18 +5,18 @@ import (
 
 	bsmsg "github.com/udfs/go-udfs/exchange/bitswap/message"
 
-	ifconnmgr "gx/ipfs/QmXuucFcuvAWYAJfhHV2h4BYreHEAsLSsiquosiXeuduTN/go-libp2p-interface-connmgr"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	protocol "gx/ipfs/QmZNkThpqfVXs9GNbexPrfBbXSLNYeKrE7jwFM2oqHbyqN/go-libp2p-protocol"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	ifconnmgr "gx/udfs/QmXuucFcuvAWYAJfhHV2h4BYreHEAsLSsiquosiXeuduTN/go-libp2p-interface-connmgr"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	protocol "gx/udfs/QmZNkThpqfVXs9GNbexPrfBbXSLNYeKrE7jwFM2oqHbyqN/go-libp2p-protocol"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 )
 
 var (
 	// These two are equivalent, legacy
-	ProtocolBitswapOne    protocol.ID = "/ipfs/bitswap/1.0.0"
-	ProtocolBitswapNoVers protocol.ID = "/ipfs/bitswap"
+	ProtocolBitswapOne    protocol.ID = "/udfs/bitswap/1.0.0"
+	ProtocolBitswapNoVers protocol.ID = "/udfs/bitswap"
 
-	ProtocolBitswap protocol.ID = "/ipfs/bitswap/1.1.0"
+	ProtocolBitswap protocol.ID = "/udfs/bitswap/1.1.0"
 )
 
 // BitSwapNetwork provides network connectivity for BitSwap sessions

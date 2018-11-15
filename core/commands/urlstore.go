@@ -10,11 +10,11 @@ import (
 	ihelper "github.com/udfs/go-udfs/importer/helpers"
 	trickle "github.com/udfs/go-udfs/importer/trickle"
 
-	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	chunk "gx/ipfs/QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4/go-ipfs-chunker"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	cmds "gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	mh "gx/udfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
+	chunk "gx/udfs/QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4/go-udfs-chunker"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	cmdkit "gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 var urlStoreCmd = &cmds.Command{
@@ -27,15 +27,15 @@ var urlAdd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Add URL via urlstore.",
 		LongDescription: `
-Add URLs to ipfs without storing the data locally.
+Add URLs to udfs without storing the data locally.
 
 The URL provided must be stable and ideally on a web server under your
 control.
 
 The file is added using raw-leaves but otherwise using the default
-settings for 'ipfs add'.
+settings for 'udfs add'.
 
-The file is not pinned, so this command should be followed by an 'ipfs
+The file is not pinned, so this command should be followed by an 'udfs
 pin add'.
 
 This command is considered temporary until a better solution can be
@@ -47,7 +47,7 @@ time.
 		cmdkit.BoolOption(trickleOptionName, "t", "Use trickle-dag format for dag generation."),
 	},
 	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("url", true, false, "URL to add to IPFS"),
+		cmdkit.StringArg("url", true, false, "URL to add to UDFS"),
 	},
 	Type: BlockStat{},
 

@@ -7,8 +7,8 @@ import (
 	"io"
 	"time"
 
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	ci "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	ci "gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
 )
 
 func Init(out io.Writer, nBitsForKeypair int) (*Config, error) {
@@ -27,7 +27,7 @@ func Init(out io.Writer, nBitsForKeypair int) (*Config, error) {
 	conf := &Config{
 		API: API{
 			HTTPHeaders: map[string][]string{
-				"Server": {"go-ipfs/" + CurrentVersionNumber},
+				"Server": {"go-udfs/" + CurrentVersionNumber},
 			},
 		},
 
@@ -51,7 +51,7 @@ func Init(out io.Writer, nBitsForKeypair int) (*Config, error) {
 
 		// setup the node mount points.
 		Mounts: Mounts{
-			IPFS: "/ipfs",
+			UDFS: "/udfs",
 			IPNS: "/ipns",
 		},
 

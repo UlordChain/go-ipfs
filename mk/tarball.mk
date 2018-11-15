@@ -9,5 +9,5 @@ git-hash:=$(shell cat .tarball)
 endif
 
 
-go-ipfs-source.tar.gz: distclean
+go-udfs-source.tar.gz: distclean
 	bin/maketarball.sh $@

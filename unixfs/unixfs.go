@@ -1,12 +1,12 @@
-// Package unixfs implements a data format for files in the IPFS filesystem It
-// is not the only format in ipfs, but it is the one that the filesystem
+// Package unixfs implements a data format for files in the UDFS filesystem It
+// is not the only format in udfs, but it is the one that the filesystem
 // assumes
 package unixfs
 
 import (
 	"errors"
 
-	proto "gx/ipfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
+	proto "gx/udfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
 
 	dag "github.com/udfs/go-udfs/merkledag"
 	pb "github.com/udfs/go-udfs/unixfs/pb"
@@ -168,7 +168,7 @@ func FSNodeFromBytes(b []byte) (*FSNode, error) {
 //
 // It also initializes the `Filesize` pointer field to ensure its value
 // is never nil before marshaling, this is not a required field but it is
-// done to be backwards compatible with previous `go-ipfs` versions hash.
+// done to be backwards compatible with previous `go-udfs` versions hash.
 // (If it wasn't initialized there could be cases where `Filesize` could
 // have been left at nil, when the `FSNode` was created but no data or
 // child nodes were set to adjust it, as is the case in `NewLeaf()`.)

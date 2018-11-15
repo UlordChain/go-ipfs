@@ -1,7 +1,7 @@
 // +build !nofuse
 
 // package fuse/ipns implements a fuse filesystem that interfaces
-// with ipns, the naming system for ipfs.
+// with ipns, the naming system for udfs.
 package ipns
 
 import (
@@ -18,16 +18,16 @@ import (
 	path "github.com/udfs/go-udfs/path"
 	ft "github.com/udfs/go-udfs/unixfs"
 
-	fuse "gx/ipfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse"
-	fs "gx/ipfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse/fs"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	ci "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	fuse "gx/udfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse"
+	fs "gx/udfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse/fs"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	ci "gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
 )
 
 func init() {
-	if os.Getenv("IPFS_FUSE_DEBUG") != "" {
+	if os.Getenv("UDFS_FUSE_DEBUG") != "" {
 		fuse.Debug = func(msg interface{}) {
 			fmt.Println(msg)
 		}
@@ -38,22 +38,22 @@ var log = logging.Logger("fuse/ipns")
 
 // FileSystem is the readwrite IPNS Fuse Filesystem.
 type FileSystem struct {
-	Ipfs     *core.IpfsNode
+	Udfs     *core.UdfsNode
 	RootNode *Root
 }
 
-// NewFileSystem constructs new fs using given core.IpfsNode instance.
-func NewFileSystem(ipfs *core.IpfsNode, sk ci.PrivKey, ipfspath, ipnspath string) (*FileSystem, error) {
+// NewFileSystem constructs new fs using given core.UdfsNode instance.
+func NewFileSystem(udfs *core.UdfsNode, sk ci.PrivKey, udfspath, ipnspath string) (*FileSystem, error) {
 
 	kmap := map[string]ci.PrivKey{
 		"local": sk,
 	}
-	root, err := CreateRoot(ipfs, kmap, ipfspath, ipnspath)
+	root, err := CreateRoot(udfs, kmap, udfspath, ipnspath)
 	if err != nil {
 		return nil, err
 	}
 
-	return &FileSystem{Ipfs: ipfs, RootNode: root}, nil
+	return &FileSystem{Udfs: udfs, RootNode: root}, nil
 }
 
 // Root constructs the Root of the filesystem, a Root object.
@@ -71,11 +71,11 @@ func (f *FileSystem) Destroy() {
 
 // Root is the root object of the filesystem tree.
 type Root struct {
-	Ipfs *core.IpfsNode
+	Udfs *core.UdfsNode
 	Keys map[string]ci.PrivKey
 
-	// Used for symlinking into ipfs
-	IpfsRoot  string
+	// Used for symlinking into udfs
+	UdfsRoot  string
 	IpnsRoot  string
 	LocalDirs map[string]fs.Node
 	Roots     map[string]*keyRoot
@@ -83,20 +83,20 @@ type Root struct {
 	LocalLinks map[string]*Link
 }
 
-func ipnsPubFunc(ipfs *core.IpfsNode, k ci.PrivKey) mfs.PubFunc {
+func ipnsPubFunc(udfs *core.UdfsNode, k ci.PrivKey) mfs.PubFunc {
 	return func(ctx context.Context, c *cid.Cid) error {
-		return ipfs.Namesys.Publish(ctx, k, path.FromCid(c))
+		return udfs.Namesys.Publish(ctx, k, path.FromCid(c))
 	}
 }
 
-func loadRoot(ctx context.Context, rt *keyRoot, ipfs *core.IpfsNode, name string) (fs.Node, error) {
+func loadRoot(ctx context.Context, rt *keyRoot, udfs *core.UdfsNode, name string) (fs.Node, error) {
 	p, err := path.ParsePath("/ipns/" + name)
 	if err != nil {
 		log.Errorf("mkpath %s: %s", name, err)
 		return nil, err
 	}
 
-	node, err := core.Resolve(ctx, ipfs.Namesys, ipfs.Resolver, p)
+	node, err := core.Resolve(ctx, udfs.Namesys, udfs.Resolver, p)
 	switch err {
 	case nil:
 	case namesys.ErrResolveFailed:
@@ -111,7 +111,7 @@ func loadRoot(ctx context.Context, rt *keyRoot, ipfs *core.IpfsNode, name string
 		return nil, dag.ErrNotProtobuf
 	}
 
-	root, err := mfs.NewRoot(ctx, ipfs.DAG, pbnode, ipnsPubFunc(ipfs, rt.k))
+	root, err := mfs.NewRoot(ctx, udfs.DAG, pbnode, ipnsPubFunc(udfs, rt.k))
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ type keyRoot struct {
 	root  *mfs.Root
 }
 
-func CreateRoot(ipfs *core.IpfsNode, keys map[string]ci.PrivKey, ipfspath, ipnspath string) (*Root, error) {
+func CreateRoot(udfs *core.UdfsNode, keys map[string]ci.PrivKey, udfspath, ipnspath string) (*Root, error) {
 	ldirs := make(map[string]fs.Node)
 	roots := make(map[string]*keyRoot)
 	links := make(map[string]*Link)
@@ -139,7 +139,7 @@ func CreateRoot(ipfs *core.IpfsNode, keys map[string]ci.PrivKey, ipfspath, ipnsp
 		name := pid.Pretty()
 
 		kr := &keyRoot{k: k, alias: alias}
-		fsn, err := loadRoot(ipfs.Context(), kr, ipfs, name)
+		fsn, err := loadRoot(udfs.Context(), kr, udfs, name)
 		if err != nil {
 			return nil, err
 		}
@@ -154,8 +154,8 @@ func CreateRoot(ipfs *core.IpfsNode, keys map[string]ci.PrivKey, ipfspath, ipnsp
 	}
 
 	return &Root{
-		Ipfs:       ipfs,
-		IpfsRoot:   ipfspath,
+		Udfs:       udfs,
+		UdfsRoot:   udfspath,
 		IpnsRoot:   ipnspath,
 		Keys:       keys,
 		LocalDirs:  ldirs,
@@ -195,17 +195,17 @@ func (s *Root) Lookup(ctx context.Context, name string) (fs.Node, error) {
 		}
 	}
 
-	// other links go through ipns resolution and are symlinked into the ipfs mountpoint
-	resolved, err := s.Ipfs.Namesys.Resolve(s.Ipfs.Context(), name)
+	// other links go through ipns resolution and are symlinked into the udfs mountpoint
+	resolved, err := s.Udfs.Namesys.Resolve(s.Udfs.Context(), name)
 	if err != nil {
 		log.Warningf("ipns: namesys resolve error: %s", err)
 		return nil, fuse.ENOENT
 	}
 
 	segments := resolved.Segments()
-	if segments[0] == "ipfs" {
+	if segments[0] == "udfs" {
 		p := path.Join(resolved.Segments()[1:])
-		return &Link{s.IpfsRoot + "/" + p}, nil
+		return &Link{s.UdfsRoot + "/" + p}, nil
 	}
 
 	log.Error("Invalid path.Path: ", resolved)

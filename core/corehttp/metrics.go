@@ -6,12 +6,12 @@ import (
 
 	core "github.com/udfs/go-udfs/core"
 
-	prometheus "gx/ipfs/QmYYv3QFnfQbiwmi1tpkgKF8o4xFnZoBrvpupTiGJwL9nH/client_golang/prometheus"
+	prometheus "gx/udfs/QmYYv3QFnfQbiwmi1tpkgKF8o4xFnZoBrvpupTiGJwL9nH/client_golang/prometheus"
 )
 
 // This adds the scraping endpoint which Prometheus uses to fetch metrics.
 func MetricsScrapingOption(path string) ServeOption {
-	return func(n *core.IpfsNode, _ net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
+	return func(n *core.UdfsNode, _ net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
 		mux.Handle(path, prometheus.UninstrumentedHandler())
 		return mux, nil
 	}
@@ -19,7 +19,7 @@ func MetricsScrapingOption(path string) ServeOption {
 
 // This adds collection of net/http-related metrics
 func MetricsCollectionOption(handlerName string) ServeOption {
-	return func(_ *core.IpfsNode, _ net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
+	return func(_ *core.UdfsNode, _ net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
 		childMux := http.NewServeMux()
 		mux.HandleFunc("/", prometheus.InstrumentHandler(handlerName, childMux))
 		return childMux, nil
@@ -28,19 +28,19 @@ func MetricsCollectionOption(handlerName string) ServeOption {
 
 var (
 	peersTotalMetric = prometheus.NewDesc(
-		prometheus.BuildFQName("ipfs", "p2p", "peers_total"),
+		prometheus.BuildFQName("udfs", "p2p", "peers_total"),
 		"Number of connected peers", []string{"transport"}, nil)
 )
 
-type IpfsNodeCollector struct {
-	Node *core.IpfsNode
+type UdfsNodeCollector struct {
+	Node *core.UdfsNode
 }
 
-func (_ IpfsNodeCollector) Describe(ch chan<- *prometheus.Desc) {
+func (_ UdfsNodeCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- peersTotalMetric
 }
 
-func (c IpfsNodeCollector) Collect(ch chan<- prometheus.Metric) {
+func (c UdfsNodeCollector) Collect(ch chan<- prometheus.Metric) {
 	for tr, val := range c.PeersTotalValues() {
 		ch <- prometheus.MustNewConstMetric(
 			peersTotalMetric,
@@ -51,7 +51,7 @@ func (c IpfsNodeCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-func (c IpfsNodeCollector) PeersTotalValues() map[string]float64 {
+func (c UdfsNodeCollector) PeersTotalValues() map[string]float64 {
 	vals := make(map[string]float64)
 	if c.Node.PeerHost == nil {
 		return vals

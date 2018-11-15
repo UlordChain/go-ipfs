@@ -8,13 +8,13 @@ import (
 	mount "github.com/udfs/go-udfs/fuse/mount"
 )
 
-// Mount mounts IPFS at a given location, and returns a mount.Mount instance.
-func Mount(ipfs *core.IpfsNode, mountpoint string) (mount.Mount, error) {
-	cfg, err := ipfs.Repo.Config()
+// Mount mounts UDFS at a given location, and returns a mount.Mount instance.
+func Mount(udfs *core.UdfsNode, mountpoint string) (mount.Mount, error) {
+	cfg, err := udfs.Repo.Config()
 	if err != nil {
 		return nil, err
 	}
 	allow_other := cfg.Mounts.FuseAllowOther
-	fsys := NewFileSystem(ipfs)
-	return mount.NewMount(ipfs.Process(), fsys, mountpoint, allow_other)
+	fsys := NewFileSystem(udfs)
+	return mount.NewMount(udfs.Process(), fsys, mountpoint, allow_other)
 }

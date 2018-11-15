@@ -23,33 +23,33 @@ import (
 	ft "github.com/udfs/go-udfs/unixfs"
 	uio "github.com/udfs/go-udfs/unixfs/io"
 
-	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	humanize "gx/ipfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
-	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
-	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	cmds "gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	humanize "gx/udfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
+	mh "gx/udfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
+	offline "gx/udfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-udfs-exchange-offline"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	cmdkit "gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 var flog = logging.Logger("cmds/files")
 
-// FilesCmd is the 'ipfs files' command
+// FilesCmd is the 'udfs files' command
 var FilesCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Interact with unixfs files.",
 		ShortDescription: `
-Files is an API for manipulating IPFS objects as if they were a unix
+Files is an API for manipulating UDFS objects as if they were a unix
 filesystem.
 
 NOTE:
-Most of the subcommands of 'ipfs files' accept the '--flush' flag. It defaults
+Most of the subcommands of 'udfs files' accept the '--flush' flag. It defaults
 to true. Use caution when setting this flag to false. It will improve
 performance for large numbers of file operations, but it does so at the cost
 of consistency guarantees. If the daemon is unexpectedly killed before running
-'ipfs files flush' on the files in question, then data may be lost. This also
-applies to running 'ipfs repo gc' concurrently with '--flush=false'
+'udfs files flush' on the files in question, then data may be lost. This also
+applies to running 'udfs repo gc' concurrently with '--flush=false'
 operations.
 `,
 	},
@@ -352,9 +352,9 @@ var filesCpCmd = &oldcmds.Command{
 	},
 }
 
-func getNodeFromPath(ctx context.Context, node *core.IpfsNode, dagservice ipld.DAGService, p string) (ipld.Node, error) {
+func getNodeFromPath(ctx context.Context, node *core.UdfsNode, dagservice ipld.DAGService, p string) (ipld.Node, error) {
 	switch {
-	case strings.HasPrefix(p, "/ipfs/"):
+	case strings.HasPrefix(p, "/udfs/"):
 		np, err := path.ParsePath(p)
 		if err != nil {
 			return nil, err
@@ -388,7 +388,7 @@ List directories in the local mutable namespace.
 
 Examples:
 
-    $ ipfs files ls /welcome/docs/
+    $ udfs files ls /welcome/docs/
     about
     contact
     help
@@ -396,7 +396,7 @@ Examples:
     readme
     security-notes
 
-    $ ipfs files ls /myfiles/a/b/c/d
+    $ udfs files ls /myfiles/a/b/c/d
     foo
     bar
 `,
@@ -532,7 +532,7 @@ will read the entire file similar to unix cat.
 
 Examples:
 
-    $ ipfs files read /test/hello
+    $ udfs files read /test/hello
     hello
         `,
 	},
@@ -643,7 +643,7 @@ Move files around. Just like traditional unix mv.
 
 Example:
 
-    $ ipfs files mv /myfs/a/b/c /myfs/foo/newc
+    $ udfs files mv /myfs/a/b/c /myfs/foo/newc
 
 `,
 	},
@@ -704,13 +704,13 @@ of writes to a deeper directory structure.
 
 EXAMPLE:
 
-    echo "hello world" | ipfs files write --create /myfs/a/b/file
-    echo "hello world" | ipfs files write --truncate /myfs/a/b/file
+    echo "hello world" | udfs files write --create /myfs/a/b/file
+    echo "hello world" | udfs files write --truncate /myfs/a/b/file
 
 WARNING:
 
 Usage of the '--flush=false' option does not guarantee data durability until
-the tree has been flushed. This can be accomplished by running 'ipfs files
+the tree has been flushed. This can be accomplished by running 'udfs files
 stat' on the file or any of its ancestors.
 `,
 	},
@@ -831,8 +831,8 @@ NOTE: All paths must be absolute.
 
 Examples:
 
-    $ ipfs files mkdir /test/newdir
-    $ ipfs files mkdir -p /test/does/not/exist/yet
+    $ udfs files mkdir /test/newdir
+    $ udfs files mkdir -p /test/does/not/exist/yet
 `,
 	},
 
@@ -988,12 +988,12 @@ var filesRmCmd = &oldcmds.Command{
 		ShortDescription: `
 Remove files or directories.
 
-    $ ipfs files rm /foo
-    $ ipfs files ls /bar
+    $ udfs files rm /foo
+    $ udfs files ls /bar
     cat
     dog
     fish
-    $ ipfs files rm -r /bar
+    $ udfs files rm -r /bar
 `,
 	},
 

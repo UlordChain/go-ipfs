@@ -1,31 +1,31 @@
 /*
-Package namesys implements resolvers and publishers for the IPFS
+Package namesys implements resolvers and publishers for the UDFS
 naming system (IPNS).
 
-The core of IPFS is an immutable, content-addressable Merkle graph.
+The core of UDFS is an immutable, content-addressable Merkle graph.
 That works well for many use cases, but doesn't allow you to answer
 questions like "what is Alice's current homepage?".  The mutable name
 system allows Alice to publish information like:
 
   The current homepage for alice.example.com is
-  /ipfs/Qmcqtw8FfrVSBaRmbWwHxt3AuySBhJLcvmFYi3Lbc4xnwj
+  /udfs/Qmcqtw8FfrVSBaRmbWwHxt3AuySBhJLcvmFYi3Lbc4xnwj
 
 or:
 
   The current homepage for node
   QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
   is
-  /ipfs/Qmcqtw8FfrVSBaRmbWwHxt3AuySBhJLcvmFYi3Lbc4xnwj
+  /udfs/Qmcqtw8FfrVSBaRmbWwHxt3AuySBhJLcvmFYi3Lbc4xnwj
 
 The mutable name system also allows users to resolve those references
-to find the immutable IPFS object currently referenced by a given
+to find the immutable UDFS object currently referenced by a given
 mutable name.
 
 For command-line bindings to this functionality, see:
 
-  ipfs name
-  ipfs dns
-  ipfs resolve
+  udfs name
+  udfs dns
+  udfs resolve
 */
 package namesys
 
@@ -38,7 +38,7 @@ import (
 	opts "github.com/udfs/go-udfs/namesys/opts"
 	path "github.com/udfs/go-udfs/path"
 
-	ci "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	ci "gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
 )
 
 // ErrResolveFailed signals an error when attempting to resolve.
@@ -67,15 +67,15 @@ type NameSystem interface {
 type Resolver interface {
 
 	// Resolve performs a recursive lookup, returning the dereferenced
-	// path.  For example, if ipfs.io has a DNS TXT record pointing to
+	// path.  For example, if udfs.io has a DNS TXT record pointing to
 	//   /ipns/QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
 	// and there is a DHT IPNS entry for
 	//   QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
-	//   -> /ipfs/Qmcqtw8FfrVSBaRmbWwHxt3AuySBhJLcvmFYi3Lbc4xnwj
+	//   -> /udfs/Qmcqtw8FfrVSBaRmbWwHxt3AuySBhJLcvmFYi3Lbc4xnwj
 	// then
-	//   Resolve(ctx, "/ipns/ipfs.io")
+	//   Resolve(ctx, "/ipns/udfs.io")
 	// will resolve both names, returning
-	//   /ipfs/Qmcqtw8FfrVSBaRmbWwHxt3AuySBhJLcvmFYi3Lbc4xnwj
+	//   /udfs/Qmcqtw8FfrVSBaRmbWwHxt3AuySBhJLcvmFYi3Lbc4xnwj
 	//
 	// There is a default depth-limit to avoid infinite recursion.  Most
 	// users will be fine with this default limit, but if you need to

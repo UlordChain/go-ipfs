@@ -19,10 +19,10 @@ import (
 	"github.com/udfs/go-udfs/thirdparty/verifcid"
 	uio "github.com/udfs/go-udfs/unixfs/io"
 
-	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
-	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	u "gx/udfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-udfs-util"
+	offline "gx/udfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-udfs-exchange-offline"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 var PinCmd = &cmds.Command{
@@ -51,11 +51,11 @@ type AddPinOutput struct {
 var addPinCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline:          "Pin objects to local storage.",
-		ShortDescription: "Stores an IPFS object(s) from a given path locally to disk.",
+		ShortDescription: "Stores an UDFS object(s) from a given path locally to disk.",
 	},
 
 	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("ipfs-path", true, true, "Path to object(s) to be pinned.").EnableStdin(),
+		cmdkit.StringArg("udfs-path", true, true, "Path to object(s) to be pinned.").EnableStdin(),
 	},
 	Options: []cmdkit.Option{
 		cmdkit.BoolOption("recursive", "r", "Recursively pin the object linked to by the specified object(s).").WithDefault(true),
@@ -181,7 +181,7 @@ collected if needed. (By default, recursively. Use -r=false for direct pins.)
 	},
 
 	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("ipfs-path", true, true, "Path to object(s) to be unpinned.").EnableStdin(),
+		cmdkit.StringArg("udfs-path", true, true, "Path to object(s) to be unpinned.").EnableStdin(),
 	},
 	Options: []cmdkit.Option{
 		cmdkit.BoolOption("recursive", "r", "Recursively unpin the object linked to by the specified object(s).").WithDefault(true),
@@ -268,24 +268,24 @@ object. And if --type=<type> is additionally used, the command will also fail
 if any of the arguments is not of the specified type.
 
 Example:
-	$ echo "hello" | ipfs add -q
+	$ echo "hello" | udfs add -q
 	QmZULkCELmmk5XNfCgTnCyFgAVxBRBXyDHGGMVoLFLiXEN
-	$ ipfs pin ls
+	$ udfs pin ls
 	QmZULkCELmmk5XNfCgTnCyFgAVxBRBXyDHGGMVoLFLiXEN recursive
 	# now remove the pin, and repin it directly
-	$ ipfs pin rm QmZULkCELmmk5XNfCgTnCyFgAVxBRBXyDHGGMVoLFLiXEN
+	$ udfs pin rm QmZULkCELmmk5XNfCgTnCyFgAVxBRBXyDHGGMVoLFLiXEN
 	unpinned QmZULkCELmmk5XNfCgTnCyFgAVxBRBXyDHGGMVoLFLiXEN
-	$ ipfs pin add -r=false QmZULkCELmmk5XNfCgTnCyFgAVxBRBXyDHGGMVoLFLiXEN
+	$ udfs pin add -r=false QmZULkCELmmk5XNfCgTnCyFgAVxBRBXyDHGGMVoLFLiXEN
 	pinned QmZULkCELmmk5XNfCgTnCyFgAVxBRBXyDHGGMVoLFLiXEN directly
-	$ ipfs pin ls --type=direct
+	$ udfs pin ls --type=direct
 	QmZULkCELmmk5XNfCgTnCyFgAVxBRBXyDHGGMVoLFLiXEN direct
-	$ ipfs pin ls QmZULkCELmmk5XNfCgTnCyFgAVxBRBXyDHGGMVoLFLiXEN
+	$ udfs pin ls QmZULkCELmmk5XNfCgTnCyFgAVxBRBXyDHGGMVoLFLiXEN
 	QmZULkCELmmk5XNfCgTnCyFgAVxBRBXyDHGGMVoLFLiXEN direct
 `,
 	},
 
 	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("ipfs-path", false, true, "Path to object(s) to be listed."),
+		cmdkit.StringArg("udfs-path", false, true, "Path to object(s) to be listed."),
 	},
 	Options: []cmdkit.Option{
 		cmdkit.StringOption("type", "t", "The type of pinned keys to list. Can be \"direct\", \"indirect\", \"recursive\", or \"all\".").WithDefault("all"),
@@ -502,7 +502,7 @@ type RefKeyList struct {
 	Keys map[string]RefKeyObject
 }
 
-func pinLsKeys(ctx context.Context, args []string, typeStr string, n *core.IpfsNode) (map[string]RefKeyObject, error) {
+func pinLsKeys(ctx context.Context, args []string, typeStr string, n *core.UdfsNode) (map[string]RefKeyObject, error) {
 
 	mode, ok := pin.StringToMode(typeStr)
 	if !ok {
@@ -549,7 +549,7 @@ func pinLsKeys(ctx context.Context, args []string, typeStr string, n *core.IpfsN
 	return keys, nil
 }
 
-func pinLsAll(ctx context.Context, typeStr string, n *core.IpfsNode) (map[string]RefKeyObject, error) {
+func pinLsAll(ctx context.Context, typeStr string, n *core.UdfsNode) (map[string]RefKeyObject, error) {
 
 	keys := make(map[string]RefKeyObject)
 
@@ -604,7 +604,7 @@ type pinVerifyOpts struct {
 	includeOk bool
 }
 
-func pinVerify(ctx context.Context, n *core.IpfsNode, opts pinVerifyOpts) <-chan interface{} {
+func pinVerify(ctx context.Context, n *core.UdfsNode, opts pinVerifyOpts) <-chan interface{} {
 	visited := make(map[string]PinStatus)
 
 	bs := n.Blocks.Blockstore()

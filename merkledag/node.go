@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	mh "gx/udfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
 )
 
 // Common errors
@@ -16,7 +16,7 @@ var (
 	ErrLinkNotFound = fmt.Errorf("no link by that name")
 )
 
-// ProtoNode represents a node in the IPFS Merkle DAG.
+// ProtoNode represents a node in the UDFS Merkle DAG.
 // nodes have opaque data and a set of navigable links.
 type ProtoNode struct {
 	links []*ipld.Link
@@ -260,7 +260,7 @@ func (n *ProtoNode) Stat() (*ipld.NodeStat, error) {
 	}, nil
 }
 
-// Loggable implements the ipfs/go-log.Loggable interface.
+// Loggable implements the udfs/go-log.Loggable interface.
 func (n *ProtoNode) Loggable() map[string]interface{} {
 	return map[string]interface{}{
 		"node": n.String(),

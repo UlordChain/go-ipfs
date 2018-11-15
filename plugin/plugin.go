@@ -1,6 +1,6 @@
 package plugin
 
-// Plugin is base interface for all kinds of go-ipfs plugins
+// Plugin is base interface for all kinds of go-udfs plugins
 // It will be included in interfaces of different Plugins
 type Plugin interface {
 	// Name should return unique name of the plugin

@@ -1,22 +1,22 @@
 FROM golang:1.10-stretch
-MAINTAINER Lars Gierth <lgierth@ipfs.io>
+MAINTAINER Lars Gierth <lgierth@udfs.io>
 
 # This is a copy of /Dockerfile,
 # except that we optimize for build time, instead of image size.
 #
 # Please keep these two Dockerfiles in sync.
 
-ENV GX_IPFS ""
-ENV SRC_DIR /go/src/github.com/ipfs/go-ipfs
+ENV GX_UDFS ""
+ENV SRC_DIR /go/src/github.com/udfs/go-udfs
 
 COPY ./package.json $SRC_DIR/package.json
 
 # Fetch dependencies.
-# Also: allow using a custom IPFS API endpoint.
+# Also: allow using a custom UDFS API endpoint.
 RUN set -x \
   && go get github.com/whyrusleeping/gx \
   && go get github.com/whyrusleeping/gx-go \
-  && ([ -z "$GX_IPFS" ] || echo $GX_IPFS > /root/.ipfs/api) \
+  && ([ -z "$GX_UDFS" ] || echo $GX_UDFS > /root/.udfs/api) \
   && cd $SRC_DIR \
   && gx install
 
@@ -28,8 +28,8 @@ RUN set -x \
   && cd $SRC_DIR \
   && mkdir .git/objects \
   && make build \
-  && mv cmd/ipfs/ipfs /usr/local/bin/ipfs \
-  && mv bin/container_daemon /usr/local/bin/start_ipfs
+  && mv cmd/udfs/udfs /usr/local/bin/udfs \
+  && mv bin/container_daemon /usr/local/bin/start_udfs
 
 # Get su-exec, a very minimal tool for dropping privileges,
 # and tini, a very minimal init daemon for containers
@@ -54,22 +54,22 @@ EXPOSE 8080
 EXPOSE 8081
 
 # Create the fs-repo directory and switch to a non-privileged user.
-ENV IPFS_PATH /data/ipfs
-RUN mkdir -p $IPFS_PATH \
-  && useradd -s /usr/sbin/nologin -d $IPFS_PATH -u 1000 -G users ipfs \
-  && chown ipfs:users $IPFS_PATH
+ENV UDFS_PATH /data/udfs
+RUN mkdir -p $UDFS_PATH \
+  && useradd -s /usr/sbin/nologin -d $UDFS_PATH -u 1000 -G users udfs \
+  && chown udfs:users $UDFS_PATH
 
 # Expose the fs-repo as a volume.
-# start_ipfs initializes an fs-repo if none is mounted.
-VOLUME $IPFS_PATH
+# start_udfs initializes an fs-repo if none is mounted.
+VOLUME $UDFS_PATH
 
 # The default logging level
-ENV IPFS_LOGGING ""
+ENV UDFS_LOGGING ""
 
 # This just makes sure that:
 # 1. There's an fs-repo, and initializes one if there isn't.
 # 2. The API and Gateway are accessible from outside the container.
-ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/start_ipfs"]
+ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/start_udfs"]
 
 # Execute the daemon subcommand by default
 CMD ["daemon", "--migrate=true"]

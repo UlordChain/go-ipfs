@@ -1,4 +1,4 @@
-export IPFS_API ?= v04x.ipfs.io
+export UDFS_API ?= v04x.udfs.io
 
 gx:
 	go get -u github.com/whyrusleeping/gx

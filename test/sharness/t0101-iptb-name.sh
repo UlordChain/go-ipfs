@@ -4,7 +4,7 @@
 # MIT Licensed; see the LICENSE file in this repository.
 #
 
-test_description="Test ipfs repo operations"
+test_description="Test udfs repo operations"
 
 . lib/test-lib.sh
 
@@ -18,21 +18,21 @@ startup_cluster $num_nodes
 
 test_expect_success "add an obect on one node" '
   echo "ipns is super fun" > file &&
-  HASH_FILE=$(ipfsi 1 add -q file)
+  HASH_FILE=$(udfsi 1 add -q file)
 '
 
 test_expect_success "publish that object as an ipns entry" '
-  ipfsi 1 name publish $HASH_FILE
+  udfsi 1 name publish $HASH_FILE
 '
 
 test_expect_success "add an entry on another node pointing to that one" '
   NODE1_ID=$(iptb get id 1) &&
-  ipfsi 2 name publish /ipns/$NODE1_ID
+  udfsi 2 name publish /ipns/$NODE1_ID
 '
 
 test_expect_success "cat that entry on a third node" '
   NODE2_ID=$(iptb get id 2) &&
-  ipfsi 3 cat /ipns/$NODE2_ID > output
+  udfsi 3 cat /ipns/$NODE2_ID > output
 '
 
 test_expect_success "ensure output was the same" '

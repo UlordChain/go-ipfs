@@ -11,8 +11,8 @@ import (
 	namesys "github.com/udfs/go-udfs/namesys"
 	nsopts "github.com/udfs/go-udfs/namesys/opts"
 
-	offline "gx/ipfs/QmbFRJeEmEU16y3BmKKaD4a9fm5oHsEAMHe2vSB1UnfLMi/go-ipfs-routing/offline"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	offline "gx/udfs/QmbFRJeEmEU16y3BmKKaD4a9fm5oHsEAMHe2vSB1UnfLMi/go-udfs-routing/offline"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 var IpnsCmd = &cmds.Command{
@@ -30,25 +30,25 @@ the private key enables publishing new (signed) values. In both publish
 and resolve, the default name used is the node's own PeerID,
 which is the hash of its public key.
 
-You can use the 'ipfs key' commands to list and generate more names and their
+You can use the 'udfs key' commands to list and generate more names and their
 respective keys.
 
 Examples:
 
 Resolve the value of your name:
 
-  > ipfs name resolve
-  /ipfs/QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
+  > udfs name resolve
+  /udfs/QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
 
 Resolve the value of another name:
 
-  > ipfs name resolve QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ
-  /ipfs/QmSiTko9JZyabH56y2fussEt1A5oDqsFXB3CkvAqraFryz
+  > udfs name resolve QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ
+  /udfs/QmSiTko9JZyabH56y2fussEt1A5oDqsFXB3CkvAqraFryz
 
 Resolve the value of a dnslink:
 
-  > ipfs name resolve ipfs.io
-  /ipfs/QmaBvfZooxWkrv7D3r8LS9moNjzD2o525XMZze69hhoxf5
+  > udfs name resolve udfs.io
+  /udfs/QmaBvfZooxWkrv7D3r8LS9moNjzD2o525XMZze69hhoxf5
 
 `,
 	},

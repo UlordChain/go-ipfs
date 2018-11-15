@@ -8,7 +8,7 @@ test_description="Test tar commands"
 
 . lib/test-lib.sh
 
-test_init_ipfs
+test_init_udfs
 
 test_expect_success "create some random files" '
   mkdir foo &&
@@ -25,13 +25,13 @@ test_expect_success "tar those random files up" '
   tar cf files.tar foo/
 '
 
-test_expect_success "'ipfs tar add' succeeds" '
-  TAR_HASH=$(ipfs tar add files.tar)
+test_expect_success "'udfs tar add' succeeds" '
+  TAR_HASH=$(udfs tar add files.tar)
 '
 
-test_expect_success "'ipfs tar cat' succeeds" '
+test_expect_success "'udfs tar cat' succeeds" '
   mkdir output &&
-  ipfs tar cat $TAR_HASH > output/out.tar
+  udfs tar cat $TAR_HASH > output/out.tar
 '
 
 test_expect_success "can extract tar" '

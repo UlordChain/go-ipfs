@@ -1,7 +1,7 @@
 /*
-IPFS is a global, versioned, peer-to-peer filesystem
+UDFS is a global, versioned, peer-to-peer filesystem
 
-There are sub-packages within the ipfs package for various low-level
+There are sub-packages within the udfs package for various low-level
 utilities, which are in turn assembled into:
 
 core/...:
@@ -24,4 +24,4 @@ APIs into a lower-level package.  For example, you could import all of
 core and shell from cmd/... or test/..., but you couldn't import any
 of shell from core/....
 */
-package ipfs
+package udfs

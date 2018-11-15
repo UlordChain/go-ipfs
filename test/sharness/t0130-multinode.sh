@@ -4,7 +4,7 @@
 # MIT Licensed; see the LICENSE file in this repository.
 #
 
-test_description="Test multiple ipfs nodes"
+test_description="Test multiple udfs nodes"
 
 . lib/test-lib.sh
 
@@ -14,7 +14,7 @@ check_file_fetch() {
   fname=$3
 
   test_expect_success "can fetch file" '
-    ipfsi $node cat $fhash > fetch_out
+    udfsi $node cat $fhash > fetch_out
   '
 
   test_expect_success "file looks good" '
@@ -27,14 +27,14 @@ check_dir_fetch() {
   ref=$2
 
   test_expect_success "node can fetch all refs for dir" '
-    ipfsi $node refs -r $ref > /dev/null
+    udfsi $node refs -r $ref > /dev/null
   '
 }
 
 run_single_file_test() {
   test_expect_success "add a file on node1" '
     random 1000000 > filea &&
-    FILEA_HASH=$(ipfsi 1 add -q filea)
+    FILEA_HASH=$(udfsi 1 add -q filea)
   '
 
   check_file_fetch 4 $FILEA_HASH filea
@@ -50,7 +50,7 @@ run_random_dir_test() {
   '
 
   test_expect_success "add those on node 2" '
-    DIR_HASH=$(ipfsi 2 add -r -q foobar | tail -n1)
+    DIR_HASH=$(udfsi 2 add -r -q foobar | tail -n1)
   '
 
   check_dir_fetch 0 $DIR_HASH

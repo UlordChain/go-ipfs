@@ -7,8 +7,8 @@ import (
 
 	core "github.com/udfs/go-udfs/core"
 
-	inet "gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
-	swarmt "gx/ipfs/QmemVjhp1UuWPQqrWSvPcaqH3QJRMjMqNm4T2RULMkDDQe/go-libp2p-swarm/testing"
+	inet "gx/udfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
+	swarmt "gx/udfs/QmemVjhp1UuWPQqrWSvPcaqH3QJRMjMqNm4T2RULMkDDQe/go-libp2p-swarm/testing"
 
 	bhost "github.com/udfs/go-udfs/udfs/go-libp2p/p2p/host/basic"
 )
@@ -39,8 +39,8 @@ func TestPeersTotal(t *testing.T) {
 	// completely. there must be some async stuff.
 	<-time.After(100 * time.Millisecond)
 
-	node := &core.IpfsNode{PeerHost: hosts[0]}
-	collector := IpfsNodeCollector{Node: node}
+	node := &core.UdfsNode{PeerHost: hosts[0]}
+	collector := UdfsNodeCollector{Node: node}
 	actual := collector.PeersTotalValues()
 	if len(actual) != 1 {
 		t.Fatalf("expected 1 peers transport, got %d", len(actual))

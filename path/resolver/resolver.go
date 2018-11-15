@@ -1,4 +1,4 @@
-// Package resolver implements utilities for resolving paths within ipfs.
+// Package resolver implements utilities for resolving paths within udfs.
 package resolver
 
 import (
@@ -10,9 +10,9 @@ import (
 	dag "github.com/udfs/go-udfs/merkledag"
 	path "github.com/udfs/go-udfs/path"
 
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
 )
 
 var log = logging.Logger("pathresolv")
@@ -37,7 +37,7 @@ func (e ErrNoLink) Error() string {
 // ResolveOnce resolves path through a single node
 type ResolveOnce func(ctx context.Context, ds ipld.NodeGetter, nd ipld.Node, names []string) (*ipld.Link, []string, error)
 
-// Resolver provides path resolution to IPFS
+// Resolver provides path resolution to UDFS
 // It has a pointer to a DAGService, which is uses to resolve nodes.
 // TODO: now that this is more modular, try to unify this code with the
 //       the resolvers in namesys
@@ -72,7 +72,7 @@ func (r *Resolver) ResolveToLastNode(ctx context.Context, fpath path.Path) (ipld
 		lnk, rest, err := r.ResolveOnce(ctx, r.DAG, nd, p)
 
 		// Note: have to drop the error here as `ResolveOnce` doesn't handle 'leaf'
-		// paths (so e.g. for `echo '{"foo":123}' | ipfs dag put` we wouldn't be
+		// paths (so e.g. for `echo '{"foo":123}' | udfs dag put` we wouldn't be
 		// able to resolve `zdpu[...]/foo`)
 		if lnk == nil {
 			break

@@ -13,7 +13,7 @@ import (
 	uio "github.com/udfs/go-udfs/unixfs/io"
 	testu "github.com/udfs/go-udfs/unixfs/test"
 
-	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
+	u "gx/udfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-udfs-util"
 )
 
 func testModWrite(t *testing.T, beg, size uint64, orig []byte, dm *DagModifier, opts testu.NodeOpts) []byte {

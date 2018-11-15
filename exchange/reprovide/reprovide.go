@@ -7,10 +7,10 @@ import (
 
 	"github.com/udfs/go-udfs/thirdparty/verifcid"
 
-	backoff "gx/ipfs/QmPJUtEJsm5YLUWhF6imvyCH8KZXRJa9Wup7FDMwTy5Ufz/backoff"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	routing "gx/ipfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	backoff "gx/udfs/QmPJUtEJsm5YLUWhF6imvyCH8KZXRJa9Wup7FDMwTy5Ufz/backoff"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	routing "gx/udfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
 )
 
 var log = logging.Logger("reprovider")
@@ -59,7 +59,7 @@ func (rp *Reprovider) Run(tick time.Duration) {
 		case <-after:
 		}
 
-		//'mute' the trigger channel so when `ipfs bitswap reprovide` is called
+		//'mute' the trigger channel so when `udfs bitswap reprovide` is called
 		//a 'reprovider is already running' error is returned
 		unmute := rp.muteTrigger()
 

@@ -27,16 +27,16 @@ test_expect_success "test ports are closed" '
 '
 
 test_expect_success 'fail without config option being enabled' '
-  test_must_fail ipfsi 0 p2p stream ls
+  test_must_fail udfsi 0 p2p stream ls
 '
 
 test_expect_success "enable filestore config setting" '
-  ipfsi 0 config --json Experimental.Libp2pStreamMounting true
-  ipfsi 1 config --json Experimental.Libp2pStreamMounting true
+  udfsi 0 config --json Experimental.Libp2pStreamMounting true
+  udfsi 1 config --json Experimental.Libp2pStreamMounting true
 '
 
 test_expect_success 'start p2p listener' '
-  ipfsi 0 p2p listener open p2p-test /ip4/127.0.0.1/tcp/10101 2>&1 > listener-stdouterr.log
+  udfsi 0 p2p listener open p2p-test /ip4/127.0.0.1/tcp/10101 2>&1 > listener-stdouterr.log
 '
 
 test_expect_success 'Test server to client communications' '
@@ -45,7 +45,7 @@ test_expect_success 'Test server to client communications' '
   test_wait_for_file 30 100ms listener.pid &&
   kill -0 $(cat listener.pid) &&
 
-  ipfsi 1 p2p stream dial $PEERID_0 p2p-test /ip4/127.0.0.1/tcp/10102 2>&1 > dialer-stdouterr.log &&
+  udfsi 1 p2p stream dial $PEERID_0 p2p-test /ip4/127.0.0.1/tcp/10102 2>&1 > dialer-stdouterr.log &&
   ma-pipe-unidir recv /ip4/127.0.0.1/tcp/10102 > client.out &&
   test ! -f listener.pid
 '
@@ -56,7 +56,7 @@ test_expect_success 'Test client to server communications' '
   test_wait_for_file 30 100ms listener.pid &&
   kill -0 $(cat listener.pid) &&
 
-  ipfsi 1 p2p stream dial $PEERID_0 p2p-test /ip4/127.0.0.1/tcp/10102 2>&1 > dialer-stdouterr.log &&
+  udfsi 1 p2p stream dial $PEERID_0 p2p-test /ip4/127.0.0.1/tcp/10102 2>&1 > dialer-stdouterr.log &&
   ma-pipe-unidir send /ip4/127.0.0.1/tcp/10102 < test1.bin &&
   go-sleep 250ms &&
   test ! -f listener.pid
@@ -70,28 +70,28 @@ test_expect_success 'client to server output looks good' '
   test_cmp server.out test1.bin
 '
 
-test_expect_success "'ipfs listener p2p ls' succeeds" '
+test_expect_success "'udfs listener p2p ls' succeeds" '
   echo "/ip4/127.0.0.1/tcp/10101 /p2p/p2p-test" > expected &&
-  ipfsi 0 p2p listener ls > actual
+  udfsi 0 p2p listener ls > actual
 '
 
-test_expect_success "'ipfs p2p listener ls' output looks good" '
+test_expect_success "'udfs p2p listener ls' output looks good" '
   test_cmp expected actual
 '
 
 test_expect_success "Cannot re-register app handler" '
-  (! ipfsi 0 p2p listener open p2p-test /ip4/127.0.0.1/tcp/10101)
+  (! udfsi 0 p2p listener open p2p-test /ip4/127.0.0.1/tcp/10101)
 '
 
-test_expect_success "'ipfs p2p stream ls' output is empty" '
-  ipfsi 0 p2p stream ls > actual &&
+test_expect_success "'udfs p2p stream ls' output is empty" '
+  udfsi 0 p2p stream ls > actual &&
   test_must_be_empty actual
 '
 
 test_expect_success "Setup: Idle stream" '
   ma-pipe-unidir --listen --pidFile=listener.pid recv /ip4/127.0.0.1/tcp/10101 &
 
-  ipfsi 1 p2p stream dial $PEERID_0 p2p-test /ip4/127.0.0.1/tcp/10102 2>&1 > dialer-stdouterr.log &&
+  udfsi 1 p2p stream dial $PEERID_0 p2p-test /ip4/127.0.0.1/tcp/10102 2>&1 > dialer-stdouterr.log &&
   ma-pipe-unidir --pidFile=client.pid recv /ip4/127.0.0.1/tcp/10102 &
 
   test_wait_for_file 30 100ms listener.pid &&
@@ -99,33 +99,33 @@ test_expect_success "Setup: Idle stream" '
   kill -0 $(cat listener.pid) && kill -0 $(cat client.pid)
 '
 
-test_expect_success "'ipfs p2p stream ls' succeeds" '
+test_expect_success "'udfs p2p stream ls' succeeds" '
   echo "2 /p2p/p2p-test /ip4/127.0.0.1/tcp/10101 $PEERID_1" > expected
-  ipfsi 0 p2p stream ls > actual
+  udfsi 0 p2p stream ls > actual
 '
 
-test_expect_success "'ipfs p2p stream ls' output looks good" '
+test_expect_success "'udfs p2p stream ls' output looks good" '
   test_cmp expected actual
 '
 
-test_expect_success "'ipfs p2p stream close' closes stream" '
-  ipfsi 0 p2p stream close 2 &&
-  ipfsi 0 p2p stream ls > actual &&
+test_expect_success "'udfs p2p stream close' closes stream" '
+  udfsi 0 p2p stream close 2 &&
+  udfsi 0 p2p stream ls > actual &&
   [ ! -f listener.pid ] && [ ! -f client.pid ] &&
   test_must_be_empty actual
 '
 
-test_expect_success "'ipfs p2p listener close' closes app handler" '
-  ipfsi 0 p2p listener close p2p-test &&
-  ipfsi 0 p2p listener ls > actual &&
+test_expect_success "'udfs p2p listener close' closes app handler" '
+  udfsi 0 p2p listener close p2p-test &&
+  udfsi 0 p2p listener ls > actual &&
   test_must_be_empty actual
 '
 
 test_expect_success "Setup: Idle stream(2)" '
   ma-pipe-unidir --listen --pidFile=listener.pid recv /ip4/127.0.0.1/tcp/10101 &
 
-  ipfsi 0 p2p listener open p2p-test2 /ip4/127.0.0.1/tcp/10101 2>&1 > listener-stdouterr.log &&
-  ipfsi 1 p2p stream dial $PEERID_0 p2p-test2 /ip4/127.0.0.1/tcp/10102 2>&1 > dialer-stdouterr.log &&
+  udfsi 0 p2p listener open p2p-test2 /ip4/127.0.0.1/tcp/10101 2>&1 > listener-stdouterr.log &&
+  udfsi 1 p2p stream dial $PEERID_0 p2p-test2 /ip4/127.0.0.1/tcp/10102 2>&1 > dialer-stdouterr.log &&
   ma-pipe-unidir --pidFile=client.pid recv /ip4/127.0.0.1/tcp/10102 &
 
   test_wait_for_file 30 100ms listener.pid &&
@@ -133,29 +133,29 @@ test_expect_success "Setup: Idle stream(2)" '
   kill -0 $(cat listener.pid) && kill -0 $(cat client.pid)
 '
 
-test_expect_success "'ipfs p2p stream ls' succeeds(2)" '
+test_expect_success "'udfs p2p stream ls' succeeds(2)" '
   echo "3 /p2p/p2p-test2 /ip4/127.0.0.1/tcp/10101 $PEERID_1" > expected
-  ipfsi 0 p2p stream ls > actual
+  udfsi 0 p2p stream ls > actual
   test_cmp expected actual
 '
 
-test_expect_success "'ipfs p2p listener close -a' closes app handlers" '
-  ipfsi 0 p2p listener close -a &&
-  ipfsi 0 p2p listener ls > actual &&
+test_expect_success "'udfs p2p listener close -a' closes app handlers" '
+  udfsi 0 p2p listener close -a &&
+  udfsi 0 p2p listener ls > actual &&
   test_must_be_empty actual
 '
 
-test_expect_success "'ipfs p2p stream close -a' closes streams" '
-  ipfsi 0 p2p stream close -a &&
-  ipfsi 0 p2p stream ls > actual &&
+test_expect_success "'udfs p2p stream close -a' closes streams" '
+  udfsi 0 p2p stream close -a &&
+  udfsi 0 p2p stream ls > actual &&
   [ ! -f listener.pid ] && [ ! -f client.pid ] &&
   test_must_be_empty actual
 '
 
-test_expect_success "'ipfs p2p listener close' closes app numeric handlers" '
-  ipfsi 0 p2p listener open 1234 /ip4/127.0.0.1/tcp/10101 &&
-  ipfsi 0 p2p listener close 1234 &&
-  ipfsi 0 p2p listener ls > actual &&
+test_expect_success "'udfs p2p listener close' closes app numeric handlers" '
+  udfsi 0 p2p listener open 1234 /ip4/127.0.0.1/tcp/10101 &&
+  udfsi 0 p2p listener close 1234 &&
+  udfsi 0 p2p listener ls > actual &&
   test_must_be_empty actual
 '
 

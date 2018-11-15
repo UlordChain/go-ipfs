@@ -4,9 +4,9 @@ IFS=$'\n\t'
 
 auth=""
 #auth="-u kubuxu:$GH_TOKEN"
-org=ipfs
-repo=go-ipfs
-arch_repo=go-ipfs-archived
+org=udfs
+repo=go-udfs
+arch_repo=go-udfs-archived
 api_repo="repos/$org/$repo"
 
 exclusions=(
@@ -29,8 +29,8 @@ gh_api() {
 }
 
 pr_branches() {
-	gh_api "$api_repo/pulls" |  jq -r '.[].head.label | select(test("^ipfs:"))' \
-		| sed 's/^ipfs://'
+	gh_api "$api_repo/pulls" |  jq -r '.[].head.label | select(test("^udfs:"))' \
+		| sed 's/^udfs://'
 }
 
 origin_refs() {

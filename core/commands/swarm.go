@@ -16,14 +16,14 @@ import (
 	config "github.com/udfs/go-udfs/repo/config"
 	"github.com/udfs/go-udfs/repo/fsrepo"
 
-	inet "gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
-	mafilter "gx/ipfs/QmSMZwvs3n4GBikZ7hKzT17c3bk65FmyZo2JqtJ16swqCv/multiaddr-filter"
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	iaddr "gx/ipfs/Qme4QgoVPyQqxVc4G1c2L2wc9TDa6o294rtspGMnBNRujm/go-ipfs-addr"
-	swarm "gx/ipfs/QmemVjhp1UuWPQqrWSvPcaqH3QJRMjMqNm4T2RULMkDDQe/go-libp2p-swarm"
+	inet "gx/udfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
+	mafilter "gx/udfs/QmSMZwvs3n4GBikZ7hKzT17c3bk65FmyZo2JqtJ16swqCv/multiaddr-filter"
+	ma "gx/udfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	cmdkit "gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	iaddr "gx/udfs/Qme4QgoVPyQqxVc4G1c2L2wc9TDa6o294rtspGMnBNRujm/go-udfs-addr"
+	swarm "gx/udfs/QmemVjhp1UuWPQqrWSvPcaqH3QJRMjMqNm4T2RULMkDDQe/go-libp2p-swarm"
 )
 
 type stringList struct {
@@ -38,9 +38,9 @@ var SwarmCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Interact with the swarm.",
 		ShortDescription: `
-'ipfs swarm' is a tool to manipulate the network swarm. The swarm is the
+'udfs swarm' is a tool to manipulate the network swarm. The swarm is the
 component that opens, listens for, and maintains connections to other
-ipfs peers in the internet.
+udfs peers in the internet.
 `,
 	},
 	Subcommands: map[string]*cmds.Command{
@@ -56,7 +56,7 @@ var swarmPeersCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "List peers with open connections.",
 		ShortDescription: `
-'ipfs swarm peers' lists the set of peers this node is connected to.
+'udfs swarm peers' lists the set of peers this node is connected to.
 `,
 	},
 	Options: []cmdkit.Option{
@@ -140,9 +140,9 @@ var swarmPeersCmd = &cmds.Command{
 			}
 
 			buf := new(bytes.Buffer)
-			pipfs := ma.ProtocolWithCode(ma.P_IPFS).Name
+			pudfs := ma.ProtocolWithCode(ma.P_UDFS).Name
 			for _, info := range ci.Peers {
-				ids := fmt.Sprintf("/%s/%s", pipfs, info.Peer)
+				ids := fmt.Sprintf("/%s/%s", pudfs, info.Peer)
 				if strings.HasSuffix(info.Addr, ids) {
 					fmt.Fprintf(buf, "%s", info.Addr)
 				} else {
@@ -217,7 +217,7 @@ var swarmAddrsCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "List known addresses. Useful for debugging.",
 		ShortDescription: `
-'ipfs swarm addrs' lists all addresses this node is aware of.
+'udfs swarm addrs' lists all addresses this node is aware of.
 `,
 	},
 	Subcommands: map[string]*cmds.Command{
@@ -286,7 +286,7 @@ var swarmAddrsLocalCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "List local addresses.",
 		ShortDescription: `
-'ipfs swarm addrs local' lists all local listening addresses announced to the network.
+'udfs swarm addrs local' lists all local listening addresses announced to the network.
 `,
 	},
 	Options: []cmdkit.Option{
@@ -312,7 +312,7 @@ var swarmAddrsLocalCmd = &cmds.Command{
 		for _, addr := range n.PeerHost.Addrs() {
 			saddr := addr.String()
 			if showid {
-				saddr = path.Join(saddr, "ipfs", id)
+				saddr = path.Join(saddr, "udfs", id)
 			}
 			addrs = append(addrs, saddr)
 		}
@@ -329,7 +329,7 @@ var swarmAddrsListenCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "List interface listening addresses.",
 		ShortDescription: `
-'ipfs swarm addrs listen' lists all interface addresses the node is listening on.
+'udfs swarm addrs listen' lists all interface addresses the node is listening on.
 `,
 	},
 	Run: func(req cmds.Request, res cmds.Response) {
@@ -369,11 +369,11 @@ var swarmConnectCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Open connection to a given address.",
 		ShortDescription: `
-'ipfs swarm connect' opens a new direct connection to a peer address.
+'udfs swarm connect' opens a new direct connection to a peer address.
 
-The address format is an IPFS multiaddr:
+The address format is an UDFS multiaddr:
 
-ipfs swarm connect /ip4/104.131.131.82/tcp/4001/ipfs/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ
+udfs swarm connect /ip4/104.131.131.82/tcp/4001/udfs/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ
 `,
 	},
 	Arguments: []cmdkit.Argument{
@@ -434,12 +434,12 @@ var swarmDisconnectCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Close connection to a given address.",
 		ShortDescription: `
-'ipfs swarm disconnect' closes a connection to a peer address. The address
-format is an IPFS multiaddr:
+'udfs swarm disconnect' closes a connection to a peer address. The address
+format is an UDFS multiaddr:
 
-ipfs swarm disconnect /ip4/104.131.131.82/tcp/4001/ipfs/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ
+udfs swarm disconnect /ip4/104.131.131.82/tcp/4001/udfs/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ
 
-The disconnect is not permanent; if ipfs needs to talk to that address later,
+The disconnect is not permanent; if udfs needs to talk to that address later,
 it will reconnect.
 `,
 	},
@@ -533,8 +533,8 @@ func stringListMarshaler(res cmds.Response) (io.Reader, error) {
 
 // parseAddresses is a function that takes in a slice of string peer addresses
 // (multiaddr + peerid) and returns slices of multiaddrs and peerids.
-func parseAddresses(addrs []string) (iaddrs []iaddr.IPFSAddr, err error) {
-	iaddrs = make([]iaddr.IPFSAddr, len(addrs))
+func parseAddresses(addrs []string) (iaddrs []iaddr.UDFSAddr, err error) {
+	iaddrs = make([]iaddr.UDFSAddr, len(addrs))
 	for i, saddr := range addrs {
 		iaddrs[i], err = iaddr.ParseString(saddr)
 		if err != nil {
@@ -576,7 +576,7 @@ var swarmFiltersCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Manipulate address filters.",
 		ShortDescription: `
-'ipfs swarm filters' will list out currently applied filters. Its subcommands
+'udfs swarm filters' will list out currently applied filters. Its subcommands
 can be used to add or remove said filters. Filters are specified using the
 multiaddr-filter format:
 
@@ -635,9 +635,9 @@ var swarmFiltersAddCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Add an address filter.",
 		ShortDescription: `
-'ipfs swarm filters add' will add an address filter to the daemons swarm.
+'udfs swarm filters add' will add an address filter to the daemons swarm.
 Filters applied this way will not persist daemon reboots, to achieve that,
-add your filters to the ipfs config file.
+add your filters to the udfs config file.
 `,
 	},
 	Arguments: []cmdkit.Argument{
@@ -708,9 +708,9 @@ var swarmFiltersRmCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Remove an address filter.",
 		ShortDescription: `
-'ipfs swarm filters rm' will remove an address filter from the daemons swarm.
+'udfs swarm filters rm' will remove an address filter from the daemons swarm.
 Filters removed this way will not persist daemon reboots, to achieve that,
-remove your filters from the ipfs config file.
+remove your filters from the udfs config file.
 `,
 	},
 	Arguments: []cmdkit.Argument{

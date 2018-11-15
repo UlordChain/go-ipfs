@@ -14,12 +14,12 @@ import (
 	keystore "github.com/udfs/go-udfs/keystore"
 	path "github.com/udfs/go-udfs/path"
 
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	crypto "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	crypto "gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
 )
 
-var errNotOnline = errors.New("this command must be run in online mode. Try running 'ipfs daemon' first")
+var errNotOnline = errors.New("this command must be run in online mode. Try running 'udfs daemon' first")
 
 var PublishCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
@@ -36,33 +36,33 @@ the private key enables publishing new (signed) values. In both publish
 and resolve, the default name used is the node's own PeerID,
 which is the hash of its public key.
 
-You can use the 'ipfs key' commands to list and generate more names and their
+You can use the 'udfs key' commands to list and generate more names and their
 respective keys.
 
 Examples:
 
-Publish an <ipfs-path> with your default name:
+Publish an <udfs-path> with your default name:
 
-  > ipfs name publish /ipfs/QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
-  Published to QmbCMUZw6JFeZ7Wp9jkzbye3Fzp2GGcPgC3nmeUjfVF87n: /ipfs/QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
+  > udfs name publish /udfs/QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
+  Published to QmbCMUZw6JFeZ7Wp9jkzbye3Fzp2GGcPgC3nmeUjfVF87n: /udfs/QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
 
-Publish an <ipfs-path> with another name, added by an 'ipfs key' command:
+Publish an <udfs-path> with another name, added by an 'udfs key' command:
 
-  > ipfs key gen --type=rsa --size=2048 mykey
-  > ipfs name publish --key=mykey /ipfs/QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
-  Published to QmSrPmbaUKA3ZodhzPWZnpFgcPMFWF4QsxXbkWfEptTBJd: /ipfs/QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
+  > udfs key gen --type=rsa --size=2048 mykey
+  > udfs name publish --key=mykey /udfs/QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
+  Published to QmSrPmbaUKA3ZodhzPWZnpFgcPMFWF4QsxXbkWfEptTBJd: /udfs/QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
 
-Alternatively, publish an <ipfs-path> using a valid PeerID (as listed by 
-'ipfs key list -l'):
+Alternatively, publish an <udfs-path> using a valid PeerID (as listed by 
+'udfs key list -l'):
 
- > ipfs name publish --key=QmbCMUZw6JFeZ7Wp9jkzbye3Fzp2GGcPgC3nmeUjfVF87n /ipfs/QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
-  Published to QmbCMUZw6JFeZ7Wp9jkzbye3Fzp2GGcPgC3nmeUjfVF87n: /ipfs/QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
+ > udfs name publish --key=QmbCMUZw6JFeZ7Wp9jkzbye3Fzp2GGcPgC3nmeUjfVF87n /udfs/QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
+  Published to QmbCMUZw6JFeZ7Wp9jkzbye3Fzp2GGcPgC3nmeUjfVF87n: /udfs/QmatmE9msSfkKxoffpHwNLNKgwZG8eT9Bud6YoPab52vpy
 
 `,
 	},
 
 	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("ipfs-path", true, false, "ipfs path of the object to be published.").EnableStdin(),
+		cmdkit.StringArg("udfs-path", true, false, "udfs path of the object to be published.").EnableStdin(),
 	},
 	Options: []cmdkit.Option{
 		cmdkit.BoolOption("resolve", "Resolve given path before publishing.").WithDefault(true),
@@ -71,7 +71,7 @@ Alternatively, publish an <ipfs-path> using a valid PeerID (as listed by
     This accepts durations such as "300s", "1.5h" or "2h45m". Valid time units are
     "ns", "us" (or "µs"), "ms", "s", "m", "h".`).WithDefault("24h"),
 		cmdkit.StringOption("ttl", "Time duration this record should be cached for (caution: experimental)."),
-		cmdkit.StringOption("key", "k", "Name of the key to be used or a valid PeerID, as listed by 'ipfs key list -l'. Default: <<default>>.").WithDefault("self"),
+		cmdkit.StringOption("key", "k", "Name of the key to be used or a valid PeerID, as listed by 'udfs key list -l'. Default: <<default>>.").WithDefault("self"),
 	},
 	Run: func(req cmds.Request, res cmds.Response) {
 		n, err := req.InvocContext().GetNode()
@@ -167,7 +167,7 @@ type publishOpts struct {
 	pubValidTime time.Duration
 }
 
-func publish(ctx context.Context, n *core.IpfsNode, k crypto.PrivKey, ref path.Path, opts *publishOpts) (*IpnsEntry, error) {
+func publish(ctx context.Context, n *core.UdfsNode, k crypto.PrivKey, ref path.Path, opts *publishOpts) (*IpnsEntry, error) {
 
 	if opts.verifyExists {
 		// verify the path exists
@@ -194,7 +194,7 @@ func publish(ctx context.Context, n *core.IpfsNode, k crypto.PrivKey, ref path.P
 	}, nil
 }
 
-func keylookup(n *core.IpfsNode, k string) (crypto.PrivKey, error) {
+func keylookup(n *core.UdfsNode, k string) (crypto.PrivKey, error) {
 
 	res, err := n.GetKey(k)
 	if res != nil {

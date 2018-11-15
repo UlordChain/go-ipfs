@@ -8,7 +8,7 @@
 <p align="center">
   <a href="http://ipn.io"><img src="https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square" /></a>
   <a href="http://libp2p.io/"><img src="https://img.shields.io/badge/project-libp2p-blue.svg?style=flat-square" /></a>
-  <a href="http://webchat.freenode.net/?channels=%23ipfs"><img src="https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat-square" /></a>
+  <a href="http://webchat.freenode.net/?channels=%23udfs"><img src="https://img.shields.io/badge/freenode-%23udfs-blue.svg?style=flat-square" /></a>
   <a href="https://waffle.io/libp2p/libp2p"><img src="https://img.shields.io/badge/pm-waffle-blue.svg?style=flat-square" /></a>
 </p>
 
@@ -18,7 +18,7 @@
   <!--<a href="https://coveralls.io/github/libp2p/go-libp2p?branch=master"><img src="https://coveralls.io/repos/github/libp2p/go-libp2p/badge.svg?branch=master"></a>-->
   <br>
   <a href="https://github.com/RichardLitt/standard-readme"><img src="https://img.shields.io/badge/standard--readme-OK-green.svg?style=flat-square" /></a>
-  <a href="https://godoc.org/github.com/libp2p/go-libp2p"><img src="https://godoc.org/github.com/ipfs/go-libp2p?status.svg" /></a>
+  <a href="https://godoc.org/github.com/libp2p/go-libp2p"><img src="https://godoc.org/github.com/udfs/go-libp2p?status.svg" /></a>
   <a href=""><img src="https://img.shields.io/badge/golang-%3E%3D1.8.0-orange.svg?style=flat-square" /></a>
   <br>
 </p>
@@ -43,9 +43,9 @@
 
 ## Background
 
-[libp2p](https://github.com/libp2p/specs) is a networking stack and library modularized out of [The IPFS Project](https://github.com/ipfs/ipfs), and bundled separately for other tools to use.
+[libp2p](https://github.com/libp2p/specs) is a networking stack and library modularized out of [The UDFS Project](https://github.com/udfs/udfs), and bundled separately for other tools to use.
 >
-libp2p is the product of a long, and arduous quest of understanding -- a deep dive into the internet's network stack, and plentiful peer-to-peer protocols from the past. Building large scale peer-to-peer systems has been complex and difficult in the last 15 years, and libp2p is a way to fix that. It is a "network stack" -- a protocol suite -- that cleanly separates concerns, and enables sophisticated applications to only use the protocols they absolutely need, without giving up interoperability and upgradeability. libp2p grew out of IPFS, but it is built so that lots of people can use it, for lots of different projects.
+libp2p is the product of a long, and arduous quest of understanding -- a deep dive into the internet's network stack, and plentiful peer-to-peer protocols from the past. Building large scale peer-to-peer systems has been complex and difficult in the last 15 years, and libp2p is a way to fix that. It is a "network stack" -- a protocol suite -- that cleanly separates concerns, and enables sophisticated applications to only use the protocols they absolutely need, without giving up interoperability and upgradeability. libp2p grew out of UDFS, but it is built so that lots of people can use it, for lots of different projects.
 >
 > We will be writing a set of docs, posts, tutorials, and talks to explain what p2p is, why it is tremendously useful, and how it can help your existing and new projects. But in the meantime, check out
 >
@@ -56,7 +56,7 @@ libp2p is the product of a long, and arduous quest of understanding -- a deep di
 
 ## Bundles
 
-There is currently only one bundle of `go-libp2p`, this package. This bundle is used by [`go-ipfs`](https://github.com/ipfs/go-ipfs).
+There is currently only one bundle of `go-libp2p`, this package. This bundle is used by [`go-udfs`](https://github.com/udfs/go-udfs).
 
 ## Usage
 
@@ -73,7 +73,7 @@ There is currently only one bundle of `go-libp2p`, this package. This bundle is 
 
 ### API
 
-[![GoDoc](https://godoc.org/github.com/ipfs/go-libp2p?status.svg)](https://godoc.org/github.com/libp2p/go-libp2p)
+[![GoDoc](https://godoc.org/github.com/udfs/go-libp2p?status.svg)](https://godoc.org/github.com/libp2p/go-libp2p)
 
 ### Examples
 
@@ -125,13 +125,13 @@ List of packages currently in existence for libp2p:
 
 # Contribute
 
-go-libp2p is part of [The IPFS Project](https://github.com/ipfs/ipfs), and is MIT licensed open source software. We welcome contributions big and small! Take a look at the [community contributing notes](https://github.com/ipfs/community/blob/master/contributing.md). Please make sure to check the [issues](https://github.com/ipfs/go-libp2p/issues). Search the closed ones before reporting things, and help us with the open ones.
+go-libp2p is part of [The UDFS Project](https://github.com/udfs/udfs), and is MIT licensed open source software. We welcome contributions big and small! Take a look at the [community contributing notes](https://github.com/udfs/community/blob/master/contributing.md). Please make sure to check the [issues](https://github.com/udfs/go-libp2p/issues). Search the closed ones before reporting things, and help us with the open ones.
 
 Guidelines:
 
 - read the [libp2p spec](https://github.com/libp2p/specs)
 - please make branches + pull-request, even if working on the main repository
-- ask questions or talk about things in [Issues](https://github.com/libp2p/go-libp2p/issues) or #ipfs on freenode.
+- ask questions or talk about things in [Issues](https://github.com/libp2p/go-libp2p/issues) or #udfs on freenode.
 - ensure you are able to contribute (no legal issues please-- we use the DCO)
 - run `go fmt` before pushing any code
 - run `golint` and `go vet` too -- some things (like protobuf files) are expected to fail.
@@ -139,7 +139,7 @@ Guidelines:
 - have fun!
 
 There's a few things you can do right now to help out:
- - Go through the modules below and **check out existing issues**. This would be especially useful for modules in active development. Some knowledge of IPFS/libp2p may be required, as well as the infrasture behind it - for instance, you may need to read up on p2p and more complex operations like muxing to be able to help technically.
+ - Go through the modules below and **check out existing issues**. This would be especially useful for modules in active development. Some knowledge of UDFS/libp2p may be required, as well as the infrasture behind it - for instance, you may need to read up on p2p and more complex operations like muxing to be able to help technically.
  - **Perform code reviews**.
  - **Add tests**. There can never be enough tests.
 

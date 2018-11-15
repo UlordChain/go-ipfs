@@ -4,11 +4,11 @@
 # MIT Licensed; see the LICENSE file in this repository.
 #
 
-test_description="Test ipfs repo fsck"
+test_description="Test udfs repo fsck"
 
 . lib/test-lib.sh
 
-test_init_ipfs
+test_init_udfs
 
 sort_rand() {
   case `uname` in
@@ -24,7 +24,7 @@ sort_rand() {
 }
 
 check_random_corruption() {
-  to_break=$(find "$IPFS_PATH/blocks" -type f -name '*.data' | sort_rand | head -n 1)
+  to_break=$(find "$UDFS_PATH/blocks" -type f -name '*.data' | sort_rand | head -n 1)
 
   test_expect_success "back up file and overwrite it" '
     cp "$to_break" backup_file &&
@@ -32,15 +32,15 @@ check_random_corruption() {
   '
 
   test_expect_success "repo verify detects failure" '
-    test_expect_code 1 ipfs repo verify
+    test_expect_code 1 udfs repo verify
   '
 
   test_expect_success "replace the object" '
     cp backup_file "$to_break"
   '
 
-  test_expect_success "ipfs repo verify passes just fine now" '
-    ipfs repo verify
+  test_expect_success "udfs repo verify passes just fine now" '
+    udfs repo verify
   '
 }
 
@@ -49,7 +49,7 @@ test_expect_success "create some files" '
 '
 
 test_expect_success "add them all" '
-  ipfs add -r -q foobar > /dev/null
+  udfs add -r -q foobar > /dev/null
 '
 
 for i in `seq 20`

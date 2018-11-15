@@ -17,8 +17,8 @@ import (
 	config "github.com/udfs/go-udfs/repo/config"
 	fsrepo "github.com/udfs/go-udfs/repo/fsrepo"
 
-	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 const (
@@ -27,20 +27,20 @@ const (
 
 var initCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Initializes ipfs config file.",
+		Tagline: "Initializes udfs config file.",
 		ShortDescription: `
-Initializes ipfs configuration files and generates a new keypair.
+Initializes udfs configuration files and generates a new keypair.
 
-If you are going to run IPFS in server environment, you may want to
+If you are going to run UDFS in server environment, you may want to
 initialize it using 'server' profile.
 
-For the list of available profiles see 'ipfs config profile --help'
+For the list of available profiles see 'udfs config profile --help'
 
-ipfs uses a repository in the local file system. By default, the repo is
-located at ~/.ipfs. To change the repo location, set the $IPFS_PATH
+udfs uses a repository in the local file system. By default, the repo is
+located at ~/.udfs. To change the repo location, set the $UDFS_PATH
 environment variable:
 
-    export IPFS_PATH=/path/to/ipfsrepo
+    export UDFS_PATH=/path/to/udfsrepo
 `,
 	},
 	Arguments: []cmdkit.Argument{
@@ -65,8 +65,8 @@ environment variable:
 
 		log.Info("checking if daemon is running...")
 		if daemonLocked {
-			log.Debug("ipfs daemon is running")
-			e := "ipfs daemon is running. please stop it to run this command"
+			log.Debug("udfs daemon is running")
+			e := "udfs daemon is running. please stop it to run this command"
 			return cmds.ClientError(e)
 		}
 
@@ -114,7 +114,7 @@ environment variable:
 	},
 }
 
-var errRepoExists = errors.New(`ipfs configuration file already exists!
+var errRepoExists = errors.New(`udfs configuration file already exists!
 Reinitializing would overwrite your keys.
 `)
 
@@ -128,7 +128,7 @@ func initWithDefaults(out io.Writer, repoRoot string, profile string) error {
 }
 
 func doInit(out io.Writer, repoRoot string, empty bool, nBitsForKeypair int, confProfiles []string, conf *config.Config, master bool) error {
-	if _, err := fmt.Fprintf(out, "initializing IPFS node at %s\n", repoRoot); err != nil {
+	if _, err := fmt.Fprintf(out, "initializing UDFS node at %s\n", repoRoot); err != nil {
 		return err
 	}
 
@@ -226,7 +226,7 @@ func addDefaultAssets(out io.Writer, repoRoot string) error {
 		return err
 	}
 
-	_, err = fmt.Fprintf(out, "\n\tudfs cat /ipfs/%s/readme\n\n", dkey)
+	_, err = fmt.Fprintf(out, "\n\tudfs cat /udfs/%s/readme\n\n", dkey)
 	return err
 }
 

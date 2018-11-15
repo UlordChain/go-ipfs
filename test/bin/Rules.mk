@@ -36,7 +36,7 @@ TGTS_$(d) += $(TGTS_GX_$(d))
 
 # multihash is special
 $(d)/multihash:
-	go build -i $(go-flags-with-tags) -o "$@" "gx/ipfs/$(shell gx deps find go-multihash)/go-multihash/multihash"
+	go build -i $(go-flags-with-tags) -o "$@" "gx/udfs/$(shell gx deps find go-multihash)/go-multihash/multihash"
 TGTS_$(d) += $(d)/multihash
 
 $(TGTS_$(d)): $$(DEPS_GO)

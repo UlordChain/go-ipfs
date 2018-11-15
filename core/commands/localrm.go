@@ -3,10 +3,10 @@ package commands
 import (
 	"bytes"
 	"fmt"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 	"io"
 
-	"gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	"gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 
 	cmds "github.com/udfs/go-udfs/commands"
 	core "github.com/udfs/go-udfs/core"
@@ -21,11 +21,11 @@ var LocalrmCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Remove objects from pin and repo.",
 		ShortDescription: `
-'ipfs localrm' is a plumbing command that will remove the objects that are pinned and cached.
+'udfs localrm' is a plumbing command that will remove the objects that are pinned and cached.
 `,
 	},
 	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("ipfs-path", true, true, "Path to object(s) to be removed.").EnableStdin(),
+		cmdkit.StringArg("udfs-path", true, true, "Path to object(s) to be removed.").EnableStdin(),
 	},
 	Options: []cmdkit.Option{
 		cmdkit.BoolOption("recursive", "r", "Recursively unpin the object linked to by the specified object(s).").WithDefault(true),

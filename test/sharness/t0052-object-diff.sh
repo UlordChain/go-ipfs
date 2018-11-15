@@ -8,27 +8,27 @@ test_description="Test object diff command"
 
 . lib/test-lib.sh
 
-test_init_ipfs
+test_init_udfs
 
 test_expect_success "create some objects for testing diffs" '
   mkdir foo &&
   echo "stuff" > foo/bar &&
   mkdir foo/baz &&
-  A=$(ipfs add -r -q foo | tail -n1) &&
+  A=$(udfs add -r -q foo | tail -n1) &&
   echo "more things" > foo/cat &&
-  B=$(ipfs add -r -q foo | tail -n1) &&
+  B=$(udfs add -r -q foo | tail -n1) &&
   echo "nested" > foo/baz/dog &&
-  C=$(ipfs add -r -q foo | tail -n1)
+  C=$(udfs add -r -q foo | tail -n1)
   echo "changed" > foo/bar &&
-  D=$(ipfs add -r -q foo | tail -n1) &&
+  D=$(udfs add -r -q foo | tail -n1) &&
   echo "" > single_file &&
-  SINGLE_FILE=$(ipfs add -r -q single_file | tail -n1) &&
+  SINGLE_FILE=$(udfs add -r -q single_file | tail -n1) &&
   mkdir empty_dir
-  EMPTY_DIR=$(ipfs add -r -q empty_dir | tail -n1)
+  EMPTY_DIR=$(udfs add -r -q empty_dir | tail -n1)
 '
 
 test_expect_success "diff against self is empty" '
-  ipfs object diff $A $A > diff_out
+  udfs object diff $A $A > diff_out
 '
 
 test_expect_success "identity diff output looks good" '
@@ -37,19 +37,19 @@ test_expect_success "identity diff output looks good" '
 '
 
 test_expect_success "diff against self (single file) is empty" '
-  ipfs object diff $SINGLE_FILE $SINGLE_FILE > diff_out
+  udfs object diff $SINGLE_FILE $SINGLE_FILE > diff_out
   printf "" > diff_exp &&
   test_cmp diff_exp diff_out
 '
 
 test_expect_success "diff against self (empty dir) is empty" '
-  ipfs object diff $EMPTY_DIR $EMPTY_DIR > diff_out
+  udfs object diff $EMPTY_DIR $EMPTY_DIR > diff_out
   printf "" > diff_exp &&
   test_cmp diff_exp diff_out
 '
 
 test_expect_success "diff added link works" '
-  ipfs object diff $A $B > diff_out
+  udfs object diff $A $B > diff_out
 '
 
 test_expect_success "diff added link looks right" '
@@ -58,7 +58,7 @@ test_expect_success "diff added link looks right" '
 '
 
 test_expect_success "verbose diff added link works" '
-  ipfs object diff -v $A $B > diff_out
+  udfs object diff -v $A $B > diff_out
 '
 
 test_expect_success "verbose diff added link looks right" '
@@ -67,7 +67,7 @@ test_expect_success "verbose diff added link looks right" '
 '
 
 test_expect_success "diff removed link works" '
-  ipfs object diff -v $B $A > diff_out
+  udfs object diff -v $B $A > diff_out
 '
 
 test_expect_success "diff removed link looks right" '
@@ -76,7 +76,7 @@ test_expect_success "diff removed link looks right" '
 '
 
 test_expect_success "diff nested add works" '
-  ipfs object diff -v $B $C > diff_out
+  udfs object diff -v $B $C > diff_out
 '
 
 test_expect_success "diff looks right" '
@@ -85,7 +85,7 @@ test_expect_success "diff looks right" '
 '
 
 test_expect_success "diff changed link works" '
-  ipfs object diff -v $C $D > diff_out
+  udfs object diff -v $C $D > diff_out
 '
 
 test_expect_success "diff looks right" '

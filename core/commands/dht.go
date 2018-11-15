@@ -13,20 +13,20 @@ import (
 	dag "github.com/udfs/go-udfs/merkledag"
 	"github.com/udfs/go-udfs/path"
 
-	b58 "gx/ipfs/QmWFAMPqsEyUX7gDUsRVmMWz59FxSpJ1b2v6bJ1yYzo7jY/go-base58-fast/base58"
-	"gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	"gx/ipfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
-	notif "gx/ipfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing/notifications"
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
-	"gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	b58 "gx/udfs/QmWFAMPqsEyUX7gDUsRVmMWz59FxSpJ1b2v6bJ1yYzo7jY/go-base58-fast/base58"
+	"gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	"gx/udfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
+	notif "gx/udfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing/notifications"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
+	"gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 )
 
 var ErrNotDHT = errors.New("routing service is not a DHT")
 
-// TODO: Factor into `ipfs dht` and `ipfs routing`.
-// Everything *except `query` goes into `ipfs routing`.
+// TODO: Factor into `udfs dht` and `udfs routing`.
+// Everything *except `query` goes into `udfs routing`.
 
 var DhtCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
@@ -369,7 +369,7 @@ var provideRefDhtCmd = &cmds.Command{
 	Type: notif.QueryEvent{},
 }
 
-func provideKeys(ctx context.Context, r routing.IpfsRouting, cids []*cid.Cid) error {
+func provideKeys(ctx context.Context, r routing.UdfsRouting, cids []*cid.Cid) error {
 	for _, c := range cids {
 		err := r.Provide(ctx, c, true)
 		if err != nil {
@@ -379,7 +379,7 @@ func provideKeys(ctx context.Context, r routing.IpfsRouting, cids []*cid.Cid) er
 	return nil
 }
 
-func provideKeysRec(ctx context.Context, r routing.IpfsRouting, dserv ipld.DAGService, cids []*cid.Cid) error {
+func provideKeysRec(ctx context.Context, r routing.UdfsRouting, dserv ipld.DAGService, cids []*cid.Cid) error {
 	provided := cid.NewSet()
 	for _, c := range cids {
 		kset := cid.NewSet()
@@ -618,9 +618,9 @@ Keys have two parts: a keytype (foo) and the key name (bar). IPNS uses the
 /ipns keytype, and expects the key name to be a Peer ID. IPNS entries are
 specifically formatted (protocol buffer).
 
-You may only use keytypes that are supported in your ipfs binary: currently
+You may only use keytypes that are supported in your udfs binary: currently
 this is only /ipns. Unless you have a relatively deep understanding of the
-go-ipfs routing internals, you likely want to be using 'ipfs name publish' instead
+go-udfs routing internals, you likely want to be using 'udfs name publish' instead
 of this.
 
 Value is arbitrary text. Standard input can be used to provide value.

@@ -5,13 +5,13 @@ package libp2p
 import (
 	"crypto/rand"
 
-	tcp "gx/ipfs/QmSggepaKhRfgEDiz2B6eGaCTK3TqDHXzK6F6HfsU7KPXt/go-tcp-transport"
-	ws "gx/ipfs/QmX4UrmHGPnFxwfsunZjPbykzyv8Frg9AVmNariXqrLsMs/go-ws-transport"
-	secio "gx/ipfs/QmXzYnwYnJiDDV9y4QmbmtSeVyJ1R8HAmGnrnY2D6G3YcV/go-libp2p-secio"
-	mplex "gx/ipfs/QmZHiqdRuNXujvSPNu1ZWxxzV6a2WhoZpfYkesdgyaKF9f/go-smux-multiplex"
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	yamux "gx/ipfs/QmcsgrV3nCAKjiHKZhKVXWc4oY3WBECJCqahXEMpHeMrev/go-smux-yamux"
-	crypto "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	tcp "gx/udfs/QmSggepaKhRfgEDiz2B6eGaCTK3TqDHXzK6F6HfsU7KPXt/go-tcp-transport"
+	ws "gx/udfs/QmX4UrmHGPnFxwfsunZjPbykzyv8Frg9AVmNariXqrLsMs/go-ws-transport"
+	secio "gx/udfs/QmXzYnwYnJiDDV9y4QmbmtSeVyJ1R8HAmGnrnY2D6G3YcV/go-libp2p-secio"
+	mplex "gx/udfs/QmZHiqdRuNXujvSPNu1ZWxxzV6a2WhoZpfYkesdgyaKF9f/go-smux-multiplex"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	yamux "gx/udfs/QmcsgrV3nCAKjiHKZhKVXWc4oY3WBECJCqahXEMpHeMrev/go-smux-yamux"
+	crypto "gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
 )
 
 // DefaultSecurity is the default security option.

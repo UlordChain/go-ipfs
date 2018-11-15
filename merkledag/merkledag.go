@@ -1,4 +1,4 @@
-// Package merkledag implements the IPFS Merkle DAG data structures.
+// Package merkledag implements the UDFS Merkle DAG data structures.
 package merkledag
 
 import (
@@ -8,10 +8,10 @@ import (
 
 	bserv "github.com/udfs/go-udfs/blockservice"
 
-	blocks "gx/ipfs/QmVzK524a2VWLqyvtBeiHKsUAWYgeAk4DBeZoY7vpNPNRx/go-block-format"
-	ipldcbor "gx/ipfs/QmWrbExtUaQQHjJ8FVVDAWj5o1MRAELDUV3VmoQsZHHb6L/go-ipld-cbor"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	blocks "gx/udfs/QmVzK524a2VWLqyvtBeiHKsUAWYgeAk4DBeZoY7vpNPNRx/go-block-format"
+	ipldcbor "gx/udfs/QmWrbExtUaQQHjJ8FVVDAWj5o1MRAELDUV3VmoQsZHHb6L/go-ipld-cbor"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
 )
 
 // TODO: We should move these registrations elsewhere. Really, most of the IPLD
@@ -34,7 +34,7 @@ func NewDAGService(bs bserv.BlockService) *dagService {
 	return &dagService{Blocks: bs}
 }
 
-// dagService is an IPFS Merkle DAG service.
+// dagService is an UDFS Merkle DAG service.
 // - the root is virtual (like a forest)
 // - stores nodes' data in a BlockService
 // TODO: should cache Nodes that are in memory, and be

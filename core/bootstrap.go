@@ -9,25 +9,25 @@ import (
 	"sync"
 	"time"
 
-	lgbl "gx/ipfs/QmRPkGkHLB72caXgdDYnoaWigXNWx95BcYDKV1n3KTEpaG/go-libp2p-loggables"
+	lgbl "gx/udfs/QmRPkGkHLB72caXgdDYnoaWigXNWx95BcYDKV1n3KTEpaG/go-libp2p-loggables"
 
 	config "github.com/udfs/go-udfs/repo/config"
 	math2 "github.com/udfs/go-udfs/thirdparty/math2"
 
-	inet "gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
-	goprocess "gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess"
-	procctx "gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess/context"
-	periodicproc "gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess/periodic"
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	host "gx/ipfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	inet "gx/udfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
+	goprocess "gx/udfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess"
+	procctx "gx/udfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess/context"
+	periodicproc "gx/udfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess/periodic"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	host "gx/udfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 )
 
 // ErrNotEnoughBootstrapPeers signals that we do not have enough bootstrap
 // peers to bootstrap correctly.
 var ErrNotEnoughBootstrapPeers = errors.New("not enough bootstrap peers to bootstrap")
 
-// BootstrapConfig specifies parameters used in an IpfsNode's network
+// BootstrapConfig specifies parameters used in an UdfsNode's network
 // bootstrapping process.
 type BootstrapConfig struct {
 
@@ -35,7 +35,7 @@ type BootstrapConfig struct {
 	// node has less open connections than this number, it will open connections
 	// to the bootstrap nodes. From there, the routing system should be able
 	// to use the connections to the bootstrap nodes to connect to even more
-	// peers. Routing systems like the IpfsDHT do so in their own Bootstrap
+	// peers. Routing systems like the UdfsDHT do so in their own Bootstrap
 	// process, which issues random queries to find more peers.
 	MinPeerThreshold int
 
@@ -69,11 +69,11 @@ func BootstrapConfigWithPeers(pis []pstore.PeerInfo) BootstrapConfig {
 	return cfg
 }
 
-// Bootstrap kicks off IpfsNode bootstrapping. This function will periodically
+// Bootstrap kicks off UdfsNode bootstrapping. This function will periodically
 // check the number of open connections and -- if there are too few -- initiate
 // connections to well-known bootstrap peers. It also kicks off subsystem
 // bootstrapping (i.e. routing).
-func Bootstrap(n *IpfsNode, cfg BootstrapConfig) (io.Closer, error) {
+func Bootstrap(n *UdfsNode, cfg BootstrapConfig) (io.Closer, error) {
 
 	// make a signal to wait for one bootstrap round to complete.
 	doneWithRound := make(chan struct{})

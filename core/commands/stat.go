@@ -7,22 +7,22 @@ import (
 	"os"
 	"time"
 
-	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	humanize "gx/ipfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
-	protocol "gx/ipfs/QmZNkThpqfVXs9GNbexPrfBbXSLNYeKrE7jwFM2oqHbyqN/go-libp2p-protocol"
-	metrics "gx/ipfs/QmcoBbyTiL9PFjo1GFixJwqQ8mZLJ36CribuqyKmS1okPu/go-libp2p-metrics"
-	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	cmds "gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	humanize "gx/udfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
+	protocol "gx/udfs/QmZNkThpqfVXs9GNbexPrfBbXSLNYeKrE7jwFM2oqHbyqN/go-libp2p-protocol"
+	metrics "gx/udfs/QmcoBbyTiL9PFjo1GFixJwqQ8mZLJ36CribuqyKmS1okPu/go-libp2p-metrics"
+	cmdkit "gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 )
 
 var StatsCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Query IPFS statistics.",
-		ShortDescription: `'ipfs stats' is a set of commands to help look at statistics
-for your IPFS node.
+		Tagline: "Query UDFS statistics.",
+		ShortDescription: `'udfs stats' is a set of commands to help look at statistics
+for your UDFS node.
 `,
-		LongDescription: `'ipfs stats' is a set of commands to help look at statistics
-for your IPFS node.`,
+		LongDescription: `'udfs stats' is a set of commands to help look at statistics
+for your UDFS node.`,
 	},
 
 	Subcommands: map[string]*cmds.Command{
@@ -34,11 +34,11 @@ for your IPFS node.`,
 
 var statBwCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Print ipfs bandwidth information.",
-		ShortDescription: `'ipfs stats bw' prints bandwidth information for the ipfs daemon.
+		Tagline: "Print udfs bandwidth information.",
+		ShortDescription: `'udfs stats bw' prints bandwidth information for the udfs daemon.
 It displays: TotalIn, TotalOut, RateIn, RateOut.
 		`,
-		LongDescription: `'ipfs stats bw' prints bandwidth information for the ipfs daemon.
+		LongDescription: `'udfs stats bw' prints bandwidth information for the udfs daemon.
 It displays: TotalIn, TotalOut, RateIn, RateOut.
 
 By default, overall bandwidth and all protocols are shown. To limit bandwidth
@@ -49,19 +49,19 @@ queried using this method are outlined in the specification:
 https://github.com/libp2p/specs/blob/master/7-properties.md#757-protocol-multicodecs
 
 Example protocol options:
-  - /ipfs/id/1.0.0
-  - /ipfs/bitswap
-  - /ipfs/dht
+  - /udfs/id/1.0.0
+  - /udfs/bitswap
+  - /udfs/dht
 
 Example:
 
-    > ipfs stats bw -t /ipfs/bitswap
+    > udfs stats bw -t /udfs/bitswap
     Bandwidth
     TotalIn: 5.0MB
     TotalOut: 0B
     RateIn: 343B/s
     RateOut: 0B/s
-    > ipfs stats bw -p QmepgFW7BHEtU4pZJdxaNiv75mKLLRQnPi1KaaXmQN4V1a
+    > udfs stats bw -p QmepgFW7BHEtU4pZJdxaNiv75mKLLRQnPi1KaaXmQN4V1a
     Bandwidth
     TotalIn: 4.9MB
     TotalOut: 12MB

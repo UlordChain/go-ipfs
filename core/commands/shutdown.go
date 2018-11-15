@@ -3,14 +3,14 @@ package commands
 import (
 	"fmt"
 
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 
 	cmds "github.com/udfs/go-udfs/commands"
 )
 
 var daemonShutdownCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Shut down the ipfs daemon",
+		Tagline: "Shut down the udfs daemon",
 	},
 	Run: func(req cmds.Request, res cmds.Response) {
 		nd, err := req.InvocContext().GetNode()
@@ -25,7 +25,7 @@ var daemonShutdownCmd = &cmds.Command{
 		}
 
 		if err := nd.Process().Close(); err != nil {
-			log.Error("error while shutting down ipfs daemon:", err)
+			log.Error("error while shutting down udfs daemon:", err)
 		}
 
 		res.SetOutput(nil)

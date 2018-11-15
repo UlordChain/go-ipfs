@@ -2,7 +2,7 @@ package config
 
 // Mounts stores the (string) mount points
 type Mounts struct {
-	IPFS           string
+	UDFS           string
 	IPNS           string
 	FuseAllowOther bool
 }

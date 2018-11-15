@@ -10,8 +10,8 @@ import (
 
 	"github.com/udfs/go-udfs/repo/config"
 
-	"gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
-	"gx/ipfs/QmdYwCmx8pZRkzdcd8MhmLJqYVoVTC1aGsy5Q4reMGLNLg/atomicfile"
+	"gx/udfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-udfs-util"
+	"gx/udfs/QmdYwCmx8pZRkzdcd8MhmLJqYVoVTC1aGsy5Q4reMGLNLg/atomicfile"
 )
 
 // ReadConfigFile reads the config from `filename` into `cfg`.
@@ -56,9 +56,9 @@ func encode(w io.Writer, value interface{}) error {
 
 // Load reads given file and returns the read config, or error.
 func Load(filename string) (*config.Config, error) {
-	// if nothing is there, fail. User must run 'ipfs init'
+	// if nothing is there, fail. User must run 'udfs init'
 	if !util.FileExists(filename) {
-		return nil, errors.New("ipfs not initialized, please run 'ipfs init'")
+		return nil, errors.New("udfs not initialized, please run 'udfs init'")
 	}
 
 	var cfg config.Config

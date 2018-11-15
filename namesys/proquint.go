@@ -8,7 +8,7 @@ import (
 
 	opts "github.com/udfs/go-udfs/namesys/opts"
 	path "github.com/udfs/go-udfs/path"
-	proquint "gx/ipfs/QmYnf27kzqR2cxt6LFZdrAFJuQd6785fTkBvMuEj9EeRxM/proquint"
+	proquint "gx/udfs/QmYnf27kzqR2cxt6LFZdrAFJuQd6785fTkBvMuEj9EeRxM/proquint"
 )
 
 type ProquintResolver struct{}

@@ -11,9 +11,9 @@ import (
 	ocmd "github.com/udfs/go-udfs/core/commands/object"
 	unixfs "github.com/udfs/go-udfs/core/commands/unixfs"
 
-	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 var log = logging.Logger("core/commands")
@@ -25,16 +25,16 @@ const (
 var Root = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline:  "Global p2p merkle-dag filesystem.",
-		Synopsis: "ipfs [--config=<config> | -c] [--debug=<debug> | -D] [--help=<help>] [-h=<h>] [--local=<local> | -L] [--api=<api>] <command> ...",
+		Synopsis: "udfs [--config=<config> | -c] [--debug=<debug> | -D] [--help=<help>] [-h=<h>] [--local=<local> | -L] [--api=<api>] <command> ...",
 		Subcommands: `
 BASIC COMMANDS
-  init          Initialize ipfs local configuration
-  add <path>    Add a file to IPFS
-  cat <ref>     Show IPFS object data
-  get <ref>     Download IPFS objects
+  init          Initialize udfs local configuration
+  add <path>    Add a file to UDFS
+  cat <ref>     Show UDFS object data
+  get <ref>     Download UDFS objects
   ls <ref>      List links from an object
   refs <ref>    List hashes of links from an object
-  push          Push a file to IPFS master node
+  push          Push a file to UDFS master node
   localrm       Remove object from local pin and repo
 
 DATA STRUCTURE COMMANDS
@@ -45,20 +45,20 @@ DATA STRUCTURE COMMANDS
 
 ADVANCED COMMANDS
   daemon        Start a long-running daemon process
-  mount         Mount an IPFS read-only mountpoint
+  mount         Mount an UDFS read-only mountpoint
   resolve       Resolve any type of name
   name          Publish and resolve IPNS names
   key           Create and list IPNS name keypairs
   dns           Resolve DNS links
   pin           Pin objects to local storage
-  repo          Manipulate the IPFS repository
+  repo          Manipulate the UDFS repository
   stats         Various operational stats
   p2p           Libp2p stream mounting
   filestore     Manage the filestore (experimental)
   backup        Backup objects to remote storage
 
 NETWORK COMMANDS
-  id            Show info about IPFS peers
+  id            Show info about UDFS peers
   bootstrap     Add or remove bootstrap peers
   swarm         Manage connections to the p2p network
   dht           Query the DHT for values or peers
@@ -67,17 +67,17 @@ NETWORK COMMANDS
 
 TOOL COMMANDS
   config        Manage configuration
-  version       Show ipfs version information
-  update        Download and apply go-ipfs updates
+  version       Show udfs version information
+  update        Download and apply go-udfs updates
   commands      List all available commands
 
-Use 'ipfs <command> --help' to learn more about each command.
+Use 'udfs <command> --help' to learn more about each command.
 
-ipfs uses a repository in the local file system. By default, the repo is
-located at ~/.ipfs. To change the repo location, set the $IPFS_PATH
+udfs uses a repository in the local file system. By default, the repo is
+located at ~/.udfs. To change the repo location, set the $UDFS_PATH
 environment variable:
 
-  export IPFS_PATH=/path/to/ipfsrepo
+  export UDFS_PATH=/path/to/udfsrepo
 
 EXIT STATUS
 
@@ -102,7 +102,7 @@ The CLI will exit with one of the following values:
 	},
 }
 
-// commandsDaemonCmd is the "ipfs commands" command for daemon
+// commandsDaemonCmd is the "udfs commands" command for daemon
 var CommandsDaemonCmd = CommandsCmd(Root)
 
 var rootSubcommands = map[string]*cmds.Command{

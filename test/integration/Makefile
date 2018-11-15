@@ -1,8 +1,8 @@
 # This Makefile provides a way to really simple way to run benchmarks in a
 # docker environment.
 
-IPFS_ROOT = ../..
-CONTAINER = go-ipfs-bench
+UDFS_ROOT = ../..
+CONTAINER = go-udfs-bench
 PACKAGE = integrationtest
 PACKAGE_DIR = test/integration
 BUILD_DIR = ./build/bench
@@ -19,10 +19,10 @@ cp_pprof_from_container:
 	docker cp $(CONTAINER):$(CONTAINER_WORKING_DIR)/$(PACKAGE).test $(BUILD_DIR)
 
 build_image:
-	cd $(IPFS_ROOT) && docker build -t $(IMAGE) .
+	cd $(UDFS_ROOT) && docker build -t $(IMAGE) .
 
 run_profiler:
-	docker run --name $(CONTAINER) -it --entrypoint go $(IMAGE) test ./src/github.com/ipfs/go-ipfs/$(PACKAGE_DIR) --cpuprofile=$(CPU_PROF_NAME) $(EXTRA_TEST_ARGS)
+	docker run --name $(CONTAINER) -it --entrypoint go $(IMAGE) test ./src/github.com/udfs/go-udfs/$(PACKAGE_DIR) --cpuprofile=$(CPU_PROF_NAME) $(EXTRA_TEST_ARGS)
 
 
 clean:

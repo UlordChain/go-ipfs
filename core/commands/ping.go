@@ -12,11 +12,11 @@ import (
 	cmds "github.com/udfs/go-udfs/commands"
 	core "github.com/udfs/go-udfs/core"
 
-	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	u "gx/udfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-udfs-util"
+	ma "gx/udfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 )
 
 const kPingTimeout = 10 * time.Second
@@ -32,9 +32,9 @@ var ErrPingSelf = errors.New("error: can't ping self")
 
 var PingCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Send echo request packets to IPFS hosts.",
+		Tagline: "Send echo request packets to UDFS hosts.",
 		ShortDescription: `
-'ipfs ping' is a tool to test sending data to other nodes. It finds nodes
+'udfs ping' is a tool to test sending data to other nodes. It finds nodes
 via the routing system, sends pings, waits for pongs, and prints out round-
 trip latency information.
 		`,
@@ -113,7 +113,7 @@ trip latency information.
 	Type: PingResult{},
 }
 
-func pingPeer(ctx context.Context, n *core.IpfsNode, pid peer.ID, numPings int) <-chan interface{} {
+func pingPeer(ctx context.Context, n *core.UdfsNode, pid peer.ID, numPings int) <-chan interface{} {
 	outChan := make(chan interface{})
 	go func() {
 		defer close(outChan)

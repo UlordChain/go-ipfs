@@ -13,10 +13,10 @@ It has these top-level messages:
 */
 package dht_pb
 
-import proto "gx/ipfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
+import proto "gx/udfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
 import fmt "fmt"
 import math "math"
-import record_pb "gx/ipfs/QmVsp2KdPYE6M8ryzCk5KHLo3zprcY5hBDaYx6uPCFUdxA/go-libp2p-record/pb"
+import record_pb "gx/udfs/QmVsp2KdPYE6M8ryzCk5KHLo3zprcY5hBDaYx6uPCFUdxA/go-libp2p-record/pb"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal

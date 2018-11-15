@@ -17,7 +17,7 @@ init_strategy() {
   '
 
   test_expect_success 'use pinning startegy for reprovider' '
-    ipfsi 0 config Reprovider.Strategy '$1'
+    udfsi 0 config Reprovider.Strategy '$1'
   '
 
   startup_cluster ${NUM_NODES}
@@ -25,7 +25,7 @@ init_strategy() {
 
 findprovs_empty() {
   test_expect_success 'findprovs '$1' succeeds' '
-    ipfsi 1 dht findprovs -n 1 '$1' > findprovsOut
+    udfsi 1 dht findprovs -n 1 '$1' > findprovsOut
   '
 
   test_expect_success "findprovs $1 output is empty" '
@@ -35,7 +35,7 @@ findprovs_empty() {
 
 findprovs_expect() {
   test_expect_success 'findprovs '$1' succeeds' '
-    ipfsi 1 dht findprovs -n 1 '$1' > findprovsOut &&
+    udfsi 1 dht findprovs -n 1 '$1' > findprovsOut &&
     echo '$2' > expected
   '
 
@@ -47,7 +47,7 @@ findprovs_expect() {
 reprovide() {
   test_expect_success 'reprovide' '
     # TODO: this hangs, though only after reprovision was done
-    ipfsi 0 bitswap reprovide
+    udfsi 0 bitswap reprovide
   '
 }
 
@@ -59,7 +59,7 @@ test_expect_success 'stop peer 1' '
 init_strategy 'all'
 
 test_expect_success 'add test object' '
-  HASH_0=$(echo "foo" | ipfsi 0 add -q --local)
+  HASH_0=$(echo "foo" | udfsi 0 add -q --local)
 '
 
 findprovs_empty '$HASH_0'
@@ -75,9 +75,9 @@ test_expect_success 'prepare test files' '
 '
 
 test_expect_success 'add test objects' '
-  HASH_FOO=$(ipfsi 0 add -q --local --pin=false f1) &&
-  HASH_BAR=$(ipfsi 0 add -q --local --pin=false f2) &&
-  HASH_BAR_DIR=$(ipfsi 0 add -q --local -w f2)
+  HASH_FOO=$(udfsi 0 add -q --local --pin=false f1) &&
+  HASH_BAR=$(udfsi 0 add -q --local --pin=false f2) &&
+  HASH_BAR_DIR=$(udfsi 0 add -q --local -w f2)
 '
 
 findprovs_empty '$HASH_FOO'
@@ -104,10 +104,10 @@ test_expect_success 'prepare test files' '
 '
 
 test_expect_success 'add test objects' '
-  HASH_FOO=$(ipfsi 0 add -q --local --pin=false f1) &&
-  HASH_BAR=$(ipfsi 0 add -q --local --pin=false f2) &&
-  HASH_BAZ=$(ipfsi 0 add -q --local f3) &&
-  HASH_BAR_DIR=$(ipfsi 0 add -q --local -w f2 | tail -1)
+  HASH_FOO=$(udfsi 0 add -q --local --pin=false f1) &&
+  HASH_BAR=$(udfsi 0 add -q --local --pin=false f2) &&
+  HASH_BAZ=$(udfsi 0 add -q --local f3) &&
+  HASH_BAR_DIR=$(udfsi 0 add -q --local -w f2 | tail -1)
 '
 
 findprovs_empty '$HASH_FOO'
@@ -136,13 +136,13 @@ test_expect_success 'peer ids' '
 '
 
 test_expect_success 'Disable reprovider ticking' '
-  ipfsi 0 config Reprovider.Interval 0
+  udfsi 0 config Reprovider.Interval 0
 '
 
 startup_cluster ${NUM_NODES}
 
 test_expect_success 'add test object' '
-  HASH_0=$(echo "foo" | ipfsi 0 add -q --local)
+  HASH_0=$(echo "foo" | udfsi 0 add -q --local)
 '
 
 findprovs_empty '$HASH_0'

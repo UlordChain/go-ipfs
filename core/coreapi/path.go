@@ -8,12 +8,12 @@ import (
 	core "github.com/udfs/go-udfs/core"
 	coreiface "github.com/udfs/go-udfs/core/coreapi/interface"
 	namesys "github.com/udfs/go-udfs/namesys"
-	ipfspath "github.com/udfs/go-udfs/path"
+	udfspath "github.com/udfs/go-udfs/path"
 	resolver "github.com/udfs/go-udfs/path/resolver"
 	uio "github.com/udfs/go-udfs/unixfs/io"
 
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
 )
 
 // ResolveNode resolves the path `p` using Unixfs resolver, gets and returns the
@@ -46,7 +46,7 @@ func resolvePath(ctx context.Context, ng ipld.NodeGetter, nsys namesys.NameSyste
 		return p.(coreiface.ResolvedPath), nil
 	}
 
-	ipath := ipfspath.Path(p.String())
+	ipath := udfspath.Path(p.String())
 	ipath, err := core.ResolveIPNS(ctx, nsys, ipath)
 	if err == core.ErrNoNamesys {
 		return nil, coreiface.ErrOffline
@@ -57,7 +57,7 @@ func resolvePath(ctx context.Context, ng ipld.NodeGetter, nsys namesys.NameSyste
 	var resolveOnce resolver.ResolveOnce
 
 	switch ipath.Segments()[0] {
-	case "ipfs":
+	case "udfs":
 		resolveOnce = uio.ResolveUnixfsOnce
 	case "ipld":
 		resolveOnce = resolver.ResolveSingle

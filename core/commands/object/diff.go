@@ -10,7 +10,7 @@ import (
 	e "github.com/udfs/go-udfs/core/commands/e"
 	dagutils "github.com/udfs/go-udfs/merkledag/utils"
 	path "github.com/udfs/go-udfs/path"
-	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	cmdkit "gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 type Changes struct {
@@ -19,28 +19,28 @@ type Changes struct {
 
 var ObjectDiffCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Display the diff between two ipfs objects.",
+		Tagline: "Display the diff between two udfs objects.",
 		ShortDescription: `
-'ipfs object diff' is a command used to show the differences between
-two IPFS objects.`,
+'udfs object diff' is a command used to show the differences between
+two UDFS objects.`,
 		LongDescription: `
-'ipfs object diff' is a command used to show the differences between
-two IPFS objects.
+'udfs object diff' is a command used to show the differences between
+two UDFS objects.
 
 Example:
 
    > ls foo
    bar baz/ giraffe
-   > ipfs add -r foo
+   > udfs add -r foo
    ...
    Added QmegHcnrPgMwC7tBiMxChD54fgQMBUecNw9nE9UUU4x1bz foo
    > OBJ_A=QmegHcnrPgMwC7tBiMxChD54fgQMBUecNw9nE9UUU4x1bz
    > echo "different content" > foo/bar
-   > ipfs add -r foo
+   > udfs add -r foo
    ...
    Added QmcmRptkSPWhptCttgHg27QNDmnV33wAJyUkCnAvqD3eCD foo
    > OBJ_B=QmcmRptkSPWhptCttgHg27QNDmnV33wAJyUkCnAvqD3eCD
-   > ipfs object diff -v $OBJ_A $OBJ_B
+   > udfs object diff -v $OBJ_A $OBJ_B
    Changed "bar" from QmNgd5cz2jNftnAHBhcRUGdtiaMzb5Rhjqd4etondHHST8 to QmRfFVsjSXkhFxrfWnLpMae2M4GBVsry6VAuYYcji5MiZb.
 `,
 	},

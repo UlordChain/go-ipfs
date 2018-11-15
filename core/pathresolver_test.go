@@ -19,9 +19,9 @@ func TestResolveNoComponents(t *testing.T) {
 		t.Fatal("Should error with no components (/ipns/).", err)
 	}
 
-	_, err = core.Resolve(n.Context(), n.Namesys, n.Resolver, path.Path("/ipfs/"))
+	_, err = core.Resolve(n.Context(), n.Namesys, n.Resolver, path.Path("/udfs/"))
 	if err != path.ErrNoComponents {
-		t.Fatal("Should error with no components (/ipfs/).", err)
+		t.Fatal("Should error with no components (/udfs/).", err)
 	}
 
 	_, err = core.Resolve(n.Context(), n.Namesys, n.Resolver, path.Path("/../.."))

@@ -1,4 +1,4 @@
-this is an ipfs integration test
+this is an udfs integration test
 
 **requirements**
 
@@ -6,7 +6,7 @@ this is an ipfs integration test
 * fig
 * Go
 
-* ipfs image named "zaqwsx_ipfs-test-img"
+* udfs image named "zaqwsx_udfs-test-img"
 
 ```
 make setup

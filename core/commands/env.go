@@ -9,7 +9,7 @@ import (
 )
 
 // GetNode extracts the node from the environment.
-func GetNode(env interface{}) (*core.IpfsNode, error) {
+func GetNode(env interface{}) (*core.UdfsNode, error) {
 	ctx, ok := env.(*commands.Context)
 	if !ok {
 		return nil, fmt.Errorf("expected env to be of type %T, got %T", ctx, env)

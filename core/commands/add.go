@@ -16,13 +16,13 @@ import (
 	mfs "github.com/udfs/go-udfs/mfs"
 	ft "github.com/udfs/go-udfs/unixfs"
 
-	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	pb "gx/ipfs/QmPtj12fdwuAqj9sBSTNUxBNu8kCGNp8b3o8yUzMm5GHpq/pb"
-	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"
-	bstore "gx/ipfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-ipfs-blockstore"
-	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
-	files "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit/files"
+	cmds "gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	mh "gx/udfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
+	pb "gx/udfs/QmPtj12fdwuAqj9sBSTNUxBNu8kCGNp8b3o8yUzMm5GHpq/pb"
+	offline "gx/udfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-udfs-exchange-offline"
+	bstore "gx/udfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-udfs-blockstore"
+	cmdkit "gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
+	files "gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit/files"
 )
 
 // ErrDepthLimitExceeded indicates that the max depth has been exceeded.
@@ -50,13 +50,13 @@ const adderOutChanSize = 8
 
 var AddCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Add a file or directory to ipfs.",
+		Tagline: "Add a file or directory to udfs.",
 		ShortDescription: `
-Adds contents of <path> to ipfs. Use -r to add directories (recursively).
+Adds contents of <path> to udfs. Use -r to add directories (recursively).
 `,
 		LongDescription: `
-Adds contents of <path> to ipfs. Use -r to add directories.
-Note that directories are added recursively, to form the ipfs
+Adds contents of <path> to udfs. Use -r to add directories.
+Note that directories are added recursively, to form the udfs
 MerkleDAG.
 
 The wrap option, '-w', wraps the file (or files, if using the
@@ -64,15 +64,15 @@ recursive option) in a directory. This directory contains only
 the files which have been added, and means that the file retains
 its filename. For example:
 
-  > ipfs add example.jpg
+  > udfs add example.jpg
   added QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH example.jpg
-  > ipfs add example.jpg -w
+  > udfs add example.jpg -w
   added QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH example.jpg
   added QmaG4FuMqEBnQNn3C8XJ5bpW8kLs7zq2ZXgHptJHbKDDVx
 
 You can now refer to the added file in a gateway, like so:
 
-  /ipfs/QmaG4FuMqEBnQNn3C8XJ5bpW8kLs7zq2ZXgHptJHbKDDVx/example.jpg
+  /udfs/QmaG4FuMqEBnQNn3C8XJ5bpW8kLs7zq2ZXgHptJHbKDDVx/example.jpg
 
 The chunker option, '-s', specifies the chunking strategy that dictates
 how to break files into blocks. Blocks with same content can
@@ -83,17 +83,17 @@ rabin-[min]-[avg]-[max] (where min/avg/max refer to the resulting
 chunk sizes). Using other chunking strategies will produce
 different hashes for the same file.
 
-  > ipfs add --chunker=size-2048 ipfs-logo.svg
-  added QmafrLBfzRLV4XSH1XcaMMeaXEUhDJjmtDfsYU95TrWG87 ipfs-logo.svg
-  > ipfs add --chunker=rabin-512-1024-2048 ipfs-logo.svg
-  added Qmf1hDN65tR55Ubh2RN1FPxr69xq3giVBz1KApsresY8Gn ipfs-logo.svg
+  > udfs add --chunker=size-2048 udfs-logo.svg
+  added QmafrLBfzRLV4XSH1XcaMMeaXEUhDJjmtDfsYU95TrWG87 udfs-logo.svg
+  > udfs add --chunker=rabin-512-1024-2048 udfs-logo.svg
+  added Qmf1hDN65tR55Ubh2RN1FPxr69xq3giVBz1KApsresY8Gn udfs-logo.svg
 
 You can now check what blocks have been created by:
 
-  > ipfs object links QmafrLBfzRLV4XSH1XcaMMeaXEUhDJjmtDfsYU95TrWG87
+  > udfs object links QmafrLBfzRLV4XSH1XcaMMeaXEUhDJjmtDfsYU95TrWG87
   QmY6yj1GsermExDXoosVE3aSPxdMNYr6aKuw3nA8LoWPRS 2059
   Qmf7ZQeSxq2fJVJbCmgTrLLVN9tDR9Wy5k75DxQKuz5Gyt 1195
-  > ipfs object links Qmf1hDN65tR55Ubh2RN1FPxr69xq3giVBz1KApsresY8Gn
+  > udfs object links Qmf1hDN65tR55Ubh2RN1FPxr69xq3giVBz1KApsresY8Gn
   QmY6yj1GsermExDXoosVE3aSPxdMNYr6aKuw3nA8LoWPRS 2059
   QmerURi9k4XzKCaaPbsK6BL5pMEjF7PGphjDvkkjDtsVf3 868
   QmQB28iwSriSUSMqG2nXDTLtdPHgWb4rebBrU7Q1j4vxPv 338
@@ -101,7 +101,7 @@ You can now check what blocks have been created by:
 	},
 
 	Arguments: []cmdkit.Argument{
-		cmdkit.FileArg("path", true, true, "The path to a file to be added to ipfs.").EnableRecursive().EnableStdin(),
+		cmdkit.FileArg("path", true, true, "The path to a file to be added to udfs.").EnableRecursive().EnableStdin(),
 	},
 	Options: []cmdkit.Option{
 		cmds.OptionRecursivePath, // a builtin option that allows recursive paths (-r, --recursive)
@@ -132,7 +132,7 @@ You can now check what blocks have been created by:
 			return nil
 		}
 
-		// ipfs cli progress bar defaults to true unless quiet or silent is used
+		// udfs cli progress bar defaults to true unless quiet or silent is used
 		_, found := req.Options[progressOptionName].(bool)
 		if !found {
 			req.Options[progressOptionName] = true

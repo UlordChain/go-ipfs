@@ -11,8 +11,8 @@ import (
 	cmds "github.com/udfs/go-udfs/commands"
 	core "github.com/udfs/go-udfs/core"
 
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	ma "gx/udfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 // P2PListenerInfoOutput is output type of ls command
@@ -41,7 +41,7 @@ type P2PStreamsOutput struct {
 	Streams []P2PStreamInfoOutput
 }
 
-// P2PCmd is the 'ipfs p2p' command
+// P2PCmd is the 'udfs p2p' command
 var P2PCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Libp2p stream mounting.",
@@ -58,7 +58,7 @@ are refined`,
 	},
 }
 
-// p2pListenerCmd is the 'ipfs p2p listener' command
+// p2pListenerCmd is the 'udfs p2p listener' command
 var p2pListenerCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline:          "P2P listener management.",
@@ -72,7 +72,7 @@ var p2pListenerCmd = &cmds.Command{
 	},
 }
 
-// p2pStreamCmd is the 'ipfs p2p stream' command
+// p2pStreamCmd is the 'udfs p2p stream' command
 var p2pStreamCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline:          "P2P stream management.",
@@ -203,7 +203,7 @@ var p2pListenerListenCmd = &cmds.Command{
 Register a p2p connection handler and forward the connections to a specified
 address.
 
-Note that the connections originate from the ipfs daemon process.
+Note that the connections originate from the udfs daemon process.
 		`,
 	},
 	Arguments: []cmdkit.Argument{
@@ -250,7 +250,7 @@ var p2pStreamDialCmd = &cmds.Command{
 		ShortDescription: `
 Establish a new connection to a peer service.
 
-When a connection is made to a peer service the ipfs daemon will setup one
+When a connection is made to a peer service the udfs daemon will setup one
 time TCP listener and return it's bind port, this way a dialing application
 can transparently connect to a p2p service.
 		`,
@@ -389,7 +389,7 @@ var p2pStreamCloseCmd = &cmds.Command{
 	},
 }
 
-func getNode(req cmds.Request) (*core.IpfsNode, error) {
+func getNode(req cmds.Request) (*core.UdfsNode, error) {
 	n, err := req.InvocContext().GetNode()
 	if err != nil {
 		return nil, err

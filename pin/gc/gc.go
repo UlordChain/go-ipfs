@@ -1,4 +1,4 @@
-// Package gc provides garbage collection for go-ipfs.
+// Package gc provides garbage collection for go-udfs.
 package gc
 
 import (
@@ -13,12 +13,12 @@ import (
 	pin "github.com/udfs/go-udfs/pin"
 	"github.com/udfs/go-udfs/thirdparty/verifcid"
 
-	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	bstore "gx/ipfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-ipfs-blockstore"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
-	dstore "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
+	offline "gx/udfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-udfs-exchange-offline"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	bstore "gx/udfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-udfs-blockstore"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	dstore "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
 )
 
 var log = logging.Logger("gc")
@@ -144,9 +144,9 @@ func Descendants(ctx context.Context, getLinks dag.GetLinks, set *cid.Set, roots
 	verboseCidError := func(err error) error {
 		if strings.Contains(err.Error(), verifcid.ErrBelowMinimumHashLength.Error()) ||
 			strings.Contains(err.Error(), verifcid.ErrPossiblyInsecureHashFunction.Error()) {
-			err = fmt.Errorf("\"%s\"\nPlease run 'ipfs pin verify'"+
+			err = fmt.Errorf("\"%s\"\nPlease run 'udfs pin verify'"+
 				" to list insecure hashes. If you want to read them,"+
-				" please downgrade your go-ipfs to 0.4.13\n", err)
+				" please downgrade your go-udfs to 0.4.13\n", err)
 			log.Error(err)
 		}
 		return err

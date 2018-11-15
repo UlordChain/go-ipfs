@@ -41,12 +41,12 @@ import (
 
 	"github.com/udfs/go-udfs/udfs/go-libp2p"
 
-	"gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
-	"gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	"gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	"gx/ipfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
-	"gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	"gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	"gx/udfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
+	"gx/udfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	"gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	"gx/udfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
+	"gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	"gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
 )
 
 /*
@@ -58,11 +58,11 @@ import (
 func addAddrToPeerstore(h host.Host, addr string) peer.ID {
 	// The following code extracts target's the peer ID from the
 	// given multiaddress
-	ipfsaddr, err := multiaddr.NewMultiaddr(addr)
+	udfsaddr, err := multiaddr.NewMultiaddr(addr)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	pid, err := ipfsaddr.ValueForProtocol(multiaddr.P_IPFS)
+	pid, err := udfsaddr.ValueForProtocol(multiaddr.P_UDFS)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -72,11 +72,11 @@ func addAddrToPeerstore(h host.Host, addr string) peer.ID {
 		log.Fatalln(err)
 	}
 
-	// Decapsulate the /ipfs/<peerID> part from the target
-	// /ip4/<a.b.c.d>/ipfs/<peer> becomes /ip4/<a.b.c.d>
+	// Decapsulate the /udfs/<peerID> part from the target
+	// /ip4/<a.b.c.d>/udfs/<peer> becomes /ip4/<a.b.c.d>
 	targetPeerAddr, _ := multiaddr.NewMultiaddr(
-		fmt.Sprintf("/ipfs/%s", peer.IDB58Encode(peerid)))
-	targetAddr := ipfsaddr.Decapsulate(targetPeerAddr)
+		fmt.Sprintf("/udfs/%s", peer.IDB58Encode(peerid)))
+	targetAddr := udfsaddr.Decapsulate(targetPeerAddr)
 
 	// We have a peer ID and a targetAddr so we add
 	// it to the peerstore so LibP2P knows how to contact it
@@ -182,7 +182,7 @@ func main() {
 		// Only applicable on the receiving side.
 		host.SetStreamHandler("/chat/1.0.0", handleStream)
 
-		fmt.Printf("Run './chat -d /ip4/127.0.0.1/tcp/%d/ipfs/%s' on another console.\n You can replace 127.0.0.1 with public IP as well.\n", *sourcePort, host.ID().Pretty())
+		fmt.Printf("Run './chat -d /ip4/127.0.0.1/tcp/%d/udfs/%s' on another console.\n You can replace 127.0.0.1 with public IP as well.\n", *sourcePort, host.ID().Pretty())
 		fmt.Printf("\nWaiting for incoming connection\n\n")
 		// Hang forever
 		<-make(chan struct{})
@@ -197,7 +197,7 @@ func main() {
 		// IP will be 0.0.0.0 (listen on any interface) and port will be 0 (choose one for me).
 		// Although this node will not listen for any connection. It will just initiate a connect with
 		// one of its peer and use that stream to communicate.
-		fmt.Printf("%s/ipfs/%s\n", sourceMultiAddr, host.ID().Pretty())
+		fmt.Printf("%s/udfs/%s\n", sourceMultiAddr, host.ID().Pretty())
 
 		// Start a stream with peer with peer Id: 'peerId'.
 		// Multiaddress of the destination peer is fetched from the peerstore using 'peerId'.

@@ -4,7 +4,7 @@ test_description="Test ping command"
 
 . lib/test-lib.sh
 
-test_init_ipfs
+test_init_udfs
 
 # start iptb + wait for peering
 test_expect_success 'init iptb' '
@@ -19,18 +19,18 @@ test_expect_success 'peer ids' '
 '
 
 test_expect_success "test ping other" '
-  ipfsi 0 ping -n2 -- "$PEERID_1" &&
-  ipfsi 1 ping -n2 -- "$PEERID_0"
+  udfsi 0 ping -n2 -- "$PEERID_1" &&
+  udfsi 1 ping -n2 -- "$PEERID_0"
 '
 
 test_expect_success "test ping self" '
-  ! ipfsi 0 ping -n2 -- "$PEERID_0" &&
-  ! ipfsi 1 ping -n2 -- "$PEERID_1"
+  ! udfsi 0 ping -n2 -- "$PEERID_0" &&
+  ! udfsi 1 ping -n2 -- "$PEERID_1"
 '
 
 test_expect_success "test ping 0" '
-  ! ipfsi 0 ping -n0 -- "$PEERID_1" &&
-  ! ipfsi 1 ping -n0 -- "$PEERID_0"
+  ! udfsi 0 ping -n0 -- "$PEERID_1" &&
+  ! udfsi 1 ping -n0 -- "$PEERID_0"
 '
 
 test_expect_success 'stop iptb' '

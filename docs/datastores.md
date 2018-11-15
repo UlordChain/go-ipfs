@@ -1,7 +1,7 @@
 # Datastore Configuration Options
 
 This document describes the different possible values for the `Datastore.Spec`
-field in the ipfs configuration file.
+field in the udfs configuration file.
 
 ## flatfs
 Stores each key value pair as a file on the filesystem.

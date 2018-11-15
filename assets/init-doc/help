@@ -1,7 +1,7 @@
-Some helpful resources for finding your way around ipfs:
+Some helpful resources for finding your way around udfs:
 
-- quick-start: a quick show of various ipfs features.
-- ipfs commands: a list of all commands
-- ipfs --help: every command describes itself
-- https://github.com/ipfs/go-ipfs -- the src repository
-- #ipfs on irc.freenode.org -- the community irc channel
+- quick-start: a quick show of various udfs features.
+- udfs commands: a list of all commands
+- udfs --help: every command describes itself
+- https://github.com/udfs/go-udfs -- the src repository
+- #udfs on irc.freenode.org -- the community irc channel

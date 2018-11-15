@@ -17,13 +17,13 @@ import (
 	ft "github.com/udfs/go-udfs/unixfs"
 	"github.com/pkg/errors"
 
-	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	"gx/ipfs/QmPtj12fdwuAqj9sBSTNUxBNu8kCGNp8b3o8yUzMm5GHpq/pb"
-	"gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"
-	bstore "gx/ipfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-ipfs-blockstore"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit/files"
+	"gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	mh "gx/udfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
+	"gx/udfs/QmPtj12fdwuAqj9sBSTNUxBNu8kCGNp8b3o8yUzMm5GHpq/pb"
+	"gx/udfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-udfs-exchange-offline"
+	bstore "gx/udfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-udfs-blockstore"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit/files"
 
 	"path/filepath"
 
@@ -42,9 +42,9 @@ import (
 
 var PushCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Push a file or directory to ipfs.",
+		Tagline: "Push a file or directory to udfs.",
 		ShortDescription: `
-Pushs contents of <path> to ipfs. Use -r to add directories (recursively).
+Pushs contents of <path> to udfs. Use -r to add directories (recursively).
 `,
 		LongDescription: `
 Push do the same thing like command add first (but with default not pin). Then do the same thing like command backup.
@@ -52,7 +52,7 @@ Push do the same thing like command add first (but with default not pin). Then d
 	},
 
 	Arguments: []cmdkit.Argument{
-		cmdkit.FileArg("path", true, true, "The path to a file to be added to ipfs.").EnableRecursive().EnableStdin(),
+		cmdkit.FileArg("path", true, true, "The path to a file to be added to udfs.").EnableRecursive().EnableStdin(),
 	},
 	Options: []cmdkit.Option{
 		cmds.OptionRecursivePath, // a builtin option that allows recursive paths (-r, --recursive)
@@ -83,7 +83,7 @@ Push do the same thing like command add first (but with default not pin). Then d
 			return nil
 		}
 
-		// ipfs cli progress bar defaults to true unless quiet or silent is used
+		// udfs cli progress bar defaults to true unless quiet or silent is used
 		_, found := req.Options[progressOptionName].(bool)
 		if !found {
 			req.Options[progressOptionName] = true
@@ -557,14 +557,14 @@ func (t *pushRecord) Write(k, v string) {
 
 //加锁
 func (t *pushRecord) lock(fd uintptr) error {
-	return syscall.Flock(int(fd), syscall.LOCK_EX|syscall.LOCK_NB)
-	// return nil
+	// return syscall.Flock(int(fd), syscall.LOCK_EX|syscall.LOCK_NB)
+	return nil
 }
 
 //释放锁
 func (t *pushRecord) unlock(fd uintptr) error {
-	return syscall.Flock(int(fd), syscall.LOCK_UN)
-	// return nil
+	// return syscall.Flock(int(fd), syscall.LOCK_UN)
+	return nil
 }
 
 func (t *pushRecord) Clear(ctx context.Context) {
@@ -644,7 +644,7 @@ func (t *pushRecord) Clear(ctx context.Context) {
 	if len(pathes) > 0 {
 		args := []string{"pin", "rm"}
 		args = append(args, pathes...)
-		bs, err := exec.CommandContext(ctx, "ipfs", args...).CombinedOutput()
+		bs, err := exec.CommandContext(ctx, "udfs", args...).CombinedOutput()
 		if err != nil && !strings.Contains(err.Error(), "exit status 1") {
 			log.Warning("do unpin failed:", err, string(bs))
 			rmFile = false

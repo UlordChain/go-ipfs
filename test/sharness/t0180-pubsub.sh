@@ -17,29 +17,29 @@ test_expect_success 'peer ids' '
   PEERID_2=$(iptb get id 2)
 '
 
-# ipfs pubsub sub
+# udfs pubsub sub
 test_expect_success 'pubsub' '
   echo "testOK" > expected &&
   touch empty &&
   mkfifo wait ||
   test_fsh echo init fail
 
-  # ipfs pubsub sub is long-running so we need to start it in the background and
+  # udfs pubsub sub is long-running so we need to start it in the background and
   # wait put its output somewhere where we can access it
   (
-    ipfsi 0 pubsub sub --enc=ndpayload testTopic | if read line; then
+    udfsi 0 pubsub sub --enc=ndpayload testTopic | if read line; then
         echo $line > actual &&
         echo > wait
       fi
   ) &
 '
 
-test_expect_success "wait until ipfs pubsub sub is ready to do work" '
+test_expect_success "wait until udfs pubsub sub is ready to do work" '
   go-sleep 500ms
 '
 
 test_expect_success "can see peer subscribed to testTopic" '
-  ipfsi 1 pubsub peers testTopic > peers_out
+  udfsi 1 pubsub peers testTopic > peers_out
 '
 
 test_expect_success "output looks good" '
@@ -48,7 +48,7 @@ test_expect_success "output looks good" '
 '
 
 test_expect_success "publish something" '
-  ipfsi 1 pubsub pub testTopic "testOK" &> pubErr
+  udfsi 1 pubsub pub testTopic "testOK" &> pubErr
 '
 
 test_expect_success "wait until echo > wait executed" '
@@ -62,22 +62,22 @@ test_expect_success "wait for another pubsub message" '
   mkfifo wait2 ||
   test_fsh echo init fail
 
-  # ipfs pubsub sub is long-running so we need to start it in the background and
+  # udfs pubsub sub is long-running so we need to start it in the background and
   # wait put its output somewhere where we can access it
   (
-    ipfsi 2 pubsub sub --enc=ndpayload testTopic | if read line; then
+    udfsi 2 pubsub sub --enc=ndpayload testTopic | if read line; then
         echo $line > actual &&
         echo > wait2
       fi
   ) &
 '
 
-test_expect_success "wait until ipfs pubsub sub is ready to do work" '
+test_expect_success "wait until udfs pubsub sub is ready to do work" '
   go-sleep 500ms
 '
 
 test_expect_success "publish something" '
-  echo "testOK2" | ipfsi 1 pubsub pub testTopic &> pubErr
+  echo "testOK2" | udfsi 1 pubsub pub testTopic &> pubErr
 '
 
 test_expect_success "wait until echo > wait executed" '

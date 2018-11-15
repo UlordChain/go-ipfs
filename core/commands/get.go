@@ -16,10 +16,10 @@ import (
 	uarchive "github.com/udfs/go-udfs/unixfs/archive"
 
 	"context"
-	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	"gx/ipfs/QmPtj12fdwuAqj9sBSTNUxBNu8kCGNp8b3o8yUzMm5GHpq/pb"
-	tar "gx/ipfs/QmQine7gvHncNevKtG9QXxf3nXcwSj6aDDmMm52mHofEEp/tar-utils"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	"gx/udfs/QmPtj12fdwuAqj9sBSTNUxBNu8kCGNp8b3o8yUzMm5GHpq/pb"
+	tar "gx/udfs/QmQine7gvHncNevKtG9QXxf3nXcwSj6aDDmMm52mHofEEp/tar-utils"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 	"time"
 )
 
@@ -27,11 +27,11 @@ var ErrInvalidCompressionLevel = errors.New("compression level must be between 1
 
 var GetCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Download IPFS objects.",
+		Tagline: "Download UDFS objects.",
 		ShortDescription: `
-Stores to disk the data contained an IPFS or IPNS object(s) at the given path.
+Stores to disk the data contained an UDFS or IPNS object(s) at the given path.
 
-By default, the output will be stored at './<ipfs-path>', but an alternate
+By default, the output will be stored at './<udfs-path>', but an alternate
 path can be specified with '--output=<path>' or '-o=<path>'.
 
 To output a TAR archive instead of unpacked files, use '--archive' or '-a'.
@@ -42,7 +42,7 @@ may also specify the level of compression by specifying '-l=<1-9>'.
 	},
 
 	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("ipfs-path", true, false, "The path to the IPFS object(s) to be outputted.").EnableStdin(),
+		cmdkit.StringArg("udfs-path", true, false, "The path to the UDFS object(s) to be outputted.").EnableStdin(),
 	},
 	Options: []cmdkit.Option{
 		cmdkit.StringOption("output", "o", "The path where the output should be stored."),

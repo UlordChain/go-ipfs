@@ -12,68 +12,68 @@ import (
 	nodeMount "github.com/udfs/go-udfs/fuse/node"
 	config "github.com/udfs/go-udfs/repo/config"
 
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 var MountCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Mounts IPFS to the filesystem (read-only).",
+		Tagline: "Mounts UDFS to the filesystem (read-only).",
 		ShortDescription: `
-Mount IPFS at a read-only mountpoint on the OS (default: /ipfs and /ipns).
-All IPFS objects will be accessible under that directory. Note that the
+Mount UDFS at a read-only mountpoint on the OS (default: /udfs and /ipns).
+All UDFS objects will be accessible under that directory. Note that the
 root will not be listable, as it is virtual. Access known paths directly.
 
-You may have to create /ipfs and /ipns before using 'ipfs mount':
+You may have to create /udfs and /ipns before using 'udfs mount':
 
-> sudo mkdir /ipfs /ipns
-> sudo chown $(whoami) /ipfs /ipns
-> ipfs daemon &
-> ipfs mount
+> sudo mkdir /udfs /ipns
+> sudo chown $(whoami) /udfs /ipns
+> udfs daemon &
+> udfs mount
 `,
 		LongDescription: `
-Mount IPFS at a read-only mountpoint on the OS. The default, /ipfs and /ipns,
+Mount UDFS at a read-only mountpoint on the OS. The default, /udfs and /ipns,
 are set in the configuration file, but can be overriden by the options.
-All IPFS objects will be accessible under this directory. Note that the
+All UDFS objects will be accessible under this directory. Note that the
 root will not be listable, as it is virtual. Access known paths directly.
 
-You may have to create /ipfs and /ipns before using 'ipfs mount':
+You may have to create /udfs and /ipns before using 'udfs mount':
 
-> sudo mkdir /ipfs /ipns
-> sudo chown $(whoami) /ipfs /ipns
-> ipfs daemon &
-> ipfs mount
+> sudo mkdir /udfs /ipns
+> sudo chown $(whoami) /udfs /ipns
+> udfs daemon &
+> udfs mount
 
 Example:
 
 # setup
 > mkdir foo
 > echo "baz" > foo/bar
-> ipfs add -r foo
+> udfs add -r foo
 added QmWLdkp93sNxGRjnFHPaYg8tCQ35NBY3XPn6KiETd3Z4WR foo/bar
 added QmSh5e7S6fdcu75LAbXNZAFY2nGyZUJXyLCJDvn2zRkWyC foo
-> ipfs ls QmSh5e7S6fdcu75LAbXNZAFY2nGyZUJXyLCJDvn2zRkWyC
+> udfs ls QmSh5e7S6fdcu75LAbXNZAFY2nGyZUJXyLCJDvn2zRkWyC
 QmWLdkp93sNxGRjnFHPaYg8tCQ35NBY3XPn6KiETd3Z4WR 12 bar
-> ipfs cat QmWLdkp93sNxGRjnFHPaYg8tCQ35NBY3XPn6KiETd3Z4WR
+> udfs cat QmWLdkp93sNxGRjnFHPaYg8tCQ35NBY3XPn6KiETd3Z4WR
 baz
 
 # mount
-> ipfs daemon &
-> ipfs mount
-IPFS mounted at: /ipfs
+> udfs daemon &
+> udfs mount
+UDFS mounted at: /udfs
 IPNS mounted at: /ipns
-> cd /ipfs/QmSh5e7S6fdcu75LAbXNZAFY2nGyZUJXyLCJDvn2zRkWyC
+> cd /udfs/QmSh5e7S6fdcu75LAbXNZAFY2nGyZUJXyLCJDvn2zRkWyC
 > ls
 bar
 > cat bar
 baz
-> cat /ipfs/QmSh5e7S6fdcu75LAbXNZAFY2nGyZUJXyLCJDvn2zRkWyC/bar
+> cat /udfs/QmSh5e7S6fdcu75LAbXNZAFY2nGyZUJXyLCJDvn2zRkWyC/bar
 baz
-> cat /ipfs/QmWLdkp93sNxGRjnFHPaYg8tCQ35NBY3XPn6KiETd3Z4WR
+> cat /udfs/QmWLdkp93sNxGRjnFHPaYg8tCQ35NBY3XPn6KiETd3Z4WR
 baz
 `,
 	},
 	Options: []cmdkit.Option{
-		cmdkit.StringOption("ipfs-path", "f", "The path where IPFS should be mounted."),
+		cmdkit.StringOption("udfs-path", "f", "The path where UDFS should be mounted."),
 		cmdkit.StringOption("ipns-path", "n", "The path where IPNS should be mounted."),
 	},
 	Run: func(req cmds.Request, res cmds.Response) {
@@ -101,7 +101,7 @@ baz
 			return
 		}
 		if !found {
-			fsdir = cfg.Mounts.IPFS // use default value
+			fsdir = cfg.Mounts.UDFS // use default value
 		}
 
 		// get default mount points
@@ -121,7 +121,7 @@ baz
 		}
 
 		var output config.Mounts
-		output.IPFS = fsdir
+		output.UDFS = fsdir
 		output.IPNS = nsdir
 		res.SetOutput(&output)
 	},
@@ -138,7 +138,7 @@ baz
 				return nil, e.TypeErr(mnts, v)
 			}
 
-			s := fmt.Sprintf("IPFS mounted at: %s\n", mnts.IPFS)
+			s := fmt.Sprintf("UDFS mounted at: %s\n", mnts.UDFS)
 			s += fmt.Sprintf("IPNS mounted at: %s\n", mnts.IPNS)
 			return strings.NewReader(s), nil
 		},

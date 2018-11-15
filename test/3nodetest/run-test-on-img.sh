@@ -7,7 +7,7 @@ fi
 
 # this tag is used by the dockerfiles in
 # {data, server, client, bootstrap}
-tag=zaqwsx_ipfs-test-img
+tag=zaqwsx_udfs-test-img
 
 # could use set -v, but i dont want to see the comments...
 
@@ -23,11 +23,11 @@ fig build --no-cache
 echo "fig up --no-color | tee build/fig.log"
 fig up --no-color | tee build/fig.log
 
-# save the ipfs logs for inspection
+# save the udfs logs for inspection
 echo "make save_logs"
 make save_logs || true # don't fail
 
-# save the ipfs logs for inspection
+# save the udfs logs for inspection
 echo "make save_profiling_data"
 make save_profiling_data || true # don't fail
 

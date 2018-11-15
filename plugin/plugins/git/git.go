@@ -9,10 +9,10 @@ import (
 	"github.com/udfs/go-udfs/core/coredag"
 	"github.com/udfs/go-udfs/plugin"
 
-	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	"gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	"gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	git "gx/ipfs/QmarUgTjwokWN8NyEuvRP5gSsJQpDecpRJEKxAi31pM7XX/go-ipld-git"
+	mh "gx/udfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
+	"gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	"gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	git "gx/udfs/QmarUgTjwokWN8NyEuvRP5gSsJQpDecpRJEKxAi31pM7XX/go-ipld-git"
 )
 
 // Plugins is exported list of plugins that will be loaded

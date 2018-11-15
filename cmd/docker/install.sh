@@ -14,4 +14,4 @@ docker stop udfs > /dev/null
 docker rm -f udfs > /dev/null
 
 # run container with name udfs
-docker run -p 4001:4001 -v ${UDFS_PATH}:/root/.ipfs --privileged=true --name udfs -d ${IMAGE_NAME}
+docker run -p 4001:4001 -v ${UDFS_PATH}:/root/.udfs --privileged=true --name udfs -d ${IMAGE_NAME}

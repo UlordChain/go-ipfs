@@ -5,7 +5,7 @@ import (
 
 	config "github.com/udfs/go-udfs/udfs/go-libp2p/config"
 
-	host "gx/ipfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
+	host "gx/udfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
 )
 
 // Config describes a set of settings for a libp2p node

@@ -4,10 +4,10 @@ import (
 	core "github.com/udfs/go-udfs/core"
 	dag "github.com/udfs/go-udfs/merkledag"
 	ft "github.com/udfs/go-udfs/unixfs"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 )
 
-func AddMetadataTo(n *core.IpfsNode, skey string, m *ft.Metadata) (string, error) {
+func AddMetadataTo(n *core.UdfsNode, skey string, m *ft.Metadata) (string, error) {
 	c, err := cid.Decode(skey)
 	if err != nil {
 		return "", err
@@ -37,7 +37,7 @@ func AddMetadataTo(n *core.IpfsNode, skey string, m *ft.Metadata) (string, error
 	return mdnode.Cid().String(), nil
 }
 
-func Metadata(n *core.IpfsNode, skey string) (*ft.Metadata, error) {
+func Metadata(n *core.UdfsNode, skey string) (*ft.Metadata, error) {
 	c, err := cid.Decode(skey)
 	if err != nil {
 		return nil, err

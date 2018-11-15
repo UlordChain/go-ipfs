@@ -18,7 +18,7 @@ func TestRunMain(t *testing.T) {
 	os.Args = append([]string{os.Args[0]}, args...)
 	ret := mainRet()
 
-	p := os.Getenv("IPFS_COVER_RET_FILE")
+	p := os.Getenv("UDFS_COVER_RET_FILE")
 	if len(p) != 0 {
 		ioutil.WriteFile(p, []byte(fmt.Sprintf("%d\n", ret)), 0777)
 	}

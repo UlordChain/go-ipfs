@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-cd ../ipfs
-GOOS=linux GOARCH=amd64 go build -o ../docker/ipfs_linux
+cd ../udfs
+GOOS=linux GOARCH=amd64 go build -o ../docker/udfs_linux
 
 cd ../docker
 

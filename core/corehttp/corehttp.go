@@ -1,6 +1,6 @@
 /*
 Package corehttp provides utilities for the webui, gateways, and other
-high-level HTTP interfaces to IPFS.
+high-level HTTP interfaces to UDFS.
 */
 package corehttp
 
@@ -11,10 +11,10 @@ import (
 	"time"
 
 	core "github.com/udfs/go-udfs/core"
-	"gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess"
-	manet "gx/ipfs/QmV6FjemM1K8oXjrvuq3wuVWWoU2TLDPmNnKrxHzY3v6Ai/go-multiaddr-net"
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	"gx/udfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess"
+	manet "gx/udfs/QmV6FjemM1K8oXjrvuq3wuVWWoU2TLDPmNnKrxHzY3v6Ai/go-multiaddr-net"
+	ma "gx/udfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
 )
 
 var log = logging.Logger("core/server")
@@ -23,11 +23,11 @@ var log = logging.Logger("core/server")
 // It returns the mux to expose to future options, which may be a new mux if it
 // is interested in mediating requests to future options, or the same mux
 // initially passed in if not.
-type ServeOption func(*core.IpfsNode, net.Listener, *http.ServeMux) (*http.ServeMux, error)
+type ServeOption func(*core.UdfsNode, net.Listener, *http.ServeMux) (*http.ServeMux, error)
 
 // makeHandler turns a list of ServeOptions into a http.Handler that implements
 // all of the given options, in order.
-func makeHandler(n *core.IpfsNode, l net.Listener, options ...ServeOption) (http.Handler, error) {
+func makeHandler(n *core.UdfsNode, l net.Listener, options ...ServeOption) (http.Handler, error) {
 	topMux := http.NewServeMux()
 	mux := topMux
 	for _, option := range options {
@@ -46,7 +46,7 @@ func makeHandler(n *core.IpfsNode, l net.Listener, options ...ServeOption) (http
 // TODO intelligently parse address strings in other formats so long as they
 // unambiguously map to a valid multiaddr. e.g. for convenience, ":8080" should
 // map to "/ip4/0.0.0.0/tcp/8080".
-func ListenAndServe(n *core.IpfsNode, listeningMultiAddr string, options ...ServeOption) error {
+func ListenAndServe(n *core.UdfsNode, listeningMultiAddr string, options ...ServeOption) error {
 	addr, err := ma.NewMultiaddr(listeningMultiAddr)
 	if err != nil {
 		return err
@@ -64,7 +64,7 @@ func ListenAndServe(n *core.IpfsNode, listeningMultiAddr string, options ...Serv
 	return Serve(n, manet.NetListener(list), options...)
 }
 
-func Serve(node *core.IpfsNode, lis net.Listener, options ...ServeOption) error {
+func Serve(node *core.UdfsNode, lis net.Listener, options ...ServeOption) error {
 	handler, err := makeHandler(node, lis, options...)
 	if err != nil {
 		return err

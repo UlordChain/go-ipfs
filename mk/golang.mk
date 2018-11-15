@@ -16,10 +16,10 @@ TEST_GO :=
 TEST_GO_BUILD :=
 CHECK_GO :=
 
-go-pkg-name=$(shell $(GOCC) list $(go-tags) github.com/ipfs/go-ipfs/$(1))
+go-pkg-name=$(shell $(GOCC) list $(go-tags) github.com/udfs/go-udfs/$(1))
 go-main-name=$(notdir $(call go-pkg-name,$(1)))$(?exe)
 go-curr-pkg-tgt=$(d)/$(call go-main-name,$(d))
-go-pkgs-novendor=$(shell $(GOCC) list github.com/ipfs/go-ipfs/... | grep -v /Godeps/)
+go-pkgs-novendor=$(shell $(GOCC) list github.com/udfs/go-udfs/... | grep -v /Godeps/)
 
 go-tags=$(if $(GOTAGS), -tags="$(call join-with,$(space),$(GOTAGS))")
 go-flags-with-tags=$(GOFLAGS)$(go-tags)
@@ -66,7 +66,7 @@ check_go_version:
 DEPS_GO += check_go_version
 
 check_go_path:
-	GOPATH="$(GOPATH)" bin/check_go_path github.com/ipfs/go-ipfs
+	GOPATH="$(GOPATH)" bin/check_go_path github.com/udfs/go-udfs
 .PHONY: check_go_path
 DEPS_GO += check_go_path
 

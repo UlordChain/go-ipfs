@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	random "github.com/udfs/go-udfs/Godeps/_workspace/src/github.com/jbenet/go-random"
-	"gx/ipfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
+	"gx/udfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
 )
 
 func main() {

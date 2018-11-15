@@ -8,14 +8,14 @@ test_description="Test Content-Type for channel-streaming commands"
 
 . lib/test-lib.sh
 
-test_init_ipfs
+test_init_udfs
 
 test_ls_cmd() {
 
   test_expect_success "Text encoded channel-streaming command succeeds" '
     mkdir -p testdir &&
     echo "hello test" >testdir/test.txt &&
-    ipfs add -r testdir &&
+    udfs add -r testdir &&
     curl -i "http://$API_ADDR/api/v0/refs?arg=QmTcJAn3JP8ZMAKS6WS75q8sbTyojWKbxcUHgLYGWur4Ym&stream-channels=true&encoding=text" >actual_output
   '
 
@@ -24,7 +24,7 @@ test_ls_cmd() {
     printf "Access-Control-Allow-Headers: X-Stream-Output, X-Chunked-Output, X-Content-Length\r\n" >>expected_output &&
     printf "Access-Control-Expose-Headers: X-Stream-Output, X-Chunked-Output, X-Content-Length\r\n" >>expected_output &&
     printf "Content-Type: text/plain\r\n" >>expected_output &&
-    printf "Server: go-ipfs/%s\r\n" $(ipfs version -n) >>expected_output &&
+    printf "Server: go-udfs/%s\r\n" $(udfs version -n) >>expected_output &&
     printf "Trailer: X-Stream-Error\r\n" >>expected_output &&
     printf "Vary: Origin\r\n" >>expected_output &&
     printf "X-Chunked-Output: 1\r\n" >>expected_output &&
@@ -38,7 +38,7 @@ test_ls_cmd() {
   test_expect_success "JSON encoded channel-streaming command succeeds" '
     mkdir -p testdir &&
     echo "hello test" >testdir/test.txt &&
-    ipfs add -r testdir &&
+    udfs add -r testdir &&
     curl -i "http://$API_ADDR/api/v0/refs?arg=QmTcJAn3JP8ZMAKS6WS75q8sbTyojWKbxcUHgLYGWur4Ym&stream-channels=true&encoding=json" >actual_output
   '
 
@@ -47,7 +47,7 @@ test_ls_cmd() {
     printf "Access-Control-Allow-Headers: X-Stream-Output, X-Chunked-Output, X-Content-Length\r\n" >>expected_output &&
     printf "Access-Control-Expose-Headers: X-Stream-Output, X-Chunked-Output, X-Content-Length\r\n" >>expected_output &&
     printf "Content-Type: application/json\r\n" >>expected_output &&
-    printf "Server: go-ipfs/%s\r\n" $(ipfs version -n) >>expected_output &&
+    printf "Server: go-udfs/%s\r\n" $(udfs version -n) >>expected_output &&
     printf "Trailer: X-Stream-Error\r\n" >>expected_output &&
     printf "Vary: Origin\r\n" >>expected_output &&
     printf "X-Chunked-Output: 1\r\n" >>expected_output &&
@@ -64,8 +64,8 @@ EOF
 }
 
 # should work online (only)
-test_launch_ipfs_daemon
+test_launch_udfs_daemon
 test_ls_cmd
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 test_done

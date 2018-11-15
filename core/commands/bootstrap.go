@@ -12,7 +12,7 @@ import (
 	config "github.com/udfs/go-udfs/repo/config"
 	"github.com/udfs/go-udfs/repo/fsrepo"
 
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 type BootstrapOutput struct {
@@ -25,7 +25,7 @@ var BootstrapCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Show or edit the list of bootstrap peers.",
 		ShortDescription: `
-Running 'ipfs bootstrap' with no arguments will run 'ipfs bootstrap list'.
+Running 'udfs bootstrap' with no arguments will run 'udfs bootstrap list'.
 ` + bootstrapSecurityWarning,
 	},
 

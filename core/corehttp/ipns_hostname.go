@@ -10,14 +10,14 @@ import (
 	namesys "github.com/udfs/go-udfs/namesys"
 	nsopts "github.com/udfs/go-udfs/namesys/opts"
 
-	isd "gx/ipfs/QmZmmuAXgX73UQmX1jRKjTGmjzq24Jinqkq8vzkBtno4uX/go-is-domain"
+	isd "gx/udfs/QmZmmuAXgX73UQmX1jRKjTGmjzq24Jinqkq8vzkBtno4uX/go-is-domain"
 )
 
 // IPNSHostnameOption rewrites an incoming request if its Host: header contains
 // an IPNS name.
 // The rewritten request points at the resolved name on the gateway handler.
 func IPNSHostnameOption() ServeOption {
-	return func(n *core.IpfsNode, _ net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
+	return func(n *core.UdfsNode, _ net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
 		childMux := http.NewServeMux()
 		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			ctx, cancel := context.WithCancel(n.Context())

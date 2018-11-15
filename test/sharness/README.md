@@ -1,4 +1,4 @@
-# ipfs whole tests using the [sharness framework](https://github.com/mlafeldt/sharness/)
+# udfs whole tests using the [sharness framework](https://github.com/mlafeldt/sharness/)
 
 ## Running all the tests
 
@@ -9,11 +9,11 @@ Run with `TEST_VERBOSE=1` to get helpful verbose output.
 TEST_VERBOSE=1 make
 ```
 
-The usual ipfs env flags also apply:
+The usual udfs env flags also apply:
 
 ```sh
 # the output will make your eyes bleed
-IPFS_LOGGING=debug TEST_VERBOSE=1 make
+UDFS_LOGGING=debug TEST_VERBOSE=1 make
 ```
 
 ## Running just one test
@@ -53,8 +53,8 @@ send pull requests there.
 Please have a look at existing tests and try to follow their example.
 
 When possible and not too inefficient, that means most of the time,
-an ipfs command should not be on the left side of a pipe, because if
-the ipfs command fails (exit non zero), the pipe will mask this failure.
+an udfs command should not be on the left side of a pipe, because if
+the udfs command fails (exit non zero), the pipe will mask this failure.
 For example after `false | true`, `echo $?` prints 0 (despite `false`
 failing).
 
@@ -69,12 +69,12 @@ This means cating certain files, or running diagnostic commands.
 For example:
 
 ```
-test_expect_success ".ipfs/ has been created" '
-  test -d ".ipfs" &&
-  test -f ".ipfs/config" &&
-  test -d ".ipfs/datastore" &&
-  test -d ".ipfs/blocks" ||
-  test_fsh ls -al .ipfs
+test_expect_success ".udfs/ has been created" '
+  test -d ".udfs" &&
+  test -f ".udfs/config" &&
+  test -d ".udfs/datastore" &&
+  test -d ".udfs/blocks" ||
+  test_fsh ls -al .udfs
 '
 ```
 
@@ -92,33 +92,33 @@ Use the provided functions in `lib/test-lib.sh` to run the daemon or mount:
 To init, run daemon, and mount in one go:
 
 ```sh
-test_launch_ipfs_daemon_and_mount
+test_launch_udfs_daemon_and_mount
 
-test_expect_success "'ipfs add --help' succeeds" '
-  ipfs add --help >actual
+test_expect_success "'udfs add --help' succeeds" '
+  udfs add --help >actual
 '
 
 # other tests here...
 
 # dont forget to kill the daemon!!
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 ```
 
 To init, run daemon, and then mount separately:
 
 ```sh
-test_init_ipfs
+test_init_udfs
 
 # tests inited but not running here
 
-test_launch_ipfs_daemon
+test_launch_udfs_daemon
 
 # tests running but not mounted here
 
-test_mount_ipfs
+test_mount_udfs
 
 # tests mounted here
 
 # dont forget to kill the daemon!!
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 ```

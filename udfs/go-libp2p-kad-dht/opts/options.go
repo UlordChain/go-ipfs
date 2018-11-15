@@ -3,14 +3,14 @@ package dhtopts
 import (
 	"fmt"
 
-	record "gx/ipfs/QmVsp2KdPYE6M8ryzCk5KHLo3zprcY5hBDaYx6uPCFUdxA/go-libp2p-record"
-	"gx/ipfs/QmZNkThpqfVXs9GNbexPrfBbXSLNYeKrE7jwFM2oqHbyqN/go-libp2p-protocol"
-	ds "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
-	dssync "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore/sync"
+	record "gx/udfs/QmVsp2KdPYE6M8ryzCk5KHLo3zprcY5hBDaYx6uPCFUdxA/go-libp2p-record"
+	"gx/udfs/QmZNkThpqfVXs9GNbexPrfBbXSLNYeKrE7jwFM2oqHbyqN/go-libp2p-protocol"
+	ds "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
+	dssync "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore/sync"
 )
 
-var ProtocolDHT protocol.ID = "/ipfs/kad/1.0.0"
-var ProtocolDHTOld protocol.ID = "/ipfs/dht"
+var ProtocolDHT protocol.ID = "/udfs/kad/1.0.0"
+var ProtocolDHTOld protocol.ID = "/udfs/dht"
 var DefaultProtocols = []protocol.ID{ProtocolDHT, ProtocolDHTOld}
 
 // Options is a structure containing all the options that can be used when constructing a DHT.

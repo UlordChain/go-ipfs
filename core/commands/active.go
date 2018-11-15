@@ -11,12 +11,12 @@ import (
 	cmds "github.com/udfs/go-udfs/commands"
 	e "github.com/udfs/go-udfs/core/commands/e"
 
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 var ActiveReqsCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "List commands run on this IPFS node.",
+		Tagline: "List commands run on this UDFS node.",
 		ShortDescription: `
 Lists running and recently run commands.
 `,

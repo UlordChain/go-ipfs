@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"log"
 
-	inet "gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
+	inet "gx/udfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
 
-	protobufCodec "gx/ipfs/QmRDePEiL4Yupq5EkcK3L3ko3iMgYaqUdLu7xc1kqs7dnV/go-multicodec/protobuf"
-	uuid "gx/ipfs/QmSSeQqc5QeuefkaM6JFV5tSF9knLUkXKVhW1eYRiqe72W/uuid"
-	"gx/ipfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
+	protobufCodec "gx/udfs/QmRDePEiL4Yupq5EkcK3L3ko3iMgYaqUdLu7xc1kqs7dnV/go-multicodec/protobuf"
+	uuid "gx/udfs/QmSSeQqc5QeuefkaM6JFV5tSF9knLUkXKVhW1eYRiqe72W/uuid"
+	"gx/udfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
 
 	pb "github.com/udfs/go-udfs/udfs/go-libp2p/examples/multipro/pb"
 )

@@ -40,9 +40,9 @@ func init() {
 		_, ok := knownIcons[ext]
 		if !ok {
 			// default blank icon
-			return "ipfs-_blank"
+			return "udfs-_blank"
 		}
-		return "ipfs-" + ext[1:] // slice of the first dot
+		return "udfs-" + ext[1:] // slice of the first dot
 	}
 
 	// custom template-escaping function to escape a full path, including '#' and '?'

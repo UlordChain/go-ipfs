@@ -24,46 +24,46 @@ startup_cluster $NUM_NODES
 
 
 # test mount failure before mounting properly.
-test_expect_success "'ipfs mount' fails when there is no mount dir" '
-  tmp_ipfs_mount() { ipfsi 0 mount -f=not_ipfs -n=not_ipns >output 2>output.err; } &&
-  test_must_fail tmp_ipfs_mount
+test_expect_success "'udfs mount' fails when there is no mount dir" '
+  tmp_udfs_mount() { udfsi 0 mount -f=not_udfs -n=not_ipns >output 2>output.err; } &&
+  test_must_fail tmp_udfs_mount
 '
 
-test_expect_success "'ipfs mount' output looks good" '
+test_expect_success "'udfs mount' output looks good" '
   test_must_be_empty output &&
-  test_should_contain "not_ipns\|not_ipfs" output.err
+  test_should_contain "not_ipns\|not_udfs" output.err
 '
 
 test_expect_success "setup and publish default IPNS value" '
-  mkdir "$(pwd)/ipfs" "$(pwd)/ipns" &&
-  ipfsi 0 name publish QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn
+  mkdir "$(pwd)/udfs" "$(pwd)/ipns" &&
+  udfsi 0 name publish QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn
 '
 
 # make sure stuff is unmounted first
 # then mount properly
-test_expect_success FUSE "'ipfs mount' succeeds" '
-  do_umount "$(pwd)/ipfs" || true &&
+test_expect_success FUSE "'udfs mount' succeeds" '
+  do_umount "$(pwd)/udfs" || true &&
   do_umount "$(pwd)/ipns" || true &&
-  ipfsi 0 mount -f "$(pwd)/ipfs" -n "$(pwd)/ipns" >actual
+  udfsi 0 mount -f "$(pwd)/udfs" -n "$(pwd)/ipns" >actual
 '
 
-test_expect_success FUSE "'ipfs mount' output looks good" '
-  echo "IPFS mounted at: $(pwd)/ipfs" >expected &&
+test_expect_success FUSE "'udfs mount' output looks good" '
+  echo "UDFS mounted at: $(pwd)/udfs" >expected &&
   echo "IPNS mounted at: $(pwd)/ipns" >>expected &&
   test_cmp expected actual
 '
 
 test_expect_success "mount directories cannot be removed while active" '
-  test_must_fail rmdir ipfs ipns 2>/dev/null
+  test_must_fail rmdir udfs ipns 2>/dev/null
 '
 
 test_expect_success "unmount directories" '
-  do_umount "$(pwd)/ipfs" &&
+  do_umount "$(pwd)/udfs" &&
   do_umount "$(pwd)/ipns"
 '
 
 test_expect_success "mount directories can be removed after shutdown" '
-  rmdir ipfs ipns
+  rmdir udfs ipns
 '
 
 test_expect_success 'stop iptb' '

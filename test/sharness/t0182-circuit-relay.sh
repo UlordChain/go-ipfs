@@ -16,7 +16,7 @@ test_expect_success 'start up nodes for configuration' '
 '
 
 test_expect_success 'configure EnableRelayHop in relay node' '
-  ipfsi 1 config --json Swarm.EnableRelayHop true
+  udfsi 1 config --json Swarm.EnableRelayHop true
 '
 
 test_expect_success 'restart nodes' '
@@ -43,7 +43,7 @@ test_expect_success 'peer ids' '
 '
 
 test_expect_success 'connect A <-Relay-> B' '
-  ipfsi 0 swarm connect /p2p-circuit/ipfs/$PEERID_2 > peers_out
+  udfsi 0 swarm connect /p2p-circuit/udfs/$PEERID_2 > peers_out
 '
 
 test_expect_success 'output looks good' '
@@ -52,19 +52,19 @@ test_expect_success 'output looks good' '
 '
 
 test_expect_success 'peers for A look good' '
-  ipfsi 0 swarm peers | grep p2p-circuit > peers_out &&
-  echo "/ipfs/$PEERID_1/p2p-circuit/ipfs/$PEERID_2" > peers_exp &&
+  udfsi 0 swarm peers | grep p2p-circuit > peers_out &&
+  echo "/udfs/$PEERID_1/p2p-circuit/udfs/$PEERID_2" > peers_exp &&
   test_cmp peers_exp peers_out
 '
 
 test_expect_success 'peers for B look good' '
-  ipfsi 2 swarm peers | grep p2p-circuit > peers_out &&
-  echo "/ipfs/$PEERID_1/p2p-circuit/ipfs/$PEERID_0" > peers_exp &&
+  udfsi 2 swarm peers | grep p2p-circuit > peers_out &&
+  echo "/udfs/$PEERID_1/p2p-circuit/udfs/$PEERID_0" > peers_exp &&
   test_cmp peers_exp peers_out
 '
 
 test_expect_success 'add an object in A' '
-  echo "hello relay" | ipfsi 0 add > peers_out
+  echo "hello relay" | udfsi 0 add > peers_out
 '
 
 test_expect_success 'object ID' '
@@ -72,7 +72,7 @@ test_expect_success 'object ID' '
 '
 
 test_expect_success 'cat the object in B' '
-  ipfsi 2 cat $OBJID > peers_out
+  udfsi 2 cat $OBJID > peers_out
 '
 
 test_expect_success 'output looks good' '

@@ -9,7 +9,7 @@ import (
 	ft "github.com/udfs/go-udfs/unixfs"
 	ftpb "github.com/udfs/go-udfs/unixfs/pb"
 
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
 )
 
 // Common errors

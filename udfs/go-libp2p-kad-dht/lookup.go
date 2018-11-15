@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	notif "gx/ipfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing/notifications"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	notif "gx/udfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing/notifications"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 
 	kb "github.com/udfs/go-udfs/udfs/go-libp2p-kbucket"
 
@@ -55,7 +55,7 @@ func loggableKey(k string) logging.LoggableMap {
 
 // Kademlia 'node lookup' operation. Returns a channel of the K closest peers
 // to the given key
-func (dht *IpfsDHT) GetClosestPeers(ctx context.Context, key string) (<-chan peer.ID, error) {
+func (dht *UdfsDHT) GetClosestPeers(ctx context.Context, key string) (<-chan peer.ID, error) {
 	e := log.EventBegin(ctx, "getClosestPeers", loggableKey(key))
 	tablepeers := dht.routingTable.NearestPeers(kb.ConvertKey(key), AlphaValue)
 	if len(tablepeers) == 0 {
@@ -117,7 +117,7 @@ func (dht *IpfsDHT) GetClosestPeers(ctx context.Context, key string) (<-chan pee
 
 // Kademlia 'node lookup' operation. Returns a channel of the K closest peers
 // to the given key
-func (dht *IpfsDHT) GetClosestMasterPeers(ctx context.Context, key string) (<-chan peer.ID, error) {
+func (dht *UdfsDHT) GetClosestMasterPeers(ctx context.Context, key string) (<-chan peer.ID, error) {
 	e := log.EventBegin(ctx, "getClosestMasterPeers", loggableKey(key))
 	tablepeers := dht.routingTable.NearestMasterPeers(dht.peerstore, kb.ConvertKey(key), AlphaValue)
 	if len(tablepeers) == 0 {

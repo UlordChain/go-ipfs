@@ -5,11 +5,11 @@
 // depth (and having more intermediary nodes).
 //
 // Internal nodes are always represented by UnixFS nodes (of type `File`) encoded
-// inside DAG nodes (see the `go-ipfs/unixfs` package for details of UnixFS). In
+// inside DAG nodes (see the `go-udfs/unixfs` package for details of UnixFS). In
 // contrast, leaf nodes with data have multiple possible representations: UnixFS
 // nodes as above, raw nodes with just the file data (no format) and Filestore
 // nodes (that directly link to the file on disk using a format stored on a raw
-// node, see the `go-ipfs/filestore` package for details of Filestore.)
+// node, see the `go-udfs/filestore` package for details of Filestore.)
 //
 // In the case the entire file fits into just one node it will be formatted as a
 // (single) leaf node (without parent) with the possible representations already
@@ -46,7 +46,7 @@ import (
 	h "github.com/udfs/go-udfs/importer/helpers"
 	ft "github.com/udfs/go-udfs/unixfs"
 
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
 )
 
 // Layout builds a balanced DAG layout. In a balanced DAG of depth 1, leaf nodes

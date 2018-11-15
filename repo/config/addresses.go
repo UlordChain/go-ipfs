@@ -6,5 +6,5 @@ type Addresses struct {
 	Announce   []string // swarm addresses to announce to the network
 	NoAnnounce []string // swarm addresses not to announce to the network
 	API        string   // address for the local API (RPC)
-	Gateway    string   // address to listen on for IPFS HTTP object gateway
+	Gateway    string   // address to listen on for UDFS HTTP object gateway
 }

@@ -1,6 +1,6 @@
 # General performance debugging guidelines
 
-This is a document for helping debug go-ipfs. Please add to it if you can!
+This is a document for helping debug go-udfs. Please add to it if you can!
 
 ### Table of Contents
 - [Beginning](#beginning)
@@ -10,20 +10,20 @@ This is a document for helping debug go-ipfs. Please add to it if you can!
 
 ### Beginning
 
-When you see ipfs doing something (using lots of CPU, memory, or otherwise
+When you see udfs doing something (using lots of CPU, memory, or otherwise
 being weird), the first thing you want to do is gather all the relevant
 profiling information.
 
 - goroutine dump
-  - `curl localhost:5001/debug/pprof/goroutine\?debug=2 > ipfs.stacks`
+  - `curl localhost:5001/debug/pprof/goroutine\?debug=2 > udfs.stacks`
 - 30 second cpu profile
-  - `curl localhost:5001/debug/pprof/profile > ipfs.cpuprof`
+  - `curl localhost:5001/debug/pprof/profile > udfs.cpuprof`
 - heap trace dump
-  - `curl localhost:5001/debug/pprof/heap > ipfs.heap`
+  - `curl localhost:5001/debug/pprof/heap > udfs.heap`
 - system information
-  - `ipfs diag sys > ipfs.sysinfo`
+  - `udfs diag sys > udfs.sysinfo`
 
-Bundle all that up and include a copy of the ipfs binary that you are running
+Bundle all that up and include a copy of the udfs binary that you are running
 (having the exact same binary is important, it contains debug info).
 
 You can investigate yourself if you feel intrepid:
@@ -39,14 +39,14 @@ sync.runtime_Semacquire(0xc8222fd3e4)
   /home/whyrusleeping/go/src/runtime/sema.go:47 +0x26
 sync.(*Mutex).Lock(0xc8222fd3e0)
   /home/whyrusleeping/go/src/sync/mutex.go:83 +0x1c4
-gx/ipfs/QmedFDs1WHcv3bcknfo64dw4mT1112yptW1H65Y2Wc7KTV/yamux.(*Session).Close(0xc8222fd340, 0x0, 0x0)
-  /home/whyrusleeping/gopkg/src/gx/ipfs/QmedFDs1WHcv3bcknfo64dw4mT1112yptW1H65Y2Wc7KTV/yamux/session.go:205 +0x55
-gx/ipfs/QmWSJzRkCMJFHYUQZxKwPX8WA7XipaPtfiwMPARP51ymfn/go-stream-muxer/yamux.(*conn).Close(0xc8222fd340, 0x0, 0x0)
-  /home/whyrusleeping/gopkg/src/gx/ipfs/QmWSJzRkCMJFHYUQZxKwPX8WA7XipaPtfiwMPARP51ymfn/go-stream-muxer/yamux/yamux.go:39 +0x2d
-gx/ipfs/QmZK81vcgMhpb2t7GNbozk7qzt6Rj4zFqitpvsWT9mduW8/go-peerstream.(*Conn).Close(0xc8257a2000, 0x0, 0x0)
-  /home/whyrusleeping/gopkg/src/gx/ipfs/QmZK81vcgMhpb2t7GNbozk7qzt6Rj4zFqitpvsWT9mduW8/go-peerstream/conn.go:156 +0x1f2
-created by gx/ipfs/QmZK81vcgMhpb2t7GNbozk7qzt6Rj4zFqitpvsWT9mduW8/go-peerstream.(*Conn).GoClose
-  /home/whyrusleeping/gopkg/src/gx/ipfs/QmZK81vcgMhpb2t7GNbozk7qzt6Rj4zFqitpvsWT9mduW8/go-peerstream/conn.go:131 +0xab
+gx/udfs/QmedFDs1WHcv3bcknfo64dw4mT1112yptW1H65Y2Wc7KTV/yamux.(*Session).Close(0xc8222fd340, 0x0, 0x0)
+  /home/whyrusleeping/gopkg/src/gx/udfs/QmedFDs1WHcv3bcknfo64dw4mT1112yptW1H65Y2Wc7KTV/yamux/session.go:205 +0x55
+gx/udfs/QmWSJzRkCMJFHYUQZxKwPX8WA7XipaPtfiwMPARP51ymfn/go-stream-muxer/yamux.(*conn).Close(0xc8222fd340, 0x0, 0x0)
+  /home/whyrusleeping/gopkg/src/gx/udfs/QmWSJzRkCMJFHYUQZxKwPX8WA7XipaPtfiwMPARP51ymfn/go-stream-muxer/yamux/yamux.go:39 +0x2d
+gx/udfs/QmZK81vcgMhpb2t7GNbozk7qzt6Rj4zFqitpvsWT9mduW8/go-peerstream.(*Conn).Close(0xc8257a2000, 0x0, 0x0)
+  /home/whyrusleeping/gopkg/src/gx/udfs/QmZK81vcgMhpb2t7GNbozk7qzt6Rj4zFqitpvsWT9mduW8/go-peerstream/conn.go:156 +0x1f2
+created by gx/udfs/QmZK81vcgMhpb2t7GNbozk7qzt6Rj4zFqitpvsWT9mduW8/go-peerstream.(*Conn).GoClose
+  /home/whyrusleeping/gopkg/src/gx/udfs/QmZK81vcgMhpb2t7GNbozk7qzt6Rj4zFqitpvsWT9mduW8/go-peerstream/conn.go:131 +0xab
 ```
 
 At the top, you can see that this goroutine (number 2306090) has been waiting
@@ -86,7 +86,7 @@ the quickest way to easily point out where the hot spots in the code are.
 
 ### Other
 
-If you have any questions, or want us to analyze some weird go-ipfs behaviour,
+If you have any questions, or want us to analyze some weird go-udfs behaviour,
 just let us know, and be sure to include all the profiling information
 mentioned at the top.
 

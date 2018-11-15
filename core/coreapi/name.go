@@ -15,9 +15,9 @@ import (
 	nsopts "github.com/udfs/go-udfs/namesys/opts"
 	ipath "github.com/udfs/go-udfs/path"
 
-	offline "gx/ipfs/QmbFRJeEmEU16y3BmKKaD4a9fm5oHsEAMHe2vSB1UnfLMi/go-ipfs-routing/offline"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	crypto "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	offline "gx/udfs/QmbFRJeEmEU16y3BmKKaD4a9fm5oHsEAMHe2vSB1UnfLMi/go-udfs-routing/offline"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	crypto "gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
 )
 
 type NameAPI CoreAPI
@@ -132,7 +132,7 @@ func (api *NameAPI) Resolve(ctx context.Context, name string, opts ...caopts.Nam
 	return coreiface.ParsePath(output.String())
 }
 
-func keylookup(n *core.IpfsNode, k string) (crypto.PrivKey, error) {
+func keylookup(n *core.UdfsNode, k string) (crypto.PrivKey, error) {
 	res, err := n.GetKey(k)
 	if res != nil {
 		return res, nil

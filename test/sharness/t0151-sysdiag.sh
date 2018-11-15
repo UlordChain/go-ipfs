@@ -8,10 +8,10 @@ test_description="test output of sysdiag command"
 
 . lib/test-lib.sh
 
-test_init_ipfs
+test_init_udfs
 
-test_expect_success "ipfs diag sys succeeds" '
-  ipfs diag sys > output
+test_expect_success "udfs diag sys succeeds" '
+  udfs diag sys > output
 '
 
 test_expect_success "output contains some expected keys" '

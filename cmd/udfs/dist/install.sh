@@ -1,11 +1,11 @@
 #!/bin/sh
 #
-# Installation script for ipfs. It tries to move $bin in one of the
+# Installation script for udfs. It tries to move $bin in one of the
 # directories stored in $binpaths.
 
 INSTALL_DIR=$(dirname $0)
 
-bin="$INSTALL_DIR/ipfs"
+bin="$INSTALL_DIR/udfs"
 binpaths="/usr/local/bin /usr/bin"
 
 # This variable contains a nonzero length string in case the script fails

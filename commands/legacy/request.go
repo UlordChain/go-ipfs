@@ -7,9 +7,9 @@ import (
 	"os"
 	"reflect"
 
-	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit/files"
+	"gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit/files"
 
 	oldcmds "github.com/udfs/go-udfs/commands"
 )
@@ -147,7 +147,7 @@ func (r *requestWrapper) Values() map[string]interface{} {
 	return nil
 }
 
-// copied from go-ipfs-cmds/request.go
+// copied from go-udfs-cmds/request.go
 func convertOptions(req *cmds.Request) error {
 	optDefSlice := req.Command.Options
 

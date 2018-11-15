@@ -8,15 +8,15 @@ test_description="Test output of streaming json commands"
 
 . lib/test-lib.sh
 
-test_init_ipfs
+test_init_udfs
 
 get_api_port() {
-  cat "$IPFS_PATH/api" | awk -F/ '{ print $5 }'
+  cat "$UDFS_PATH/api" | awk -F/ '{ print $5 }'
 }
 
 test_ls_cmd() {
   test_expect_success "make a file with multiple refs" '
-    HASH=$(random 1000000 | ipfs add -q)
+    HASH=$(random 1000000 | udfs add -q)
   '
 
   test_expect_success "can get refs through curl" '
@@ -31,8 +31,8 @@ test_ls_cmd() {
 }
 
 # should work online (only)
-test_launch_ipfs_daemon
+test_launch_udfs_daemon
 test_ls_cmd
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 test_done

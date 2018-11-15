@@ -2,8 +2,8 @@ codecov:
   ci:
     - "ci/circle-ci"
     - "!travis-ci.org"
-    - "!ci.ipfs.team:8111"
-    - "!ci.ipfs.team"
+    - "!ci.udfs.team:8111"
+    - "!ci.udfs.team"
   notify:
     require_ci_to_pass: no
     after_n_builds: 2

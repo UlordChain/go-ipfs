@@ -15,10 +15,10 @@ import (
 	"strings"
 )
 
-var DistPath = "https://ipfs.io/ipfs/QmZLYJBVBK8nqc5JTHp6CZU1v9Ja3MvGrkCe61PfCecc6E"
+var DistPath = "https://udfs.io/udfs/QmZLYJBVBK8nqc5JTHp6CZU1v9Ja3MvGrkCe61PfCecc6E"
 
 func init() {
-	if dist := os.Getenv("IPFS_DIST_PATH"); dist != "" {
+	if dist := os.Getenv("UDFS_DIST_PATH"); dist != "" {
 		DistPath = dist
 	}
 }
@@ -86,7 +86,7 @@ func GetMigrations() (string, error) {
 		return "", fmt.Errorf("failed to find latest fs-repo-migrations: %s", err)
 	}
 
-	dir, err := ioutil.TempDir("", "go-ipfs-migrate")
+	dir, err := ioutil.TempDir("", "go-udfs-migrate")
 	if err != nil {
 		return "", fmt.Errorf("failed to create fs-repo-migrations tempdir: %s", err)
 	}
@@ -134,8 +134,8 @@ func migrationsVersion(bin string) (int, error) {
 	return vn, nil
 }
 
-func GetVersions(ipfspath, dist string) ([]string, error) {
-	rc, err := httpFetch(ipfspath + "/" + dist + "/versions")
+func GetVersions(udfspath, dist string) ([]string, error) {
+	rc, err := httpFetch(udfspath + "/" + dist + "/versions")
 	if err != nil {
 		return nil, err
 	}
@@ -150,8 +150,8 @@ func GetVersions(ipfspath, dist string) ([]string, error) {
 	return out, nil
 }
 
-func GetLatestVersion(ipfspath, dist string) (string, error) {
-	vs, err := GetVersions(ipfspath, dist)
+func GetLatestVersion(udfspath, dist string) (string, error) {
+	vs, err := GetVersions(udfspath, dist)
 	if err != nil {
 		return "", err
 	}
@@ -174,7 +174,7 @@ func httpGet(url string) (*http.Response, error) {
 		return nil, fmt.Errorf("http.NewRequest error: %s", err)
 	}
 
-	req.Header.Set("User-Agent", "go-ipfs")
+	req.Header.Set("User-Agent", "go-udfs")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -203,7 +203,7 @@ func httpFetch(url string) (io.ReadCloser, error) {
 }
 
 func GetBinaryForVersion(distname, binnom, root, vers, out string) error {
-	dir, err := ioutil.TempDir("", "go-ipfs-auto-migrate")
+	dir, err := ioutil.TempDir("", "go-udfs-auto-migrate")
 	if err != nil {
 		return err
 	}

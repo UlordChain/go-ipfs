@@ -8,23 +8,23 @@ import (
 	opts "github.com/udfs/go-udfs/namesys/opts"
 	path "github.com/udfs/go-udfs/path"
 
-	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	lru "gx/ipfs/QmVYxfoJQiZijTgPNHCHgHELvQpbsJNTg6Crmc3dQkj3yy/golang-lru"
-	routing "gx/ipfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
-	isd "gx/ipfs/QmZmmuAXgX73UQmX1jRKjTGmjzq24Jinqkq8vzkBtno4uX/go-is-domain"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	ci "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
-	ds "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
+	mh "gx/udfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
+	lru "gx/udfs/QmVYxfoJQiZijTgPNHCHgHELvQpbsJNTg6Crmc3dQkj3yy/golang-lru"
+	routing "gx/udfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
+	isd "gx/udfs/QmZmmuAXgX73UQmX1jRKjTGmjzq24Jinqkq8vzkBtno4uX/go-is-domain"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	ci "gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	ds "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
 )
 
-// mpns (a multi-protocol NameSystem) implements generic IPFS naming.
+// mpns (a multi-protocol NameSystem) implements generic UDFS naming.
 //
 // Uses several Resolvers:
-// (a) IPFS routing naming: SFS-like PKI names.
+// (a) UDFS routing naming: SFS-like PKI names.
 // (b) dns domains: resolves using links in DNS TXT records
 // (c) proquints: interprets string as the raw byte data.
 //
-// It can only publish to: (a) IPFS routing naming.
+// It can only publish to: (a) UDFS routing naming.
 //
 type mpns struct {
 	dnsResolver, proquintResolver, ipnsResolver resolver
@@ -33,7 +33,7 @@ type mpns struct {
 	cache *lru.Cache
 }
 
-// NewNameSystem will construct the IPFS naming system based on Routing
+// NewNameSystem will construct the UDFS naming system based on Routing
 func NewNameSystem(r routing.ValueStore, ds ds.Datastore, cachesize int) NameSystem {
 	var cache *lru.Cache
 	if cachesize > 0 {
@@ -53,12 +53,12 @@ const DefaultResolverCacheTTL = time.Minute
 
 // Resolve implements Resolver.
 func (ns *mpns) Resolve(ctx context.Context, name string, options ...opts.ResolveOpt) (path.Path, error) {
-	if strings.HasPrefix(name, "/ipfs/") {
+	if strings.HasPrefix(name, "/udfs/") {
 		return path.ParsePath(name)
 	}
 
 	if !strings.HasPrefix(name, "/") {
-		return path.ParsePath("/ipfs/" + name)
+		return path.ParsePath("/udfs/" + name)
 	}
 
 	return resolve(ctx, ns, name, opts.ProcessOpts(options), "/ipns/")

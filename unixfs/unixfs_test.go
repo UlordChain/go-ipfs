@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	proto "gx/ipfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
+	proto "gx/udfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
 
 	pb "github.com/udfs/go-udfs/unixfs/pb"
 )
@@ -110,7 +110,7 @@ func TestPBdataTools(t *testing.T) {
 		t.Fatal("DataSize didn't throw an error when taking the size of a directory.")
 	}
 
-	catSym, err := SymlinkData("/ipfs/adad123123/meowgie.gif")
+	catSym, err := SymlinkData("/udfs/adad123123/meowgie.gif")
 	if err != nil {
 		t.Fatal(err)
 	}

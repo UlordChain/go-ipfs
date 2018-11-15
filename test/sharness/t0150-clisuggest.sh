@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-test_description="Test ipfs cli cmd suggest"
+test_description="Test udfs cli cmd suggest"
 
 . lib/test-lib.sh
 
@@ -8,7 +8,7 @@ test_suggest() {
 
 
   test_expect_success "test command fails" '
-    test_must_fail ipfs kog 2>actual
+    test_must_fail udfs kog 2>actual
   '
 
   test_expect_success "test one command is suggested" '
@@ -18,7 +18,7 @@ test_suggest() {
   '
 
   test_expect_success "test command fails" '
-    test_must_fail ipfs lis 2>actual
+    test_must_fail udfs lis 2>actual
   '
 
   test_expect_success "test multiple commands are suggested" '
@@ -30,14 +30,14 @@ test_suggest() {
 
 }
 
-test_init_ipfs
+test_init_udfs
 
 test_suggest
 
-test_launch_ipfs_daemon
+test_launch_udfs_daemon
 
 test_suggest
 
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 test_done

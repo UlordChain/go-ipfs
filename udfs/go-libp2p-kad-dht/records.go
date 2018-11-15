@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	routing "gx/ipfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	ci "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	routing "gx/udfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	ci "gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
 )
 
 // MaxRecordAge specifies the maximum time that any node will hold onto a record
@@ -23,7 +23,7 @@ type pubkrs struct {
 	err  error
 }
 
-func (dht *IpfsDHT) GetPublicKey(ctx context.Context, p peer.ID) (ci.PubKey, error) {
+func (dht *UdfsDHT) GetPublicKey(ctx context.Context, p peer.ID) (ci.PubKey, error) {
 	log.Debugf("getPublicKey for: %s", p)
 
 	// Check locally. Will also try to extract the public key from the peer
@@ -74,7 +74,7 @@ func (dht *IpfsDHT) GetPublicKey(ctx context.Context, p peer.ID) (ci.PubKey, err
 	return nil, err
 }
 
-func (dht *IpfsDHT) getPublicKeyFromDHT(ctx context.Context, p peer.ID) (ci.PubKey, error) {
+func (dht *UdfsDHT) getPublicKeyFromDHT(ctx context.Context, p peer.ID) (ci.PubKey, error) {
 	// Only retrieve one value, because the public key is immutable
 	// so there's no need to retrieve multiple versions
 	pkkey := routing.KeyForPublicKey(p)
@@ -95,7 +95,7 @@ func (dht *IpfsDHT) getPublicKeyFromDHT(ctx context.Context, p peer.ID) (ci.PubK
 	return pubk, nil
 }
 
-func (dht *IpfsDHT) getPublicKeyFromNode(ctx context.Context, p peer.ID) (ci.PubKey, error) {
+func (dht *UdfsDHT) getPublicKeyFromNode(ctx context.Context, p peer.ID) (ci.PubKey, error) {
 	// check locally, just in case...
 	pk := dht.peerstore.PubKey(p)
 	if pk != nil {

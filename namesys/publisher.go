@@ -11,15 +11,15 @@ import (
 	pin "github.com/udfs/go-udfs/pin"
 	ft "github.com/udfs/go-udfs/unixfs"
 
-	routing "gx/ipfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
-	proto "gx/ipfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	ipns "gx/ipfs/Qmdue1XShFNi3mpizGx9NR9hyNEj6U2wEW93yGhKqKCFGN/go-ipns"
-	pb "gx/ipfs/Qmdue1XShFNi3mpizGx9NR9hyNEj6U2wEW93yGhKqKCFGN/go-ipns/pb"
-	ci "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
-	ds "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
-	dsquery "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore/query"
-	base32 "gx/ipfs/QmfVj3x4D6Jkq9SEoi5n2NmoUomLwoeiwnYz2KQa15wRw6/base32"
+	routing "gx/udfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
+	proto "gx/udfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	ipns "gx/udfs/Qmdue1XShFNi3mpizGx9NR9hyNEj6U2wEW93yGhKqKCFGN/go-ipns"
+	pb "gx/udfs/Qmdue1XShFNi3mpizGx9NR9hyNEj6U2wEW93yGhKqKCFGN/go-ipns/pb"
+	ci "gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	ds "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
+	dsquery "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore/query"
+	base32 "gx/udfs/QmfVj3x4D6Jkq9SEoi5n2NmoUomLwoeiwnYz2KQa15wRw6/base32"
 )
 
 const ipnsPrefix = "/ipns/"
@@ -27,7 +27,7 @@ const ipnsPrefix = "/ipns/"
 const PublishPutValTimeout = time.Minute
 const DefaultRecordTTL = 24 * time.Hour
 
-// IpnsPublisher is capable of publishing and resolving names to the IPFS
+// IpnsPublisher is capable of publishing and resolving names to the UDFS
 // routing system.
 type IpnsPublisher struct {
 	routing routing.ValueStore
@@ -37,7 +37,7 @@ type IpnsPublisher struct {
 	mu sync.Mutex
 }
 
-// NewIpnsPublisher constructs a publisher for the IPFS Routing name system.
+// NewIpnsPublisher constructs a publisher for the UDFS Routing name system.
 func NewIpnsPublisher(route routing.ValueStore, ds ds.Datastore) *IpnsPublisher {
 	if ds == nil {
 		panic("nil datastore")
@@ -199,7 +199,7 @@ func (p *IpnsPublisher) updateRecord(ctx context.Context, k ci.PrivKey, value pa
 }
 
 // PublishWithEOL is a temporary stand in for the ipns records implementation
-// see here for more details: https://github.com/ipfs/specs/tree/master/records
+// see here for more details: https://github.com/udfs/specs/tree/master/records
 func (p *IpnsPublisher) PublishWithEOL(ctx context.Context, k ci.PrivKey, value path.Path, eol time.Time) error {
 	record, err := p.updateRecord(ctx, k, value, eol)
 	if err != nil {

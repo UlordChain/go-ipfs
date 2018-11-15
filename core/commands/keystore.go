@@ -12,24 +12,24 @@ import (
 	cmds "github.com/udfs/go-udfs/commands"
 	e "github.com/udfs/go-udfs/core/commands/e"
 
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	ci "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	ci "gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
 )
 
 var KeyCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Create and list IPNS name keypairs",
 		ShortDescription: `
-'ipfs key gen' generates a new keypair for usage with IPNS and 'ipfs name
+'udfs key gen' generates a new keypair for usage with IPNS and 'udfs name
 publish'.
 
-  > ipfs key gen --type=rsa --size=2048 mykey
-  > ipfs name publish --key=mykey QmSomeHash
+  > udfs key gen --type=rsa --size=2048 mykey
+  > udfs name publish --key=mykey QmSomeHash
 
-'ipfs key list' lists the available keys.
+'udfs key list' lists the available keys.
 
-  > ipfs key list
+  > udfs key list
   self
   mykey
 		`,

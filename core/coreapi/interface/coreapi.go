@@ -1,14 +1,14 @@
-// Package iface defines IPFS Core API which is a set of interfaces used to
-// interact with IPFS nodes.
+// Package iface defines UDFS Core API which is a set of interfaces used to
+// interact with UDFS nodes.
 package iface
 
 import (
 	"context"
 
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
 )
 
-// CoreAPI defines an unified interface to IPFS for Go programs
+// CoreAPI defines an unified interface to UDFS for Go programs
 type CoreAPI interface {
 	// Unixfs returns an implementation of Unixfs API
 	Unixfs() UnixfsAPI

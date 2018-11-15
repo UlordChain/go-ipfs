@@ -6,13 +6,13 @@ set -euo pipefail
 IFS=$'\n\t'
 
 
-OUTPUT=$(realpath ${1:-go-ipfs-source.tar.gz})
+OUTPUT=$(realpath ${1:-go-udfs-source.tar.gz})
 
 TMPDIR="$(mktemp -d)"
-NEWIPFS="$TMPDIR/github.com/ipfs/go-ipfs"
-mkdir -p "$NEWIPFS"
-cp -r . "$NEWIPFS"
-( cd "$NEWIPFS" &&
+NEWUDFS="$TMPDIR/github.com/udfs/go-udfs"
+mkdir -p "$NEWUDFS"
+cp -r . "$NEWUDFS"
+( cd "$NEWUDFS" &&
   echo $PWD &&
   GOPATH="$TMPDIR" gx install --local &&
   (git rev-parse --short HEAD || true) > .tarball &&

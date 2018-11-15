@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	core "github.com/udfs/go-udfs/core"
-	lwriter "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log/writer"
+	lwriter "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log/writer"
 )
 
 type writeErrNotifier struct {
@@ -45,7 +45,7 @@ func (w *writeErrNotifier) Close() error {
 }
 
 func LogOption() ServeOption {
-	return func(n *core.IpfsNode, _ net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
+	return func(n *core.UdfsNode, _ net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
 		mux.HandleFunc("/logs", func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(200)
 			wnf, errs := newWriteErrNotifier(w)

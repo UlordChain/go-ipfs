@@ -8,17 +8,17 @@ test_description="Test dag command"
 
 . lib/test-lib.sh
 
-test_init_ipfs
+test_init_udfs
 
 test_expect_success "make a few test files" '
   echo "foo" > file1 &&
   echo "bar" > file2 &&
   echo "baz" > file3 &&
   echo "qux" > file4 &&
-  HASH1=$(ipfs add --pin=false -q file1) &&
-  HASH2=$(ipfs add --pin=false -q file2) &&
-  HASH3=$(ipfs add --pin=false -q file3) &&
-  HASH4=$(ipfs add --pin=false -q file4)
+  HASH1=$(udfs add --pin=false -q file1) &&
+  HASH2=$(udfs add --pin=false -q file2) &&
+  HASH3=$(udfs add --pin=false -q file3) &&
+  HASH4=$(udfs add --pin=false -q file4)
 '
 
 test_expect_success "make an ipld object in json" '
@@ -27,7 +27,7 @@ test_expect_success "make an ipld object in json" '
 
 test_dag_cmd() {
   test_expect_success "can add an ipld object" '
-    IPLDHASH=$(cat ipld_object | ipfs dag put)
+    IPLDHASH=$(cat ipld_object | udfs dag put)
   '
 
   test_expect_success "output looks correct" '
@@ -36,9 +36,9 @@ test_dag_cmd() {
   '
 
   test_expect_success "various path traversals work" '
-    ipfs cat $IPLDHASH/cats/0 > out1 &&
-    ipfs cat $IPLDHASH/cats/1/water > out2 &&
-    ipfs cat $IPLDHASH/magic > out3
+    udfs cat $IPLDHASH/cats/0 > out1 &&
+    udfs cat $IPLDHASH/cats/1/water > out2 &&
+    udfs cat $IPLDHASH/magic > out3
   '
 
   test_expect_success "outputs look correct" '
@@ -48,11 +48,11 @@ test_dag_cmd() {
   '
 
   test_expect_success "resolving sub-objects works" '
-    ipfs dag get $IPLDHASH/hello > sub1 &&
-    ipfs dag get $IPLDHASH/sub > sub2 &&
-    ipfs dag get $IPLDHASH/sub/beep > sub3 &&
-    ipfs dag get $IPLDHASH/sub/beep/0 > sub4 &&
-    ipfs dag get $IPLDHASH/sub/beep/1 > sub5
+    udfs dag get $IPLDHASH/hello > sub1 &&
+    udfs dag get $IPLDHASH/sub > sub2 &&
+    udfs dag get $IPLDHASH/sub/beep > sub3 &&
+    udfs dag get $IPLDHASH/sub/beep/0 > sub4 &&
+    udfs dag get $IPLDHASH/sub/beep/1 > sub5
   '
 
   test_expect_success "sub-objects look right" '
@@ -69,16 +69,16 @@ test_dag_cmd() {
   '
 
   test_expect_success "can pin cbor object" '
-    ipfs pin add $EXPHASH
+    udfs pin add $EXPHASH
   '
 
   test_expect_success "after gc, objects still acessible" '
-    ipfs repo gc > /dev/null &&
-    ipfs refs -r --timeout=2s $EXPHASH > /dev/null
+    udfs repo gc > /dev/null &&
+    udfs refs -r --timeout=2s $EXPHASH > /dev/null
   '
 
   test_expect_success "can get object" '
-    ipfs dag get $IPLDHASH > ipld_obj_out
+    udfs dag get $IPLDHASH > ipld_obj_out
   '
 
   test_expect_success "object links look right" '
@@ -86,16 +86,16 @@ test_dag_cmd() {
   '
 
   test_expect_success "retreived object hashes back correctly" '
-    IPLDHASH2=$(cat ipld_obj_out | ipfs dag put) &&
+    IPLDHASH2=$(cat ipld_obj_out | udfs dag put) &&
     test "$IPLDHASH" = "$IPLDHASH2"
   '
 
   test_expect_success "add a normal file" '
-    HASH=$(echo "foobar" | ipfs add -q)
+    HASH=$(echo "foobar" | udfs add -q)
   '
 
   test_expect_success "can view protobuf object with dag get" '
-    ipfs dag get $HASH > dag_get_pb_out
+    udfs dag get $HASH > dag_get_pb_out
   '
 
   test_expect_success "output looks correct" '
@@ -104,7 +104,7 @@ test_dag_cmd() {
   '
 
   test_expect_success "can call dag get with a path" '
-    ipfs dag get $IPLDHASH/cats/0 > cat_out
+    udfs dag get $IPLDHASH/cats/0 > cat_out
   '
 
   test_expect_success "output looks correct" '
@@ -113,28 +113,28 @@ test_dag_cmd() {
   '
 
   test_expect_success "non-canonical cbor input is normalized" '
-    HASH=$(cat ../t0053-dag-data/non-canon.cbor | ipfs dag put --format=cbor --input-enc=raw) &&
+    HASH=$(cat ../t0053-dag-data/non-canon.cbor | udfs dag put --format=cbor --input-enc=raw) &&
     test $HASH = "zdpuAmxF8q6iTUtkB3xtEYzmc5Sw762qwQJftt5iW8NTWLtjC" ||
     test_fsh echo $HASH
   '
 
   test_expect_success "non-canonical cbor input is normalized with input-enc cbor" '
-    HASH=$(cat ../t0053-dag-data/non-canon.cbor | ipfs dag put --format=cbor --input-enc=cbor) &&
+    HASH=$(cat ../t0053-dag-data/non-canon.cbor | udfs dag put --format=cbor --input-enc=cbor) &&
     test $HASH = "zdpuAmxF8q6iTUtkB3xtEYzmc5Sw762qwQJftt5iW8NTWLtjC" ||
     test_fsh echo $HASH
   '
 
   test_expect_success "add an ipld with pin" '
-    PINHASH=$(printf {\"foo\":\"bar\"} | ipfs dag put --pin=true)
+    PINHASH=$(printf {\"foo\":\"bar\"} | udfs dag put --pin=true)
   '
 
   test_expect_success "after gc, objects still acessible" '
-    ipfs repo gc > /dev/null &&
-    ipfs refs -r --timeout=2s $PINHASH > /dev/null
+    udfs repo gc > /dev/null &&
+    udfs refs -r --timeout=2s $PINHASH > /dev/null
   '
 
   test_expect_success "can add an ipld object with sha3 hash" '
-    IPLDHASH=$(cat ipld_object | ipfs dag put --hash sha3)
+    IPLDHASH=$(cat ipld_object | udfs dag put --hash sha3)
   '
 
   test_expect_success "output looks correct" '
@@ -144,12 +144,12 @@ test_dag_cmd() {
 
   test_expect_success "prepare dag-pb object" '
     echo foo > test_file &&
-    HASH=$(ipfs add -wq test_file | tail -n1)
+    HASH=$(udfs add -wq test_file | tail -n1)
   '
 
   test_expect_success "dag put with json dag-pb works" '
-    ipfs dag get $HASH > pbjson &&
-    cat pbjson | ipfs dag put --format=dag-pb --input-enc=json > dag_put_out
+    udfs dag get $HASH > pbjson &&
+    cat pbjson | udfs dag put --format=dag-pb --input-enc=json > dag_put_out
   '
 
   test_expect_success "dag put with dag-pb works output looks good" '
@@ -158,8 +158,8 @@ test_dag_cmd() {
   '
 
   test_expect_success "dag put with raw dag-pb works" '
-    ipfs block get $HASH > pbraw &&
-    cat pbraw | ipfs dag put --format=dag-pb --input-enc=raw > dag_put_out
+    udfs block get $HASH > pbraw &&
+    cat pbraw | udfs dag put --format=dag-pb --input-enc=raw > dag_put_out
   '
 
   test_expect_success "dag put with dag-pb works output looks good" '
@@ -169,14 +169,14 @@ test_dag_cmd() {
 
   test_expect_success "dag put with raw node works" '
     echo "foo bar" > raw_node_in &&
-    HASH=$(ipfs dag put --format=raw --input-enc=raw -- raw_node_in) &&
-    ipfs block get "$HASH" > raw_node_out &&
+    HASH=$(udfs dag put --format=raw --input-enc=raw -- raw_node_in) &&
+    udfs block get "$HASH" > raw_node_out &&
     test_cmp raw_node_in raw_node_out'
 
   test_expect_success "dag put multiple files" '
     printf {\"foo\":\"bar\"} > a.json &&
     printf {\"foo\":\"baz\"} > b.json &&
-    ipfs dag put a.json b.json > dag_put_out
+    udfs dag put a.json b.json > dag_put_out
   '
 
   test_expect_success "dag put multiple files output looks good" '
@@ -187,14 +187,14 @@ test_dag_cmd() {
   '
 
   test_expect_success "prepare data for dag resolve" '
-    NESTED_HASH=$(echo "{\"data\":123}" | ipfs dag put) &&
-    HASH=$(echo "{\"obj\":{\"/\":\"${NESTED_HASH}\"}}" | ipfs dag put)
+    NESTED_HASH=$(echo "{\"data\":123}" | udfs dag put) &&
+    HASH=$(echo "{\"obj\":{\"/\":\"${NESTED_HASH}\"}}" | udfs dag put)
   '
 
   test_expect_success "dag resolve some things" '
-    ipfs dag resolve $HASH > resolve_hash &&
-    ipfs dag resolve ${HASH}/obj > resolve_obj &&
-    ipfs dag resolve ${HASH}/obj/data > resolve_data
+    udfs dag resolve $HASH > resolve_hash &&
+    udfs dag resolve ${HASH}/obj > resolve_obj &&
+    udfs dag resolve ${HASH}/obj/data > resolve_data
   '
 
   test_expect_success "dag resolve output looks good" '
@@ -212,8 +212,8 @@ test_dag_cmd() {
 test_dag_cmd
 
 # should work online
-test_launch_ipfs_daemon
+test_launch_udfs_daemon
 test_dag_cmd
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 test_done

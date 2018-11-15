@@ -9,9 +9,9 @@ test_description="Test daemon command"
 . lib/test-lib.sh
 
 
-test_init_ipfs
+test_init_udfs
 
-test_launch_ipfs_daemon --disable-transport-encryption
+test_launch_udfs_daemon --disable-transport-encryption
 
 gwyaddr=$GWAY_ADDR
 apiaddr=$API_ADDR
@@ -24,24 +24,24 @@ test_expect_success 'transport should be unencrypted' '
   test_fsh cat swarmnc
 '
 
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
-test_launch_ipfs_daemon --offline
+test_launch_udfs_daemon --offline
 
 gwyaddr=$GWAY_ADDR
 apiaddr=$API_ADDR
 
 test_expect_success 'gateway should work in offline mode' '
   echo "hello mars :$gwyaddr :$apiaddr" >expected &&
-  HASH=$(ipfs add -q expected) &&
-  curl -sfo actual1 "http://$gwyaddr/ipfs/$HASH" &&
+  HASH=$(udfs add -q expected) &&
+  curl -sfo actual1 "http://$gwyaddr/udfs/$HASH" &&
   test_cmp expected actual1
 '
 
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 test_expect_success 'daemon should not start with bad dht opt' '
-  test_must_fail ipfs daemon --routing=fdsfdsfds > daemon_output 2>&1
+  test_must_fail udfs daemon --routing=fdsfdsfds > daemon_output 2>&1
 '
 
 test_expect_success 'output contains info about dht option' '
@@ -50,7 +50,7 @@ test_expect_success 'output contains info about dht option' '
 '
 
 test_expect_success 'daemon should not start with supernode dht opt' '
-  test_must_fail ipfs daemon --routing=supernode > daemon_output2 2>&1
+  test_must_fail udfs daemon --routing=supernode > daemon_output2 2>&1
 '
 
 test_expect_success 'output contains info about supernode dht option' '

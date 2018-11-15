@@ -5,16 +5,16 @@
 
 export IPTB_ROOT="$(pwd)/.iptb"
 
-ipfsi() {
+udfsi() {
   dir="$1"
   shift
-  IPFS_PATH="$IPTB_ROOT/$dir" ipfs "$@"
+  UDFS_PATH="$IPTB_ROOT/$dir" udfs "$@"
 }
 
 check_has_connection() {
   node="$1"
-  ipfsi "$node" swarm peers >"swarm_peers_$node" &&
-  grep "ipfs" "swarm_peers_$node" >/dev/null
+  udfsi "$node" swarm peers >"swarm_peers_$node" &&
+  grep "udfs" "swarm_peers_$node" >/dev/null
 }
 
 iptb() {

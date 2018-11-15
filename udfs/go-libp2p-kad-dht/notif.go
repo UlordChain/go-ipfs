@@ -1,16 +1,16 @@
 package dht
 
 import (
-	inet "gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	mstream "gx/ipfs/QmbXRda5H2K3MSQyWWxTMtd8DWuguEBUCe6hpxfXVpFUGj/go-multistream"
+	inet "gx/udfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
+	ma "gx/udfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	mstream "gx/udfs/QmbXRda5H2K3MSQyWWxTMtd8DWuguEBUCe6hpxfXVpFUGj/go-multistream"
 )
 
-// netNotifiee defines methods to be used with the IpfsDHT
-type netNotifiee IpfsDHT
+// netNotifiee defines methods to be used with the UdfsDHT
+type netNotifiee UdfsDHT
 
-func (nn *netNotifiee) DHT() *IpfsDHT {
-	return (*IpfsDHT)(nn)
+func (nn *netNotifiee) DHT() *UdfsDHT {
+	return (*UdfsDHT)(nn)
 }
 
 func (nn *netNotifiee) Connected(n inet.Network, v inet.Conn) {

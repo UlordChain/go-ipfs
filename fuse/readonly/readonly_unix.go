@@ -16,34 +16,34 @@ import (
 	uio "github.com/udfs/go-udfs/unixfs/io"
 	ftpb "github.com/udfs/go-udfs/unixfs/pb"
 
-	lgbl "gx/ipfs/QmRPkGkHLB72caXgdDYnoaWigXNWx95BcYDKV1n3KTEpaG/go-libp2p-loggables"
-	fuse "gx/ipfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse"
-	fs "gx/ipfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse/fs"
-	proto "gx/ipfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	lgbl "gx/udfs/QmRPkGkHLB72caXgdDYnoaWigXNWx95BcYDKV1n3KTEpaG/go-libp2p-loggables"
+	fuse "gx/udfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse"
+	fs "gx/udfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse/fs"
+	proto "gx/udfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
 )
 
-var log = logging.Logger("fuse/ipfs")
+var log = logging.Logger("fuse/udfs")
 
-// FileSystem is the readonly IPFS Fuse Filesystem.
+// FileSystem is the readonly UDFS Fuse Filesystem.
 type FileSystem struct {
-	Ipfs *core.IpfsNode
+	Udfs *core.UdfsNode
 }
 
-// NewFileSystem constructs new fs using given core.IpfsNode instance.
-func NewFileSystem(ipfs *core.IpfsNode) *FileSystem {
-	return &FileSystem{Ipfs: ipfs}
+// NewFileSystem constructs new fs using given core.UdfsNode instance.
+func NewFileSystem(udfs *core.UdfsNode) *FileSystem {
+	return &FileSystem{Udfs: udfs}
 }
 
 // Root constructs the Root of the filesystem, a Root object.
 func (f FileSystem) Root() (fs.Node, error) {
-	return &Root{Ipfs: f.Ipfs}, nil
+	return &Root{Udfs: f.Udfs}, nil
 }
 
 // Root is the root object of the filesystem tree.
 type Root struct {
-	Ipfs *core.IpfsNode
+	Udfs *core.UdfsNode
 }
 
 // Attr returns file attributes.
@@ -67,7 +67,7 @@ func (s *Root) Lookup(ctx context.Context, name string) (fs.Node, error) {
 		return nil, fuse.ENOENT
 	}
 
-	nd, err := s.Ipfs.Resolver.ResolvePath(ctx, p)
+	nd, err := s.Udfs.Resolver.ResolvePath(ctx, p)
 	if err != nil {
 		// todo: make this error more versatile.
 		return nil, fuse.ENOENT
@@ -75,7 +75,7 @@ func (s *Root) Lookup(ctx context.Context, name string) (fs.Node, error) {
 
 	switch nd := nd.(type) {
 	case *mdag.ProtoNode, *mdag.RawNode:
-		return &Node{Ipfs: s.Ipfs, Nd: nd}, nil
+		return &Node{Udfs: s.Udfs, Nd: nd}, nil
 	default:
 		log.Error("fuse node was not a protobuf node")
 		return nil, fuse.ENOTSUP
@@ -91,7 +91,7 @@ func (*Root) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 
 // Node is the core object representing a filesystem tree node.
 type Node struct {
-	Ipfs   *core.IpfsNode
+	Udfs   *core.UdfsNode
 	Nd     ipld.Node
 	cached *ftpb.Data
 }
@@ -143,7 +143,7 @@ func (s *Node) Attr(ctx context.Context, a *fuse.Attr) error {
 // Lookup performs a lookup under this node.
 func (s *Node) Lookup(ctx context.Context, name string) (fs.Node, error) {
 	log.Debugf("Lookup '%s'", name)
-	link, _, err := uio.ResolveUnixfsOnce(ctx, s.Ipfs.DAG, s.Nd, []string{name})
+	link, _, err := uio.ResolveUnixfsOnce(ctx, s.Udfs.DAG, s.Nd, []string{name})
 	switch err {
 	case os.ErrNotExist, mdag.ErrLinkNotFound:
 		// todo: make this error more versatile.
@@ -155,7 +155,7 @@ func (s *Node) Lookup(ctx context.Context, name string) (fs.Node, error) {
 		// noop
 	}
 
-	nd, err := s.Ipfs.DAG.Get(ctx, link.Cid)
+	nd, err := s.Udfs.DAG.Get(ctx, link.Cid)
 	switch err {
 	case ipld.ErrNotFound:
 	default:
@@ -165,13 +165,13 @@ func (s *Node) Lookup(ctx context.Context, name string) (fs.Node, error) {
 		// noop
 	}
 
-	return &Node{Ipfs: s.Ipfs, Nd: nd}, nil
+	return &Node{Udfs: s.Udfs, Nd: nd}, nil
 }
 
 // ReadDirAll reads the link structure as directory entries
 func (s *Node) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 	log.Debug("Node ReadDir")
-	dir, err := uio.NewDirectoryFromNode(s.Ipfs.DAG, s.Nd)
+	dir, err := uio.NewDirectoryFromNode(s.Udfs.DAG, s.Nd)
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +182,7 @@ func (s *Node) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 		if len(n) == 0 {
 			n = lnk.Cid.String()
 		}
-		nd, err := s.Ipfs.DAG.Get(ctx, lnk.Cid)
+		nd, err := s.Udfs.DAG.Get(ctx, lnk.Cid)
 		if err != nil {
 			log.Warning("error fetching directory child node: ", err)
 		}
@@ -241,13 +241,13 @@ func (s *Node) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.ReadR
 
 	// setup our logging event
 	lm := make(lgbl.DeferredMap)
-	lm["fs"] = "ipfs"
+	lm["fs"] = "udfs"
 	lm["key"] = func() interface{} { return c.String() }
 	lm["req_offset"] = req.Offset
 	lm["req_size"] = req.Size
 	defer log.EventBegin(ctx, "fuseRead", lm).Done()
 
-	r, err := uio.NewDagReader(ctx, s.Nd, s.Ipfs.DAG)
+	r, err := uio.NewDagReader(ctx, s.Nd, s.Udfs.DAG)
 	if err != nil {
 		return err
 	}

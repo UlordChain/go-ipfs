@@ -1,19 +1,19 @@
 package iface
 
 import (
-	ipfspath "github.com/udfs/go-udfs/path"
+	udfspath "github.com/udfs/go-udfs/path"
 
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 )
 
-//TODO: merge with ipfspath so we don't depend on it
+//TODO: merge with udfspath so we don't depend on it
 
 // Path is a generic wrapper for paths used in the API. A path can be resolved
 // to a CID using one of Resolve functions in the API.
 //
 // Paths must be prefixed with a valid prefix:
 //
-// * /ipfs - Immutable unixfs path (files)
+// * /udfs - Immutable unixfs path (files)
 // * /ipld - Immutable ipld path (data)
 // * /ipns - Mutable names. Usually resolves to one of the immutable paths
 //TODO: /local (MFS)
@@ -23,7 +23,7 @@ type Path interface {
 
 	// Namespace returns the first component of the path.
 	//
-	// For example path "/ipfs/QmHash", calling Namespace() will return "ipfs"
+	// For example path "/udfs/QmHash", calling Namespace() will return "udfs"
 	Namespace() string
 
 	// Mutable returns false if the data pointed to by this path in guaranteed
@@ -46,22 +46,22 @@ type ResolvedPath interface {
 	// cidRoot := {"A": {"/": cidA }}
 	//
 	// And resolve paths:
-	// * "/ipfs/${cidRoot}"
+	// * "/udfs/${cidRoot}"
 	//   * Calling Cid() will return `cidRoot`
 	//   * Calling Root() will return `cidRoot`
 	//   * Calling Remainder() will return ``
 	//
-	// * "/ipfs/${cidRoot}/A"
+	// * "/udfs/${cidRoot}/A"
 	//   * Calling Cid() will return `cidA`
 	//   * Calling Root() will return `cidRoot`
 	//   * Calling Remainder() will return ``
 	//
-	// * "/ipfs/${cidRoot}/A/B/foo"
+	// * "/udfs/${cidRoot}/A/B/foo"
 	//   * Calling Cid() will return `cidB`
 	//   * Calling Root() will return `cidRoot`
 	//   * Calling Remainder() will return `foo`
 	//
-	// * "/ipfs/${cidRoot}/A/B/foo/bar"
+	// * "/udfs/${cidRoot}/A/B/foo/bar"
 	//   * Calling Cid() will return `cidB`
 	//   * Calling Root() will return `cidRoot`
 	//   * Calling Remainder() will return `foo/bar`
@@ -71,7 +71,7 @@ type ResolvedPath interface {
 	//
 	// Example:
 	// If you have 3 linked objects: QmRoot -> A -> B, and resolve path
-	// "/ipfs/QmRoot/A/B", the Root method will return the CID of object QmRoot
+	// "/udfs/QmRoot/A/B", the Root method will return the CID of object QmRoot
 	//
 	// For more examples see the documentation of Cid() method
 	Root() *cid.Cid
@@ -94,7 +94,7 @@ type ResolvedPath interface {
 
 // path implements coreiface.Path
 type path struct {
-	path ipfspath.Path
+	path udfspath.Path
 }
 
 // resolvedPath implements coreiface.resolvedPath
@@ -105,10 +105,10 @@ type resolvedPath struct {
 	remainder string
 }
 
-// IpfsPath creates new /ipfs path from the provided CID
-func IpfsPath(c *cid.Cid) ResolvedPath {
+// UdfsPath creates new /udfs path from the provided CID
+func UdfsPath(c *cid.Cid) ResolvedPath {
 	return &resolvedPath{
-		path:      path{ipfspath.Path("/ipfs/" + c.String())},
+		path:      path{udfspath.Path("/udfs/" + c.String())},
 		cid:       c,
 		root:      c,
 		remainder: "",
@@ -118,7 +118,7 @@ func IpfsPath(c *cid.Cid) ResolvedPath {
 // IpldPath creates new /ipld path from the provided CID
 func IpldPath(c *cid.Cid) ResolvedPath {
 	return &resolvedPath{
-		path:      path{ipfspath.Path("/ipld/" + c.String())},
+		path:      path{udfspath.Path("/ipld/" + c.String())},
 		cid:       c,
 		root:      c,
 		remainder: "",
@@ -127,7 +127,7 @@ func IpldPath(c *cid.Cid) ResolvedPath {
 
 // ParsePath parses string path to a Path
 func ParsePath(p string) (Path, error) {
-	pp, err := ipfspath.ParsePath(p)
+	pp, err := udfspath.ParsePath(p)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +138,7 @@ func ParsePath(p string) (Path, error) {
 // NewResolvedPath creates new ResolvedPath. This function performs no checks
 // and is intended to be used by resolver implementations. Incorrect inputs may
 // cause panics. Handle with care.
-func NewResolvedPath(ipath ipfspath.Path, c *cid.Cid, root *cid.Cid, remainder string) ResolvedPath {
+func NewResolvedPath(ipath udfspath.Path, c *cid.Cid, root *cid.Cid, remainder string) ResolvedPath {
 	return &resolvedPath{
 		path:      path{ipath},
 		cid:       c,

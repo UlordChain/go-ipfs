@@ -7,10 +7,10 @@ import (
 	"sync"
 	"time"
 
-	inet "gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
-	ctxio "gx/ipfs/QmTKsRYeY4simJyf37K93juSq75Lo8MVCDJ7owjmf46u8W/go-context/io"
-	ggio "gx/ipfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/io"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	inet "gx/udfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
+	ctxio "gx/udfs/QmTKsRYeY4simJyf37K93juSq75Lo8MVCDJ7owjmf46u8W/go-context/io"
+	ggio "gx/udfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/io"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 
 	pb "github.com/udfs/go-udfs/udfs/go-libp2p-kad-dht/pb"
 )
@@ -19,11 +19,11 @@ var dhtReadMessageTimeout = time.Minute
 var ErrReadTimeout = fmt.Errorf("timed out reading response")
 
 // handleNewStream implements the inet.StreamHandler
-func (dht *IpfsDHT) handleNewStream(s inet.Stream) {
+func (dht *UdfsDHT) handleNewStream(s inet.Stream) {
 	go dht.handleNewMessage(s)
 }
 
-func (dht *IpfsDHT) handleNewMessage(s inet.Stream) {
+func (dht *UdfsDHT) handleNewMessage(s inet.Stream) {
 	ctx := dht.Context()
 	cr := ctxio.NewReader(ctx, s) // ok to use. we defer close stream in this func
 	cw := ctxio.NewWriter(ctx, s) // ok to use. we defer close stream in this func
@@ -81,7 +81,7 @@ func (dht *IpfsDHT) handleNewMessage(s inet.Stream) {
 
 // sendRequest sends out a request, but also makes sure to
 // measure the RTT for latency measurements.
-func (dht *IpfsDHT) sendRequest(ctx context.Context, p peer.ID, pmes *pb.Message) (*pb.Message, error) {
+func (dht *UdfsDHT) sendRequest(ctx context.Context, p peer.ID, pmes *pb.Message) (*pb.Message, error) {
 
 	ms, err := dht.messageSenderForPeer(p)
 	if err != nil {
@@ -104,7 +104,7 @@ func (dht *IpfsDHT) sendRequest(ctx context.Context, p peer.ID, pmes *pb.Message
 }
 
 // sendMessage sends out a message
-func (dht *IpfsDHT) sendMessage(ctx context.Context, p peer.ID, pmes *pb.Message) error {
+func (dht *UdfsDHT) sendMessage(ctx context.Context, p peer.ID, pmes *pb.Message) error {
 	ms, err := dht.messageSenderForPeer(p)
 	if err != nil {
 		return err
@@ -117,7 +117,7 @@ func (dht *IpfsDHT) sendMessage(ctx context.Context, p peer.ID, pmes *pb.Message
 	return nil
 }
 
-func (dht *IpfsDHT) updateFromMessage(ctx context.Context, p peer.ID, mes *pb.Message) error {
+func (dht *UdfsDHT) updateFromMessage(ctx context.Context, p peer.ID, mes *pb.Message) error {
 	// Make sure that this node is actually a DHT server, not just a client.
 	protos, err := dht.peerstore.SupportsProtocols(p, dht.protocolStrs()...)
 	if err == nil && len(protos) > 0 {
@@ -126,7 +126,7 @@ func (dht *IpfsDHT) updateFromMessage(ctx context.Context, p peer.ID, mes *pb.Me
 	return nil
 }
 
-func (dht *IpfsDHT) messageSenderForPeer(p peer.ID) (*messageSender, error) {
+func (dht *UdfsDHT) messageSenderForPeer(p peer.ID) (*messageSender, error) {
 	dht.smlk.Lock()
 	ms, ok := dht.strmap[p]
 	if ok {
@@ -164,7 +164,7 @@ type messageSender struct {
 	w   ggio.WriteCloser
 	lk  sync.Mutex
 	p   peer.ID
-	dht *IpfsDHT
+	dht *UdfsDHT
 
 	invalid   bool
 	singleMes int

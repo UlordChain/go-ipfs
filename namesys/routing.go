@@ -8,26 +8,26 @@ import (
 	opts "github.com/udfs/go-udfs/namesys/opts"
 	path "github.com/udfs/go-udfs/path"
 
-	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	routing "gx/ipfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
-	proto "gx/ipfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	ipns "gx/ipfs/Qmdue1XShFNi3mpizGx9NR9hyNEj6U2wEW93yGhKqKCFGN/go-ipns"
-	pb "gx/ipfs/Qmdue1XShFNi3mpizGx9NR9hyNEj6U2wEW93yGhKqKCFGN/go-ipns/pb"
+	mh "gx/udfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	routing "gx/udfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
+	proto "gx/udfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	ipns "gx/udfs/Qmdue1XShFNi3mpizGx9NR9hyNEj6U2wEW93yGhKqKCFGN/go-ipns"
+	pb "gx/udfs/Qmdue1XShFNi3mpizGx9NR9hyNEj6U2wEW93yGhKqKCFGN/go-ipns/pb"
 
 	dht "github.com/udfs/go-udfs/udfs/go-libp2p-kad-dht"
 )
 
 var log = logging.Logger("namesys")
 
-// IpnsResolver implements NSResolver for the main IPFS SFS-like naming
+// IpnsResolver implements NSResolver for the main UDFS SFS-like naming
 type IpnsResolver struct {
 	routing routing.ValueStore
 }
 
-// NewIpnsResolver constructs a name resolver using the IPFS Routing system
+// NewIpnsResolver constructs a name resolver using the UDFS Routing system
 // to implement SFS-like naming on top.
 func NewIpnsResolver(route routing.ValueStore) *IpnsResolver {
 	if route == nil {
@@ -43,7 +43,7 @@ func (r *IpnsResolver) Resolve(ctx context.Context, name string, options ...opts
 	return resolve(ctx, r, name, opts.ProcessOpts(options), "/ipns/")
 }
 
-// resolveOnce implements resolver. Uses the IPFS routing system to
+// resolveOnce implements resolver. Uses the UDFS routing system to
 // resolve SFS-like names.
 func (r *IpnsResolver) resolveOnce(ctx context.Context, name string, options *opts.ResolveOpts) (path.Path, time.Duration, error) {
 	log.Debugf("RoutingResolver resolving %s", name)
@@ -69,7 +69,7 @@ func (r *IpnsResolver) resolveOnce(ctx context.Context, name string, options *op
 		return "", 0, err
 	}
 
-	// Name should be the hash of a public key retrievable from ipfs.
+	// Name should be the hash of a public key retrievable from udfs.
 	// We retrieve the public key here to make certain that it's in the peer
 	// store before calling GetValue() on the DHT - the DHT will call the
 	// ipns validator, which in turn will get the public key from the peer

@@ -10,7 +10,7 @@ import (
 	e "github.com/udfs/go-udfs/core/commands/e"
 	config "github.com/udfs/go-udfs/repo/config"
 	fsrepo "github.com/udfs/go-udfs/repo/fsrepo"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 type VersionOutput struct {
@@ -23,8 +23,8 @@ type VersionOutput struct {
 
 var VersionCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline:          "Show ipfs version information.",
-		ShortDescription: "Returns the current version of ipfs and exits.",
+		Tagline:          "Show udfs version information.",
+		ShortDescription: "Returns the current version of udfs and exits.",
 	},
 
 	Options: []cmdkit.Option{
@@ -85,13 +85,13 @@ var VersionCmd = &cmds.Command{
 				return nil, err
 			}
 			if all {
-				out := fmt.Sprintf("go-ipfs version: %s-%s\n"+
+				out := fmt.Sprintf("go-udfs version: %s-%s\n"+
 					"Repo version: %s\nSystem version: %s\nGolang version: %s\n",
 					version.Version, version.Commit, version.Repo, version.System, version.Golang)
 				return strings.NewReader(out), nil
 			}
 
-			return strings.NewReader(fmt.Sprintf("ipfs version %s%s\n", version.Version, commitTxt)), nil
+			return strings.NewReader(fmt.Sprintf("udfs version %s%s\n", version.Version, commitTxt)), nil
 		},
 	},
 	Type: VersionOutput{},

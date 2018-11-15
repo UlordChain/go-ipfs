@@ -9,11 +9,11 @@ import (
 	ft "github.com/udfs/go-udfs/unixfs"
 	pb "github.com/udfs/go-udfs/unixfs/pb"
 
-	pi "gx/ipfs/QmSHjPDw8yNgLZ7cBfX7w3Smn7PHwYhNEpd4LHQQxUg35L/go-ipfs-posinfo"
-	chunker "gx/ipfs/QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4/go-ipfs-chunker"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	files "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit/files"
+	pi "gx/udfs/QmSHjPDw8yNgLZ7cBfX7w3Smn7PHwYhNEpd4LHQQxUg35L/go-udfs-posinfo"
+	chunker "gx/udfs/QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4/go-udfs-chunker"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	files "gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit/files"
 )
 
 // DagBuilderHelper wraps together a bunch of objects needed to
@@ -218,7 +218,7 @@ func (db *DagBuilderHelper) NewLeafNode(data []byte) (ipld.Node, error) {
 	// balanced builder was causing the leaf nodes to be generated
 	// with this type instead of `TRaw`, the one that should be used
 	// (like the trickle builder does).
-	// (See https://github.com/ipfs/go-ipfs/pull/5120.)
+	// (See https://github.com/udfs/go-udfs/pull/5120.)
 
 	return node, nil
 }

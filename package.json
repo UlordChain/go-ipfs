@@ -1,6 +1,6 @@
 {
   "bugs": {
-    "url": "https://github.com/ipfs/go-ipfs"
+    "url": "https://github.com/udfs/go-udfs"
   },
   "gx": {
     "dvcsimport": "github.com/udfs/go-udfs",
@@ -165,13 +165,13 @@
       "version": "1.1.18"
     },
     {
-      "author": "ipfs",
+      "author": "udfs",
       "hash": "QmUDtdqVcetYfRUnfhzrRQzPSgW1gf57MsMQSiLZpNkjbg",
       "name": "go-metrics-prometheus",
       "version": "0.3.7"
     },
     {
-      "author": "ipfs",
+      "author": "udfs",
       "hash": "QmekzFM3hPZjTjUFGTABdQkEnQ3PTiMstY198PwSFr5w1Q",
       "name": "go-metrics-interface",
       "version": "0.2.0"
@@ -325,18 +325,18 @@
     },
     {
       "hash": "QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1",
-      "name": "go-ipfs-cmds",
+      "name": "go-udfs-cmds",
       "version": "1.0.18"
     },
     {
       "hash": "QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f",
-      "name": "go-ipfs-cmdkit",
+      "name": "go-udfs-cmdkit",
       "version": "1.1.1"
     },
     {
       "author": "whyrusleeping",
       "hash": "QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A",
-      "name": "go-ipfs-util",
+      "name": "go-udfs-util",
       "version": "1.2.8"
     },
     {
@@ -405,7 +405,7 @@
     {
       "author": "why",
       "hash": "Qme4QgoVPyQqxVc4G1c2L2wc9TDa6o294rtspGMnBNRujm",
-      "name": "go-ipfs-addr",
+      "name": "go-udfs-addr",
       "version": "0.1.17"
     },
     {
@@ -423,13 +423,13 @@
     {
       "author": "hector",
       "hash": "QmSHjPDw8yNgLZ7cBfX7w3Smn7PHwYhNEpd4LHQQxUg35L",
-      "name": "go-ipfs-posinfo",
+      "name": "go-udfs-posinfo",
       "version": "0.0.3"
     },
     {
       "author": "hsanjuan",
       "hash": "QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4",
-      "name": "go-ipfs-chunker",
+      "name": "go-udfs-chunker",
       "version": "0.0.7"
     },
     {
@@ -441,37 +441,37 @@
     {
       "author": "hsanjuan",
       "hash": "QmRJVNatYJwTAHgdSM1Xef9QVQ1Ch3XHdmcrykjP5Y4soL",
-      "name": "go-ipfs-delay",
+      "name": "go-udfs-delay",
       "version": "0.0.1"
     },
     {
       "author": "hsanjuan",
       "hash": "QmRMGdC6HKdLsPDABL9aXPDidrpmEHzJqFWSvshkbn9Hj8",
-      "name": "go-ipfs-flags",
+      "name": "go-udfs-flags",
       "version": "0.0.1"
     },
     {
       "author": "hsanjuan",
       "hash": "QmZUbTDJ39JpvtFCSubiWeUTQRvMA1tVE5RZCJrY4oeAsC",
-      "name": "go-ipfs-pq",
+      "name": "go-udfs-pq",
       "version": "0.0.1"
     },
     {
       "author": "hsanjuan",
       "hash": "Qmd8UZEDddMaCnQ1G5eSrUhN3coX19V7SyXNQGWnAvUsnT",
-      "name": "go-ipfs-ds-help",
+      "name": "go-udfs-ds-help",
       "version": "0.0.5"
     },
     {
       "author": "hsanjuan",
       "hash": "QmbFRJeEmEU16y3BmKKaD4a9fm5oHsEAMHe2vSB1UnfLMi",
-      "name": "go-ipfs-routing",
+      "name": "go-udfs-routing",
       "version": "0.0.15"
     },
     {
       "author": "hsanjuan",
       "hash": "QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb",
-      "name": "go-ipfs-blockstore",
+      "name": "go-udfs-blockstore",
       "version": "0.0.11"
     },
     {
@@ -501,19 +501,19 @@
     {
       "author": "hsanjuan",
       "hash": "Qmc2faLf7URkHpsbfYM4EMbr8iSAcGAe8VPgVi64HVnwji",
-      "name": "go-ipfs-exchange-interface",
+      "name": "go-udfs-exchange-interface",
       "version": "0.0.3"
     },
     {
       "author": "hsanjuan",
       "hash": "QmYqPGpZ9Yemr55xus9DiEztkns6Jti5XJ7hC94JbvkdqZ",
-      "name": "go-ipfs-blocksutil",
+      "name": "go-udfs-blocksutil",
       "version": "0.0.3"
     },
     {
       "author": "hsanjuan",
       "hash": "QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez",
-      "name": "go-ipfs-exchange-offline",
+      "name": "go-udfs-exchange-offline",
       "version": "0.0.9"
     },
     {
@@ -550,7 +550,7 @@
   "gxVersion": "0.10.0",
   "language": "go",
   "license": "MIT",
-  "name": "go-ipfs",
+  "name": "go-udfs",
   "version": "0.4.17"
 }
 

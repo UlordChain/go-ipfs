@@ -1,4 +1,4 @@
-// cmd/ipfs implements the primary CLI binary for ipfs
+// cmd/udfs implements the primary CLI binary for udfs
 package main
 
 import (
@@ -25,26 +25,26 @@ import (
 	config "github.com/udfs/go-udfs/repo/config"
 	fsrepo "github.com/udfs/go-udfs/repo/fsrepo"
 
-	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds/cli"
-	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds/http"
-	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
-	loggables "gx/ipfs/QmRPkGkHLB72caXgdDYnoaWigXNWx95BcYDKV1n3KTEpaG/go-libp2p-loggables"
-	manet "gx/ipfs/QmV6FjemM1K8oXjrvuq3wuVWWoU2TLDPmNnKrxHzY3v6Ai/go-multiaddr-net"
-	osh "gx/ipfs/QmXuBJ7DR6k3rmUEKtvVMhwjmXDuJgXXPUt4LQXKBMsU93/go-os-helper"
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	"gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	"gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds/cli"
+	"gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds/http"
+	u "gx/udfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-udfs-util"
+	loggables "gx/udfs/QmRPkGkHLB72caXgdDYnoaWigXNWx95BcYDKV1n3KTEpaG/go-libp2p-loggables"
+	manet "gx/udfs/QmV6FjemM1K8oXjrvuq3wuVWWoU2TLDPmNnKrxHzY3v6Ai/go-multiaddr-net"
+	osh "gx/udfs/QmXuBJ7DR6k3rmUEKtvVMhwjmXDuJgXXPUt4LQXKBMsU93/go-os-helper"
+	ma "gx/udfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
 )
 
 // log is the command logger
-var log = logging.Logger("cmd/ipfs")
+var log = logging.Logger("cmd/udfs")
 
 var errRequestCanceled = errors.New("request canceled")
 
 const (
-	EnvEnableProfiling = "IPFS_PROF"
-	cpuProfile         = "ipfs.cpuprof"
-	heapProfile        = "ipfs.memprof"
+	EnvEnableProfiling = "UDFS_PROF"
+	cpuProfile         = "udfs.cpuprof"
+	heapProfile        = "udfs.memprof"
 )
 
 // main roadmap:
@@ -78,7 +78,7 @@ func mainRet() int {
 	intrh, ctx := setupInterruptHandler(ctx)
 	defer intrh.Close()
 
-	// Handle `ipfs help'
+	// Handle `udfs help'
 	if len(os.Args) == 2 {
 		if os.Args[1] == "help" {
 			os.Args[1] = "-h"
@@ -89,7 +89,7 @@ func mainRet() int {
 
 	// output depends on executable name passed in os.Args
 	// so we need to make sure it's stable
-	os.Args[0] = "ipfs"
+	os.Args[0] = "udfs"
 
 	buildEnv := func(ctx context.Context, req *cmds.Request) (cmds.Environment, error) {
 		checkDebug(req)
@@ -108,7 +108,7 @@ func mainRet() int {
 			ConfigRoot: repoPath,
 			LoadConfig: loadConfig,
 			ReqLog:     &oldcmds.ReqLog{},
-			ConstructNode: func() (n *core.IpfsNode, err error) {
+			ConstructNode: func() (n *core.UdfsNode, err error) {
 				if req == nil {
 					return nil, errors.New("constructing node without a request")
 				}
@@ -145,7 +145,7 @@ func mainRet() int {
 func checkDebug(req *cmds.Request) {
 	// check if user wants to debug. option OR env var.
 	debug, _ := req.Options["debug"].(bool)
-	if debug || os.Getenv("IPFS_LOGGING") == "debug" {
+	if debug || os.Getenv("UDFS_LOGGING") == "debug" {
 		u.Debug = true
 		logging.SetDebugLogging()
 	}
@@ -212,7 +212,7 @@ func commandDetails(path []string) *cmdDetails {
 }
 
 // commandShouldRunOnDaemon determines, from command details, whether a
-// command ought to be executed on an ipfs daemon.
+// command ought to be executed on an udfs daemon.
 //
 // It returns a client if the command should be executed on a daemon and nil if
 // it should be executed on a client. It returns an error if the command must
@@ -256,7 +256,7 @@ func commandShouldRunOnDaemon(details cmdDetails, req *cmds.Request, cctx *oldcm
 			// check if daemon locked. legacy error text, for now.
 			log.Debugf("Command cannot run on daemon. Checking if daemon is locked")
 			if daemonLocked, _ := fsrepo.LockedByOtherProcess(cctx.ConfigRoot); daemonLocked {
-				return nil, cmds.ClientError("ipfs daemon is running. please stop it to run this command")
+				return nil, cmds.ClientError("udfs daemon is running. please stop it to run this command")
 			}
 			return nil, nil
 		}
@@ -265,7 +265,7 @@ func commandShouldRunOnDaemon(details cmdDetails, req *cmds.Request, cctx *oldcm
 	}
 
 	if details.cannotRunOnClient {
-		return nil, cmds.ClientError("must run on the ipfs daemon")
+		return nil, cmds.ClientError("must run on the udfs daemon")
 	}
 
 	return nil, nil
@@ -401,10 +401,10 @@ func profileIfEnabled() (func(), error) {
 
 var apiFileErrorFmt string = `Failed to parse '%[1]s/api' file.
 	error: %[2]s
-If you're sure go-ipfs isn't running, you can just delete it.
+If you're sure go-udfs isn't running, you can just delete it.
 `
-var checkIPFSUnixFmt = "Otherwise check:\n\tps aux | grep ipfs"
-var checkIPFSWinFmt = "Otherwise check:\n\ttasklist | findstr ipfs"
+var checkUDFSUnixFmt = "Otherwise check:\n\tps aux | grep udfs"
+var checkUDFSWinFmt = "Otherwise check:\n\ttasklist | findstr udfs"
 
 // getApiClient checks the repo, and the given options, checking for
 // a running API service. if there is one, it returns a client.
@@ -413,9 +413,9 @@ func getApiClient(repoPath, apiAddrStr string) (http.Client, error) {
 	var apiErrorFmt string
 	switch {
 	case osh.IsUnix():
-		apiErrorFmt = apiFileErrorFmt + checkIPFSUnixFmt
+		apiErrorFmt = apiFileErrorFmt + checkUDFSUnixFmt
 	case osh.IsWindows():
-		apiErrorFmt = apiFileErrorFmt + checkIPFSWinFmt
+		apiErrorFmt = apiFileErrorFmt + checkUDFSWinFmt
 	default:
 		apiErrorFmt = apiFileErrorFmt
 	}

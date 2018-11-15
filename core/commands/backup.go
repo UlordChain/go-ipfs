@@ -5,18 +5,18 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	inet "gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
-	"gx/ipfs/QmZNkThpqfVXs9GNbexPrfBbXSLNYeKrE7jwFM2oqHbyqN/go-libp2p-protocol"
-	"gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	inet "gx/udfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
+	"gx/udfs/QmZNkThpqfVXs9GNbexPrfBbXSLNYeKrE7jwFM2oqHbyqN/go-libp2p-protocol"
+	"gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 	"io"
 	"sync"
 	"time"
 
 	"github.com/pkg/errors"
 
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 
-	"gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	"gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 
 	cmds "github.com/udfs/go-udfs/commands"
 	"github.com/udfs/go-udfs/core"
@@ -32,11 +32,11 @@ const timeoutForLookup = 1 * time.Minute
 var BackupCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline:          "Backup objects to remote node storage.",
-		ShortDescription: "Stores an IPFS object(s) from a given path locally to remote disk.",
+		ShortDescription: "Stores an UDFS object(s) from a given path locally to remote disk.",
 	},
 
 	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("ipfs-path", true, false, "Path to object(s) to be pinned.").EnableStdin(),
+		cmdkit.StringArg("udfs-path", true, false, "Path to object(s) to be pinned.").EnableStdin(),
 	},
 	Run: func(req cmds.Request, res cmds.Response) {
 		n, err := req.InvocContext().GetNode()
@@ -91,7 +91,7 @@ var BackupCmd = &cmds.Command{
 	},
 }
 
-func backupFunc(n *core.IpfsNode, c *cid.Cid) (*coreunix.BackupOutput, error) {
+func backupFunc(n *core.UdfsNode, c *cid.Cid) (*coreunix.BackupOutput, error) {
 	// get peers for backup
 	toctx, cancel := context.WithTimeout(n.Context(), timeoutForLookup)
 	defer cancel()
@@ -159,7 +159,7 @@ func backupFunc(n *core.IpfsNode, c *cid.Cid) (*coreunix.BackupOutput, error) {
 	return output, nil
 }
 
-func doBackup(n *core.IpfsNode, id peer.ID, c *cid.Cid) error {
+func doBackup(n *core.UdfsNode, id peer.ID, c *cid.Cid) error {
 	s, err := n.PeerHost.NewStream(n.Context(), id, ProtocolBackup)
 	if err != nil {
 		return err
@@ -187,7 +187,7 @@ func doBackup(n *core.IpfsNode, id peer.ID, c *cid.Cid) error {
 	return errors.New(bs)
 }
 
-func SetupBackupHandler(node *core.IpfsNode) {
+func SetupBackupHandler(node *core.UdfsNode) {
 	node.PeerHost.SetStreamHandler(ProtocolBackup, func(s inet.Stream) {
 		var errRet error
 		defer func() {

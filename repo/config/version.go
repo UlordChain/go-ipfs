@@ -6,4 +6,4 @@ var CurrentCommit string = "feat/backup-v0.0.2"
 // CurrentVersionNumber is the current application's version literal
 const CurrentVersionNumber = "0.4.17"
 
-const ApiVersion = "/go-ipfs/" + CurrentVersionNumber + "/"
+const ApiVersion = "/go-udfs/" + CurrentVersionNumber + "/"

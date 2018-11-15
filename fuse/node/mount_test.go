@@ -16,8 +16,8 @@ import (
 	mount "github.com/udfs/go-udfs/fuse/mount"
 	namesys "github.com/udfs/go-udfs/namesys"
 
-	offroute "gx/ipfs/QmbFRJeEmEU16y3BmKKaD4a9fm5oHsEAMHe2vSB1UnfLMi/go-ipfs-routing/offline"
-	ci "gx/ipfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil/ci"
+	offroute "gx/udfs/QmbFRJeEmEU16y3BmKKaD4a9fm5oHsEAMHe2vSB1UnfLMi/go-udfs-routing/offline"
+	ci "gx/udfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil/ci"
 )
 
 func maybeSkipFuseTests(t *testing.T) {
@@ -66,12 +66,12 @@ func TestExternalUnmount(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ipfsDir := dir + "/ipfs"
+	udfsDir := dir + "/udfs"
 	ipnsDir := dir + "/ipns"
-	mkdir(t, ipfsDir)
+	mkdir(t, udfsDir)
 	mkdir(t, ipnsDir)
 
-	err = Mount(node, ipfsDir, ipnsDir)
+	err = Mount(node, udfsDir, ipnsDir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -92,8 +92,8 @@ func TestExternalUnmount(t *testing.T) {
 		t.Fatal("Unmount should have failed")
 	}
 
-	// Attempt to unmount IPFS; it should unmount successfully.
-	err = node.Mounts.Ipfs.Unmount()
+	// Attempt to unmount UDFS; it should unmount successfully.
+	err = node.Mounts.Udfs.Unmount()
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -9,7 +9,7 @@ import (
 
 	opts "github.com/udfs/go-udfs/namesys/opts"
 	path "github.com/udfs/go-udfs/path"
-	isd "gx/ipfs/QmZmmuAXgX73UQmX1jRKjTGmjzq24Jinqkq8vzkBtno4uX/go-is-domain"
+	isd "gx/udfs/QmZmmuAXgX73UQmX1jRKjTGmjzq24Jinqkq8vzkBtno4uX/go-is-domain"
 )
 
 type LookupTXTFunc func(name string) (txt []string, err error)
@@ -104,7 +104,7 @@ func workDomain(r *DNSResolver, name string, res chan lookupRes) {
 }
 
 func parseEntry(txt string) (path.Path, error) {
-	p, err := path.ParseCidToPath(txt) // bare IPFS multihashes
+	p, err := path.ParseCidToPath(txt) // bare UDFS multihashes
 	if err == nil {
 		return p, nil
 	}

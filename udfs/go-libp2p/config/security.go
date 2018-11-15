@@ -3,11 +3,11 @@ package config
 import (
 	"fmt"
 
-	security "gx/ipfs/QmYMGCwtKbLXfh2MUTbLoP66N9Y24DSg8PFJRG21eE2qwv/go-conn-security"
-	insecure "gx/ipfs/QmYMGCwtKbLXfh2MUTbLoP66N9Y24DSg8PFJRG21eE2qwv/go-conn-security/insecure"
-	csms "gx/ipfs/QmZaZ4nkadScQtG7KaGUWyh24jz5tD8d6AyetJmGnMo49t/go-conn-security-multistream"
-	host "gx/ipfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	security "gx/udfs/QmYMGCwtKbLXfh2MUTbLoP66N9Y24DSg8PFJRG21eE2qwv/go-conn-security"
+	insecure "gx/udfs/QmYMGCwtKbLXfh2MUTbLoP66N9Y24DSg8PFJRG21eE2qwv/go-conn-security/insecure"
+	csms "gx/udfs/QmZaZ4nkadScQtG7KaGUWyh24jz5tD8d6AyetJmGnMo49t/go-conn-security-multistream"
+	host "gx/udfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 )
 
 // SecC is a security transport constructor

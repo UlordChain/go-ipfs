@@ -7,7 +7,7 @@ import (
 	keystore "github.com/udfs/go-udfs/keystore"
 	"github.com/udfs/go-udfs/repo/config"
 
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	ma "gx/udfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
 )
 
 var errTODO = errors.New("TODO: mock repo")

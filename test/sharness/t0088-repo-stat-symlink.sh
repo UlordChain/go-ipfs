@@ -4,21 +4,21 @@
 # MIT Licensed; see the LICENSE file in this repository.
 #
 
-test_description="Test 'ipfs repo stat' where IPFS_PATH is a symbolic link"
+test_description="Test 'udfs repo stat' where UDFS_PATH is a symbolic link"
 
 . lib/test-lib.sh
 
-test_expect_success "create symbolic link for IPFS_PATH" '
+test_expect_success "create symbolic link for UDFS_PATH" '
   mkdir sym_link_target &&
-  ln -s sym_link_target .ipfs
+  ln -s sym_link_target .udfs
 '
 
-test_init_ipfs
+test_init_udfs
 
 # ensure that the RepoSize is reasonable when checked via a symlink.
-test_expect_success "'ipfs repo stat' RepoSize is correct with sym link" '
-  reposize_symlink=$(ipfs repo stat | grep RepoSize | awk '\''{ print $2 }'\'') &&
-  symlink_size=$(file_size .ipfs) &&
+test_expect_success "'udfs repo stat' RepoSize is correct with sym link" '
+  reposize_symlink=$(udfs repo stat | grep RepoSize | awk '\''{ print $2 }'\'') &&
+  symlink_size=$(file_size .udfs) &&
   test "${reposize_symlink}" -gt "${symlink_size}"
 '
 

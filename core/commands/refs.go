@@ -12,9 +12,9 @@ import (
 	e "github.com/udfs/go-udfs/core/commands/e"
 	path "github.com/udfs/go-udfs/path"
 
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 // KeyList is a general type for outputting lists of keys
@@ -45,7 +45,7 @@ var RefsCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "List links (references) from an object.",
 		ShortDescription: `
-Lists the hashes of all the links an IPFS or IPNS object(s) contains,
+Lists the hashes of all the links an UDFS or IPNS object(s) contains,
 with the following format:
 
   <link base58 hash>
@@ -57,7 +57,7 @@ NOTE: List all references recursively by using the flag '-r'.
 		"local": RefsLocalCmd,
 	},
 	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("ipfs-path", true, true, "Path to the object(s) to list refs from.").EnableStdin(),
+		cmdkit.StringArg("udfs-path", true, true, "Path to the object(s) to list refs from.").EnableStdin(),
 	},
 	Options: []cmdkit.Option{
 		cmdkit.StringOption("format", "Emit edges with given format. Available tokens: <src> <dst> <linkname>.").WithDefault("<dst>"),
@@ -204,7 +204,7 @@ var refsMarshallerMap = cmds.MarshalerMap{
 	},
 }
 
-func objectsForPaths(ctx context.Context, n *core.IpfsNode, paths []string) ([]ipld.Node, error) {
+func objectsForPaths(ctx context.Context, n *core.UdfsNode, paths []string) ([]ipld.Node, error) {
 	objects := make([]ipld.Node, len(paths))
 	for i, sp := range paths {
 		p, err := path.ParsePath(sp)

@@ -1,20 +1,20 @@
 <!--
-Welcome to the go-ipfs bug tracker. This is for you! Please read, and then delete this text before posting it.
+Welcome to the go-udfs bug tracker. This is for you! Please read, and then delete this text before posting it.
 
 If you haven't yet searched the issue tracker for an existing report concerning your issue, please do so now.
 
-The go-ipfs issues are only for bug reports and directly actionable feature requests. Read https://github.com/ipfs/community/blob/master/contributing.md#reporting-issues if your issue doesn't fit either of those categories.
+The go-udfs issues are only for bug reports and directly actionable feature requests. Read https://github.com/udfs/community/blob/master/contributing.md#reporting-issues if your issue doesn't fit either of those categories.
 
-If you have a *SUPPORT QUESTION*, please direct it to our forum at https://discuss.ipfs.io.
+If you have a *SUPPORT QUESTION*, please direct it to our forum at https://discuss.udfs.io.
 
-Read https://github.com/ipfs/go-ipfs/blob/master/docs/github-issue-guide.md if you are not sure how to fill in this issue.
+Read https://github.com/udfs/go-udfs/blob/master/docs/github-issue-guide.md if you are not sure how to fill in this issue.
 -->
 
 #### Version information:
 <!--
-Output From `ipfs version --all`
+Output From `udfs version --all`
 
-Please check dist.ipfs.io for a newer version of go-ipfs
+Please check dist.udfs.io for a newer version of go-udfs
 and update if neccessary, then check again if the problem persists.
 -->
 

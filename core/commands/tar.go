@@ -12,12 +12,12 @@ import (
 	path "github.com/udfs/go-udfs/path"
 	tar "github.com/udfs/go-udfs/tar"
 
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 var TarCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Utility functions for tar files in ipfs.",
+		Tagline: "Utility functions for tar files in udfs.",
 	},
 
 	Subcommands: map[string]*cmds.Command{
@@ -28,9 +28,9 @@ var TarCmd = &cmds.Command{
 
 var tarAddCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Import a tar file into ipfs.",
+		Tagline: "Import a tar file into udfs.",
 		ShortDescription: `
-'ipfs tar add' will parse a tar file and create a merkledag structure to
+'udfs tar add' will parse a tar file and create a merkledag structure to
 represent it.
 `,
 	},
@@ -84,14 +84,14 @@ represent it.
 
 var tarCatCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Export a tar file from IPFS.",
+		Tagline: "Export a tar file from UDFS.",
 		ShortDescription: `
-'ipfs tar cat' will export a tar file from a previously imported one in IPFS.
+'udfs tar cat' will export a tar file from a previously imported one in UDFS.
 `,
 	},
 
 	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("path", true, false, "ipfs path of archive to export.").EnableStdin(),
+		cmdkit.StringArg("path", true, false, "udfs path of archive to export.").EnableStdin(),
 	},
 	Run: func(req cmds.Request, res cmds.Response) {
 		nd, err := req.InvocContext().GetNode()

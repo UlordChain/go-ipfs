@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"syscall"
 
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
 )
 
 var log = logging.Logger("ulimit")
@@ -21,21 +21,21 @@ var (
 	setLimit func(int64, int64) error
 )
 
-// maxFds is the maximum number of file descriptors that go-ipfs
+// maxFds is the maximum number of file descriptors that go-udfs
 // can use. The default value is 1024. This can be overwritten by the
-// IPFS_FD_MAX env variable
+// UDFS_FD_MAX env variable
 var maxFds = uint64(2048)
 
-// setMaxFds sets the maxFds value from IPFS_FD_MAX
+// setMaxFds sets the maxFds value from UDFS_FD_MAX
 // env variable if it's present on the system
 func setMaxFds() {
-	// check if the IPFS_FD_MAX is set up and if it does
+	// check if the UDFS_FD_MAX is set up and if it does
 	// not have a valid fds number notify the user
-	if val := os.Getenv("IPFS_FD_MAX"); val != "" {
+	if val := os.Getenv("UDFS_FD_MAX"); val != "" {
 
 		fds, err := strconv.ParseUint(val, 10, 64)
 		if err != nil {
-			log.Errorf("bad value for IPFS_FD_MAX: %s", err)
+			log.Errorf("bad value for UDFS_FD_MAX: %s", err)
 			return
 		}
 
@@ -44,7 +44,7 @@ func setMaxFds() {
 }
 
 // ManageFdLimit raise the current max file descriptor count
-// of the process based on the IPFS_FD_MAX value
+// of the process based on the UDFS_FD_MAX value
 func ManageFdLimit() error {
 	if !supportsFDManagement {
 		return nil
@@ -76,7 +76,7 @@ func ManageFdLimit() error {
 		// set the soft value
 		if max > hard {
 			return errors.New(
-				"cannot set rlimit, IPFS_FD_MAX is larger than the hard limit",
+				"cannot set rlimit, UDFS_FD_MAX is larger than the hard limit",
 			)
 		}
 

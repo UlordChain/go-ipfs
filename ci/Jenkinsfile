@@ -60,9 +60,9 @@ def gobuild_step(list) {
 
     list.each { platform ->
       withEnv(["GOOS=${platform[0]}", "GOARCH=${platform[1]}"]) {
-        run "go build -i -ldflags=\"-X github.com/ipfs/go-ipfs/repo/config.CurrentCommit=${env.SUBNAME}-${env.BUILD_NUMBER}\"  -o cmd/ipfs/ipfs github.com/ipfs/go-ipfs/cmd/ipfs"
-        run "cp cmd/ipfs/ipfs cmd/ipfs/dist; cd cmd/ipfs/dist; tar -czvf ../go-ipfs_${env.GOOS}-${env.GOARCH}-${env.SUBNAME}-${env.BUILD_NUMBER}.tar.gz ."
-        archiveArtifacts artifacts: "cmd/ipfs/go-ipfs_${env.GOOS}-${env.GOARCH}-${env.SUBNAME}-${env.BUILD_NUMBER}.tar.gz", fingerprint: true
+        run "go build -i -ldflags=\"-X github.com/udfs/go-udfs/repo/config.CurrentCommit=${env.SUBNAME}-${env.BUILD_NUMBER}\"  -o cmd/udfs/udfs github.com/udfs/go-udfs/cmd/udfs"
+        run "cp cmd/udfs/udfs cmd/udfs/dist; cd cmd/udfs/dist; tar -czvf ../go-udfs_${env.GOOS}-${env.GOARCH}-${env.SUBNAME}-${env.BUILD_NUMBER}.tar.gz ."
+        archiveArtifacts artifacts: "cmd/udfs/go-udfs_${env.GOOS}-${env.GOARCH}-${env.SUBNAME}-${env.BUILD_NUMBER}.tar.gz", fingerprint: true
       }
     }
   }

@@ -17,8 +17,8 @@ import (
 	dagutils "github.com/udfs/go-udfs/merkledag/utils"
 	ft "github.com/udfs/go-udfs/unixfs"
 
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
 )
 
 const inputLimit = 2 << 20
@@ -121,7 +121,7 @@ func (api *ObjectAPI) Put(ctx context.Context, src io.Reader, opts ...caopts.Obj
 		return nil, err
 	}
 
-	return coreiface.IpfsPath(dagnode.Cid()), nil
+	return coreiface.UdfsPath(dagnode.Cid()), nil
 }
 
 func (api *ObjectAPI) Get(ctx context.Context, path coreiface.Path) (ipld.Node, error) {
@@ -218,7 +218,7 @@ func (api *ObjectAPI) AddLink(ctx context.Context, base coreiface.Path, name str
 		return nil, err
 	}
 
-	return coreiface.IpfsPath(nnode.Cid()), nil
+	return coreiface.UdfsPath(nnode.Cid()), nil
 }
 
 func (api *ObjectAPI) RmLink(ctx context.Context, base coreiface.Path, link string) (coreiface.ResolvedPath, error) {
@@ -244,7 +244,7 @@ func (api *ObjectAPI) RmLink(ctx context.Context, base coreiface.Path, link stri
 		return nil, err
 	}
 
-	return coreiface.IpfsPath(nnode.Cid()), nil
+	return coreiface.UdfsPath(nnode.Cid()), nil
 }
 
 func (api *ObjectAPI) AppendData(ctx context.Context, path coreiface.Path, r io.Reader) (coreiface.ResolvedPath, error) {
@@ -281,7 +281,7 @@ func (api *ObjectAPI) patchData(ctx context.Context, path coreiface.Path, r io.R
 		return nil, err
 	}
 
-	return coreiface.IpfsPath(pbnd.Cid()), nil
+	return coreiface.UdfsPath(pbnd.Cid()), nil
 }
 
 func (api *ObjectAPI) core() coreiface.CoreAPI {

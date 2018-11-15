@@ -12,7 +12,7 @@ if ! test_have_prereq FUSE; then
   test_done
 fi
 
-test_init_ipfs
+test_init_udfs
 
 # start iptb + wait for peering
 NUM_NODES=3
@@ -22,26 +22,26 @@ test_expect_success 'init iptb' '
 '
 
 # pre-mount publish
-HASH=$(echo 'hello warld' | ipfsi 0 add -q)
+HASH=$(echo 'hello warld' | udfsi 0 add -q)
 test_expect_success "can publish before mounting /ipns" '
-  ipfsi 0 name publish '$HASH'
+  udfsi 0 name publish '$HASH'
 '
 
 # mount
-IPFS_MOUNT_DIR="$PWD/ipfs"
+UDFS_MOUNT_DIR="$PWD/udfs"
 IPNS_MOUNT_DIR="$PWD/ipns"
-test_expect_success FUSE "'ipfs mount' succeeds" '
-  ipfsi 0 mount -f "'"$IPFS_MOUNT_DIR"'" -n "'"$IPNS_MOUNT_DIR"'" >actual
+test_expect_success FUSE "'udfs mount' succeeds" '
+  udfsi 0 mount -f "'"$UDFS_MOUNT_DIR"'" -n "'"$IPNS_MOUNT_DIR"'" >actual
 '
-test_expect_success FUSE "'ipfs mount' output looks good" '
-  echo "IPFS mounted at: $PWD/ipfs" >expected &&
+test_expect_success FUSE "'udfs mount' output looks good" '
+  echo "UDFS mounted at: $PWD/udfs" >expected &&
   echo "IPNS mounted at: $PWD/ipns" >>expected &&
   test_cmp expected actual
 '
 
 test_expect_success "cannot publish after mounting /ipns" '
   echo "Error: cannot manually publish while IPNS is mounted" >expected &&
-  test_must_fail ipfsi 0 name publish '$HASH' 2>actual &&
+  test_must_fail udfsi 0 name publish '$HASH' 2>actual &&
   test_cmp expected actual
 '
 
@@ -50,12 +50,12 @@ test_expect_success "unmount /ipns out-of-band" '
 '
 
 test_expect_success "can publish after unmounting /ipns" '
-  ipfsi 0 name publish '$HASH'
+  udfsi 0 name publish '$HASH'
 '
 
-# clean-up ipfs
-test_expect_success "unmount /ipfs" '
-  fusermount -u "'"$IPFS_MOUNT_DIR"'"
+# clean-up udfs
+test_expect_success "unmount /udfs" '
+  fusermount -u "'"$UDFS_MOUNT_DIR"'"
 '
 iptb stop
 

@@ -22,12 +22,12 @@ import (
 
 	"github.com/udfs/go-udfs/Godeps/_workspace/src/github.com/mitchellh/go-homedir"
 
-	measure "gx/ipfs/QmPMRquZA1WiRMQ5ZE2V1kHtnPaq2X5Qtz7Wgwwo2tjLyS/go-ds-measure"
-	util "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	lockfile "gx/ipfs/QmYzCZUe9CBDkyPNPcRNqXQK8KKhtUfXvc88PkFujAEJPe/go-fs-lock"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
-	ds "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
+	measure "gx/udfs/QmPMRquZA1WiRMQ5ZE2V1kHtnPaq2X5Qtz7Wgwwo2tjLyS/go-ds-measure"
+	util "gx/udfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-udfs-util"
+	ma "gx/udfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	lockfile "gx/udfs/QmYzCZUe9CBDkyPNPcRNqXQK8KKhtUfXvc88PkFujAEJPe/go-fs-lock"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	ds "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
 )
 
 // LockFile is the filename of the repo lock, relative to config dir
@@ -39,19 +39,19 @@ var log = logging.Logger("fsrepo")
 // version number that we are currently expecting to see
 var RepoVersion = 7
 
-var migrationInstructions = `See https://github.com/ipfs/fs-repo-migrations/blob/master/run.md
+var migrationInstructions = `See https://github.com/udfs/fs-repo-migrations/blob/master/run.md
 Sorry for the inconvenience. In the future, these will run automatically.`
 
 var programTooLowMessage = `Your programs version (%d) is lower than your repos (%d).
-Please update ipfs to a version that supports the existing repo, or run
+Please update udfs to a version that supports the existing repo, or run
 a migration in reverse.
 
-See https://github.com/ipfs/fs-repo-migrations/blob/master/run.md for details.`
+See https://github.com/udfs/fs-repo-migrations/blob/master/run.md for details.`
 
 var (
 	ErrNoVersion     = errors.New("no version file found, please run 0-to-1 migration tool.\n" + migrationInstructions)
-	ErrOldRepo       = errors.New("ipfs repo found in old '~/.go-ipfs' location, please run migration tool.\n" + migrationInstructions)
-	ErrNeedMigration = errors.New("ipfs repo needs migration")
+	ErrOldRepo       = errors.New("udfs repo found in old '~/.go-udfs' location, please run migration tool.\n" + migrationInstructions)
+	ErrNeedMigration = errors.New("udfs repo needs migration")
 )
 
 type NoRepoError struct {
@@ -61,7 +61,7 @@ type NoRepoError struct {
 var _ error = NoRepoError{}
 
 func (err NoRepoError) Error() string {
-	return fmt.Sprintf("no IPFS repo found in %s.\nplease run: 'ipfs init'", err.Path)
+	return fmt.Sprintf("no UDFS repo found in %s.\nplease run: 'udfs init'", err.Path)
 }
 
 const apiFile = "api"
@@ -81,16 +81,16 @@ var (
 	// this can be removed. Right now, this makes ConfigCmd.Run
 	// function try to open the repo twice:
 	//
-	//     $ ipfs daemon &
-	//     $ ipfs config foo
+	//     $ udfs daemon &
+	//     $ udfs config foo
 	//
 	// The reason for the above is that in standalone mode without the
-	// daemon, `ipfs config` tries to save work by not building the
-	// full IpfsNode, but accessing the Repo directly.
+	// daemon, `udfs config` tries to save work by not building the
+	// full UdfsNode, but accessing the Repo directly.
 	onlyOne repo.OnlyOne
 )
 
-// FSRepo represents an IPFS FileSystem Repo. It is safe for use by multiple
+// FSRepo represents an UDFS FileSystem Repo. It is safe for use by multiple
 // callers.
 type FSRepo struct {
 	// has Close been called already
@@ -197,7 +197,7 @@ func newFSRepo(rpath string) (*FSRepo, error) {
 
 func checkInitialized(path string) error {
 	if !isInitializedUnsynced(path) {
-		alt := strings.Replace(path, ".ipfs", ".go-ipfs", 1)
+		alt := strings.Replace(path, ".udfs", ".go-udfs", 1)
 		if isInitializedUnsynced(alt) {
 			return ErrOldRepo
 		}
@@ -404,7 +404,7 @@ func (r *FSRepo) openDatastore() error {
 		return fmt.Errorf("required Datastore.Spec entry missing from config file")
 	}
 	if r.config.Datastore.NoSync {
-		log.Warning("NoSync is now deprecated in favor of datastore specific settings. If you want to disable fsync on flatfs set 'sync' to false. See https://github.com/ipfs/go-ipfs/blob/master/docs/datastores.md#flatfs.")
+		log.Warning("NoSync is now deprecated in favor of datastore specific settings. If you want to disable fsync on flatfs set 'sync' to false. See https://github.com/udfs/go-udfs/blob/master/docs/datastores.md#flatfs.")
 	}
 
 	dsc, err := AnyDatastoreConfig(r.config.Datastore.Spec)
@@ -429,7 +429,7 @@ func (r *FSRepo) openDatastore() error {
 	r.ds = d
 
 	// Wrap it with metrics gathering
-	prefix := "ipfs.fsrepo.datastore"
+	prefix := "udfs.fsrepo.datastore"
 	r.ds = measure.New(prefix, r.ds)
 
 	return nil

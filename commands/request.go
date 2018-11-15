@@ -9,9 +9,9 @@ import (
 	"github.com/udfs/go-udfs/core"
 	"github.com/udfs/go-udfs/repo/config"
 
-	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit/files"
+	"gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit/files"
 )
 
 type Context struct {
@@ -22,8 +22,8 @@ type Context struct {
 	config     *config.Config
 	LoadConfig func(path string) (*config.Config, error)
 
-	node          *core.IpfsNode
-	ConstructNode func() (*core.IpfsNode, error)
+	node          *core.UdfsNode
+	ConstructNode func() (*core.UdfsNode, error)
 }
 
 // GetConfig returns the config of the current Command execution
@@ -41,7 +41,7 @@ func (c *Context) GetConfig() (*config.Config, error) {
 
 // GetNode returns the node of the current Command execution
 // context. It may construct it with the provided function.
-func (c *Context) GetNode() (*core.IpfsNode, error) {
+func (c *Context) GetNode() (*core.UdfsNode, error) {
 	var err error
 	if c.node == nil {
 		if c.ConstructNode == nil {

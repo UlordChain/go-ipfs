@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	ma "gx/udfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
 )
 
 const ActivationThresh = 4
@@ -99,7 +99,7 @@ func (oas *ObservedAddrSet) Add(addr ma.Multiaddr, observer ma.Multiaddr) {
 
 // observerGroup is a function that determines what part of
 // a multiaddr counts as a different observer. for example,
-// two ipfs nodes at the same IP/TCP transport would get
+// two udfs nodes at the same IP/TCP transport would get
 // the exact same NAT mapping; they would count as the
 // same observer. This may protect against NATs who assign
 // different ports to addresses at different IP hosts, but

@@ -6,7 +6,7 @@ import (
 
 	options "github.com/udfs/go-udfs/core/coreapi/interface/options"
 
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
 )
 
 // DagAPI specifies the interface to IPLD

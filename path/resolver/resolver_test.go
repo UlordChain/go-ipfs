@@ -10,8 +10,8 @@ import (
 	path "github.com/udfs/go-udfs/path"
 	"github.com/udfs/go-udfs/path/resolver"
 
-	util "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	util "gx/udfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-udfs-util"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
 )
 
 func randNode() *merkledag.ProtoNode {
@@ -49,7 +49,7 @@ func TestRecurivePathResolution(t *testing.T) {
 	aKey := a.Cid()
 
 	segments := []string{aKey.String(), "child", "grandchild"}
-	p, err := path.FromSegments("/ipfs/", segments...)
+	p, err := path.FromSegments("/udfs/", segments...)
 	if err != nil {
 		t.Fatal(err)
 	}

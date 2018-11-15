@@ -17,7 +17,7 @@ import (
 	config "github.com/udfs/go-udfs/repo/config"
 	fsrepo "github.com/udfs/go-udfs/repo/fsrepo"
 
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 type ConfigField struct {
@@ -27,25 +27,25 @@ type ConfigField struct {
 
 var ConfigCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Get and set ipfs config values.",
+		Tagline: "Get and set udfs config values.",
 		ShortDescription: `
-'ipfs config' controls configuration variables. It works like 'git config'.
-The configuration values are stored in a config file inside your ipfs
+'udfs config' controls configuration variables. It works like 'git config'.
+The configuration values are stored in a config file inside your udfs
 repository.`,
 		LongDescription: `
-'ipfs config' controls configuration variables. It works
+'udfs config' controls configuration variables. It works
 much like 'git config'. The configuration values are stored in a config
-file inside your IPFS repository.
+file inside your UDFS repository.
 
 Examples:
 
 Get the value of the 'Datastore.Path' key:
 
-  $ ipfs config Datastore.Path
+  $ udfs config Datastore.Path
 
 Set the value of the 'Datastore.Path' key:
 
-  $ ipfs config Datastore.Path ~/.ipfs/datastore
+  $ udfs config Datastore.Path ~/.udfs/datastore
 `,
 	},
 
@@ -236,7 +236,7 @@ var configEditCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Open the config file for editing in $EDITOR.",
 		ShortDescription: `
-To use 'ipfs config edit', you must have the $EDITOR environment
+To use 'udfs config edit', you must have the $EDITOR environment
 variable set to your preferred text editor.
 `,
 	},

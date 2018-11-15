@@ -9,126 +9,126 @@ test_description="Test add and cat commands"
 . lib/test-lib.sh
 
 test_add_cat_file() {
-  test_expect_success "ipfs add --help works" '
-    ipfs add --help 2> add_help_err > /dev/null
+  test_expect_success "udfs add --help works" '
+    udfs add --help 2> add_help_err > /dev/null
   '
 
   test_expect_success "stdin reading message doesnt show up" '
-    test_expect_code 1 grep "ipfs: Reading from" add_help_err &&
+    test_expect_code 1 grep "udfs: Reading from" add_help_err &&
     test_expect_code 1 grep "send Ctrl-d to stop." add_help_err
   '
 
-  test_expect_success "ipfs add succeeds" '
+  test_expect_success "udfs add succeeds" '
     echo "Hello Worlds!" >mountdir/hello.txt &&
-    ipfs add mountdir/hello.txt >actual
+    udfs add mountdir/hello.txt >actual
   '
 
-  test_expect_success "ipfs add output looks good" '
+  test_expect_success "udfs add output looks good" '
     HASH="QmVr26fY1tKyspEJBniVhqxQeEjhF78XerGiqWAwraVLQH" &&
     echo "added $HASH hello.txt" >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs add --only-hash succeeds" '
-    ipfs add --only-hash mountdir/hello.txt > oh_actual
+  test_expect_success "udfs add --only-hash succeeds" '
+    udfs add --only-hash mountdir/hello.txt > oh_actual
   '
 
-  test_expect_success "ipfs add --only-hash output looks good" '
+  test_expect_success "udfs add --only-hash output looks good" '
     test_cmp expected oh_actual
   '
 
-  test_expect_success "ipfs cat succeeds" '
-    ipfs cat "$HASH" >actual
+  test_expect_success "udfs cat succeeds" '
+    udfs cat "$HASH" >actual
   '
 
-  test_expect_success "ipfs cat output looks good" '
+  test_expect_success "udfs cat output looks good" '
     echo "Hello Worlds!" >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs cat with offset succeeds" '
-    ipfs cat --offset 10 "$HASH" >actual
+  test_expect_success "udfs cat with offset succeeds" '
+    udfs cat --offset 10 "$HASH" >actual
   '
 
-  test_expect_success "ipfs cat from offset output looks good" '
+  test_expect_success "udfs cat from offset output looks good" '
     echo "ds!" >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs cat multiple hashes with offset succeeds" '
-    ipfs cat --offset 10 "$HASH" "$HASH" >actual
+  test_expect_success "udfs cat multiple hashes with offset succeeds" '
+    udfs cat --offset 10 "$HASH" "$HASH" >actual
   '
 
-  test_expect_success "ipfs cat from offset output looks good" '
+  test_expect_success "udfs cat from offset output looks good" '
     echo "ds!" >expected &&
     echo "Hello Worlds!" >>expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs cat multiple hashes with offset succeeds" '
-    ipfs cat --offset 16 "$HASH" "$HASH" >actual
+  test_expect_success "udfs cat multiple hashes with offset succeeds" '
+    udfs cat --offset 16 "$HASH" "$HASH" >actual
   '
 
-  test_expect_success "ipfs cat from offset output looks good" '
+  test_expect_success "udfs cat from offset output looks good" '
     echo "llo Worlds!" >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs cat from negitive offset should fail" '
-    test_expect_code 1 ipfs cat --offset -102 "$HASH" > actual
+  test_expect_success "udfs cat from negitive offset should fail" '
+    test_expect_code 1 udfs cat --offset -102 "$HASH" > actual
   '
 
-  test_expect_success "ipfs cat with length succeeds" '
-    ipfs cat --length 8 "$HASH" >actual
+  test_expect_success "udfs cat with length succeeds" '
+    udfs cat --length 8 "$HASH" >actual
   '
 
-  test_expect_success "ipfs cat with length output looks good" '
+  test_expect_success "udfs cat with length output looks good" '
     printf "Hello Wo" >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs cat multiple hashes with offset and length succeeds" '
-    ipfs cat --offset 5 --length 15 "$HASH" "$HASH" "$HASH" >actual
+  test_expect_success "udfs cat multiple hashes with offset and length succeeds" '
+    udfs cat --offset 5 --length 15 "$HASH" "$HASH" "$HASH" >actual
   '
 
-  test_expect_success "ipfs cat multiple hashes with offset and length looks good" '
+  test_expect_success "udfs cat multiple hashes with offset and length looks good" '
     printf " Worlds!\nHello " >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs cat with exact length succeeds" '
-    ipfs cat --length $(ipfs cat "$HASH" | wc -c) "$HASH" >actual
+  test_expect_success "udfs cat with exact length succeeds" '
+    udfs cat --length $(udfs cat "$HASH" | wc -c) "$HASH" >actual
   '
 
-  test_expect_success "ipfs cat with exact length looks good" '
+  test_expect_success "udfs cat with exact length looks good" '
     echo "Hello Worlds!" >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs cat with 0 length succeeds" '
-    ipfs cat --length 0 "$HASH" >actual
+  test_expect_success "udfs cat with 0 length succeeds" '
+    udfs cat --length 0 "$HASH" >actual
   '
 
-  test_expect_success "ipfs cat with 0 length looks good" '
+  test_expect_success "udfs cat with 0 length looks good" '
     : >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs cat with oversized length succeeds" '
-    ipfs cat --length 100 "$HASH" >actual
+  test_expect_success "udfs cat with oversized length succeeds" '
+    udfs cat --length 100 "$HASH" >actual
   '
 
-  test_expect_success "ipfs cat with oversized length looks good" '
+  test_expect_success "udfs cat with oversized length looks good" '
     echo "Hello Worlds!" >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs cat with negitive length should fail" '
-    test_expect_code 1 ipfs cat --length -102 "$HASH" > actual
+  test_expect_success "udfs cat with negitive length should fail" '
+    test_expect_code 1 udfs cat --length -102 "$HASH" > actual
   '
 
-  test_expect_success "ipfs cat /ipfs/file succeeds" '
-    ipfs cat /ipfs/$HASH >actual
+  test_expect_success "udfs cat /udfs/file succeeds" '
+    udfs cat /udfs/$HASH >actual
   '
 
   test_expect_success "output looks good" '
@@ -136,32 +136,32 @@ test_add_cat_file() {
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs add -t succeeds" '
-    ipfs add -t mountdir/hello.txt >actual
+  test_expect_success "udfs add -t succeeds" '
+    udfs add -t mountdir/hello.txt >actual
   '
 
-  test_expect_success "ipfs add -t output looks good" '
+  test_expect_success "udfs add -t output looks good" '
     HASH="QmUkUQgxXeggyaD5Ckv8ZqfW8wHBX6cYyeiyqvVZYzq5Bi" &&
     echo "added $HASH hello.txt" >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs add --chunker size-32 succeeds" '
-    ipfs add --chunker rabin mountdir/hello.txt >actual
+  test_expect_success "udfs add --chunker size-32 succeeds" '
+    udfs add --chunker rabin mountdir/hello.txt >actual
   '
 
-  test_expect_success "ipfs add --chunker size-32 output looks good" '
+  test_expect_success "udfs add --chunker size-32 output looks good" '
     HASH="QmVr26fY1tKyspEJBniVhqxQeEjhF78XerGiqWAwraVLQH" &&
     echo "added $HASH hello.txt" >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs add on hidden file succeeds" '
+  test_expect_success "udfs add on hidden file succeeds" '
     echo "Hello Worlds!" >mountdir/.hello.txt &&
-    ipfs add mountdir/.hello.txt >actual
+    udfs add mountdir/.hello.txt >actual
   '
 
-  test_expect_success "ipfs add on hidden file output looks good" '
+  test_expect_success "udfs add on hidden file output looks good" '
     HASH="QmVr26fY1tKyspEJBniVhqxQeEjhF78XerGiqWAwraVLQH" &&
     echo "added $HASH .hello.txt" >expected &&
     test_cmp expected actual
@@ -169,7 +169,7 @@ test_add_cat_file() {
 
   test_expect_success "add zero length file" '
     touch zero-length-file &&
-    ZEROHASH=$(ipfs add -q zero-length-file) &&
+    ZEROHASH=$(udfs add -q zero-length-file) &&
     echo $ZEROHASH
   '
 
@@ -178,7 +178,7 @@ test_add_cat_file() {
   '
 
   test_expect_success "cat zero length file" '
-    ipfs cat $ZEROHASH > zero-length-file_out
+    udfs cat $ZEROHASH > zero-length-file_out
   '
 
   test_expect_success "make sure it looks good" '
@@ -200,28 +200,28 @@ test_add_cat_5MB() {
     test_cmp sha1_expected sha1_actual
   '
 
-  test_expect_success "'ipfs add $ADD_FLAGS bigfile' succeeds" '
-    ipfs add $ADD_FLAGS mountdir/bigfile >actual ||
+  test_expect_success "'udfs add $ADD_FLAGS bigfile' succeeds" '
+    udfs add $ADD_FLAGS mountdir/bigfile >actual ||
     test_fsh cat daemon_err
   '
 
-  test_expect_success "'ipfs add bigfile' output looks good" '
+  test_expect_success "'udfs add bigfile' output looks good" '
     echo "added $EXP_HASH bigfile" >expected &&
     test_cmp expected actual
   '
-  test_expect_success "'ipfs cat' succeeds" '
-    ipfs cat "$EXP_HASH" >actual
+  test_expect_success "'udfs cat' succeeds" '
+    udfs cat "$EXP_HASH" >actual
   '
 
-  test_expect_success "'ipfs cat' output looks good" '
+  test_expect_success "'udfs cat' output looks good" '
     test_cmp mountdir/bigfile actual
   '
 
-  test_expect_success FUSE "cat ipfs/bigfile succeeds" '
-    cat "ipfs/$EXP_HASH" >actual
+  test_expect_success FUSE "cat udfs/bigfile succeeds" '
+    cat "udfs/$EXP_HASH" >actual
   '
 
-  test_expect_success FUSE "cat ipfs/bigfile looks good" '
+  test_expect_success FUSE "cat udfs/bigfile looks good" '
     test_cmp mountdir/bigfile actual
   '
 }
@@ -229,11 +229,11 @@ test_add_cat_5MB() {
 test_add_cat_raw() {
   test_expect_success "add a small file with raw-leaves" '
     echo "foobar" > afile &&
-    HASH=$(ipfs add -q --raw-leaves afile)
+    HASH=$(udfs add -q --raw-leaves afile)
   '
 
   test_expect_success "cat that small file" '
-    ipfs cat $HASH > afile_out
+    udfs cat $HASH > afile_out
   '
 
   test_expect_success "make sure it looks good" '
@@ -242,7 +242,7 @@ test_add_cat_raw() {
 
   test_expect_success "add zero length file with raw-leaves" '
     touch zero-length-file &&
-    ZEROHASH=$(ipfs add -q --raw-leaves zero-length-file) &&
+    ZEROHASH=$(udfs add -q --raw-leaves zero-length-file) &&
     echo $ZEROHASH
   '
 
@@ -251,7 +251,7 @@ test_add_cat_raw() {
   '
 
   test_expect_success "cat zero length file" '
-    ipfs cat $ZEROHASH > zero-length-file_out
+    udfs cat $ZEROHASH > zero-length-file_out
   '
 
   test_expect_success "make sure it looks good" '
@@ -273,34 +273,34 @@ test_add_cat_expensive() {
     test_cmp sha1_expected sha1_actual
   '
 
-  test_expect_success EXPENSIVE "ipfs add $ADD_FLAGS bigfile succeeds" '
-    ipfs add $ADD_FLAGS mountdir/bigfile >actual
+  test_expect_success EXPENSIVE "udfs add $ADD_FLAGS bigfile succeeds" '
+    udfs add $ADD_FLAGS mountdir/bigfile >actual
   '
 
-  test_expect_success EXPENSIVE "ipfs add bigfile output looks good" '
+  test_expect_success EXPENSIVE "udfs add bigfile output looks good" '
     echo "added $HASH bigfile" >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success EXPENSIVE "ipfs cat succeeds" '
-    ipfs cat "$HASH" | multihash -a=sha1 -e=hex >sha1_actual
+  test_expect_success EXPENSIVE "udfs cat succeeds" '
+    udfs cat "$HASH" | multihash -a=sha1 -e=hex >sha1_actual
   '
 
-  test_expect_success EXPENSIVE "ipfs cat output looks good" '
-    ipfs cat "$HASH" >actual &&
+  test_expect_success EXPENSIVE "udfs cat output looks good" '
+    udfs cat "$HASH" >actual &&
     test_cmp mountdir/bigfile actual
   '
 
-  test_expect_success EXPENSIVE "ipfs cat output hashed looks good" '
+  test_expect_success EXPENSIVE "udfs cat output hashed looks good" '
     echo "1114885b197b01e0f7ff584458dc236cb9477d2e736d" >sha1_expected &&
     test_cmp sha1_expected sha1_actual
   '
 
-  test_expect_success FUSE,EXPENSIVE "cat ipfs/bigfile succeeds" '
-    cat "ipfs/$HASH" | multihash -a=sha1 -e=hex >sha1_actual
+  test_expect_success FUSE,EXPENSIVE "cat udfs/bigfile succeeds" '
+    cat "udfs/$HASH" | multihash -a=sha1 -e=hex >sha1_actual
   '
 
-  test_expect_success FUSE,EXPENSIVE "cat ipfs/bigfile looks good" '
+  test_expect_success FUSE,EXPENSIVE "cat udfs/bigfile looks good" '
     test_cmp sha1_expected sha1_actual
   '
 }
@@ -309,19 +309,19 @@ test_add_named_pipe() {
   err_prefix=$1
   test_expect_success "useful error message when adding a named pipe" '
     mkfifo named-pipe &&
-    test_expect_code 1 ipfs add named-pipe 2>actual &&
+    test_expect_code 1 udfs add named-pipe 2>actual &&
     STAT=$(generic_stat named-pipe) &&
     rm named-pipe &&
     grep "Error: Unrecognized file type for named-pipe: $STAT" actual &&
     grep USAGE actual &&
-    grep "ipfs add" actual
+    grep "udfs add" actual
   '
 
   test_expect_success "useful error message when recursively adding a named pipe" '
     mkdir -p named-pipe-dir &&
     mkfifo named-pipe-dir/named-pipe &&
     STAT=$(generic_stat named-pipe-dir/named-pipe) &&
-    test_expect_code 1 ipfs add -r named-pipe-dir 2>actual &&
+    test_expect_code 1 udfs add -r named-pipe-dir 2>actual &&
     printf "Error:$err_prefix Unrecognized file type for named-pipe-dir/named-pipe: $STAT\n" >expected &&
     rm named-pipe-dir/named-pipe &&
     rmdir named-pipe-dir &&
@@ -330,109 +330,109 @@ test_add_named_pipe() {
 }
 
 test_add_pwd_is_symlink() {
-  test_expect_success "ipfs add -r adds directory content when ./ is symlink" '
+  test_expect_success "udfs add -r adds directory content when ./ is symlink" '
     mkdir hellodir &&
     echo "World" > hellodir/world &&
     ln -s hellodir hellolink &&
     ( cd hellolink &&
-    ipfs add -r . > ../actual ) &&
+    udfs add -r . > ../actual ) &&
     grep "added Qma9CyFdG5ffrZCcYSin2uAETygB25cswVwEYYzwfQuhTe" actual &&
     rm -r hellodir
   '
 }
 
-test_launch_ipfs_daemon_and_mount
+test_launch_udfs_daemon_and_mount
 
-test_expect_success "'ipfs add --help' succeeds" '
-  ipfs add --help >actual
+test_expect_success "'udfs add --help' succeeds" '
+  udfs add --help >actual
 '
 
-test_expect_success "'ipfs add --help' output looks good" '
-  egrep "ipfs add.*<path>" actual >/dev/null ||
+test_expect_success "'udfs add --help' output looks good" '
+  egrep "udfs add.*<path>" actual >/dev/null ||
   test_fsh cat actual
 '
 
-test_expect_success "'ipfs cat --help' succeeds" '
-  ipfs cat --help >actual
+test_expect_success "'udfs cat --help' succeeds" '
+  udfs cat --help >actual
 '
 
-test_expect_success "'ipfs cat --help' output looks good" '
-  egrep "ipfs cat.*<ipfs-path>" actual >/dev/null ||
+test_expect_success "'udfs cat --help' output looks good" '
+  egrep "udfs cat.*<udfs-path>" actual >/dev/null ||
   test_fsh cat actual
 '
 
 test_add_cat_file
 
-test_expect_success "ipfs cat succeeds with stdin opened (issue #1141)" '
-  cat mountdir/hello.txt | while read line; do ipfs cat "$HASH" >actual || exit; done
+test_expect_success "udfs cat succeeds with stdin opened (issue #1141)" '
+  cat mountdir/hello.txt | while read line; do udfs cat "$HASH" >actual || exit; done
 '
 
-test_expect_success "ipfs cat output looks good" '
+test_expect_success "udfs cat output looks good" '
   cat mountdir/hello.txt >expected &&
   test_cmp expected actual
 '
 
-test_expect_success "ipfs cat accept hash from built input" '
-  echo "$HASH" | ipfs cat >actual
+test_expect_success "udfs cat accept hash from built input" '
+  echo "$HASH" | udfs cat >actual
 '
 
-test_expect_success "ipfs cat output looks good" '
+test_expect_success "udfs cat output looks good" '
   test_cmp expected actual
 '
 
-test_expect_success FUSE "cat ipfs/stuff succeeds" '
-  cat "ipfs/$HASH" >actual
+test_expect_success FUSE "cat udfs/stuff succeeds" '
+  cat "udfs/$HASH" >actual
 '
 
-test_expect_success FUSE "cat ipfs/stuff looks good" '
+test_expect_success FUSE "cat udfs/stuff looks good" '
   test_cmp expected actual
 '
 
-test_expect_success "'ipfs add -q' succeeds" '
+test_expect_success "'udfs add -q' succeeds" '
   echo "Hello Venus!" >mountdir/venus.txt &&
-  ipfs add -q mountdir/venus.txt >actual
+  udfs add -q mountdir/venus.txt >actual
 '
 
-test_expect_success "'ipfs add -q' output looks good" '
+test_expect_success "'udfs add -q' output looks good" '
   HASH="QmU5kp3BH3B8tnWUU2Pikdb2maksBNkb92FHRr56hyghh4" &&
   echo "$HASH" >expected &&
   test_cmp expected actual
 '
 
-test_expect_success "'ipfs add -q' with stdin input succeeds" '
-  echo "Hello Jupiter!" | ipfs add -q >actual
+test_expect_success "'udfs add -q' with stdin input succeeds" '
+  echo "Hello Jupiter!" | udfs add -q >actual
 '
 
-test_expect_success "'ipfs add -q' output looks good" '
+test_expect_success "'udfs add -q' output looks good" '
   HASH="QmUnvPcBctVTAcJpigv6KMqDvmDewksPWrNVoy1E1WP5fh" &&
   echo "$HASH" >expected &&
   test_cmp expected actual
 '
 
-test_expect_success "'ipfs cat' succeeds" '
-  ipfs cat "$HASH" >actual
+test_expect_success "'udfs cat' succeeds" '
+  udfs cat "$HASH" >actual
 '
 
-test_expect_success "ipfs cat output looks good" '
+test_expect_success "udfs cat output looks good" '
   echo "Hello Jupiter!" >expected &&
   test_cmp expected actual
 '
 
-test_expect_success "'ipfs add' with stdin input succeeds" '
-  printf "Hello Neptune!\nHello Pluton!" | ipfs add >actual
+test_expect_success "'udfs add' with stdin input succeeds" '
+  printf "Hello Neptune!\nHello Pluton!" | udfs add >actual
 '
 
-test_expect_success "'ipfs add' output looks good" '
+test_expect_success "'udfs add' output looks good" '
   HASH="QmZDhWpi8NvKrekaYYhxKCdNVGWsFFe1CREnAjP1QbPaB3" &&
   echo "added $HASH $HASH" >expected &&
   test_cmp expected actual
 '
 
-test_expect_success "'ipfs cat' with built input succeeds" '
-  echo "$HASH" | ipfs cat >actual
+test_expect_success "'udfs cat' with built input succeeds" '
+  echo "$HASH" | udfs cat >actual
 '
 
-test_expect_success "ipfs cat with built input output looks good" '
+test_expect_success "udfs cat with built input output looks good" '
   printf "Hello Neptune!\nHello Pluton!" >expected &&
   test_cmp expected actual
 '
@@ -440,60 +440,60 @@ test_expect_success "ipfs cat with built input output looks good" '
 add_directory() {
   EXTRA_ARGS=$1
 
-  test_expect_success "'ipfs add -r $EXTRA_ARGS' succeeds" '
+  test_expect_success "'udfs add -r $EXTRA_ARGS' succeeds" '
     mkdir mountdir/planets &&
     echo "Hello Mars!" >mountdir/planets/mars.txt &&
     echo "Hello Venus!" >mountdir/planets/venus.txt &&
-    ipfs add -r $EXTRA_ARGS mountdir/planets >actual
+    udfs add -r $EXTRA_ARGS mountdir/planets >actual
   '
 
-  test_expect_success "'ipfs add -r $EXTRA_ARGS' output looks good" '
+  test_expect_success "'udfs add -r $EXTRA_ARGS' output looks good" '
     echo "added $MARS planets/mars.txt" >expected &&
     echo "added $VENUS planets/venus.txt" >>expected &&
     echo "added $PLANETS planets" >>expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs cat accept many hashes from built input" '
-    { echo "$MARS"; echo "$VENUS"; } | ipfs cat >actual
+  test_expect_success "udfs cat accept many hashes from built input" '
+    { echo "$MARS"; echo "$VENUS"; } | udfs cat >actual
   '
 
-  test_expect_success "ipfs cat output looks good" '
+  test_expect_success "udfs cat output looks good" '
     cat mountdir/planets/mars.txt mountdir/planets/venus.txt >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs cat accept many hashes as args" '
-    ipfs cat "$MARS" "$VENUS" >actual
+  test_expect_success "udfs cat accept many hashes as args" '
+    udfs cat "$MARS" "$VENUS" >actual
   '
 
-  test_expect_success "ipfs cat output looks good" '
+  test_expect_success "udfs cat output looks good" '
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs cat with both arg and stdin" '
-    echo "$MARS" | ipfs cat "$VENUS" >actual
+  test_expect_success "udfs cat with both arg and stdin" '
+    echo "$MARS" | udfs cat "$VENUS" >actual
   '
 
-  test_expect_success "ipfs cat output looks good" '
+  test_expect_success "udfs cat output looks good" '
     cat mountdir/planets/venus.txt >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs cat with two args and stdin" '
-    echo "$MARS" | ipfs cat "$VENUS" "$VENUS" >actual
+  test_expect_success "udfs cat with two args and stdin" '
+    echo "$MARS" | udfs cat "$VENUS" "$VENUS" >actual
   '
 
-  test_expect_success "ipfs cat output looks good" '
+  test_expect_success "udfs cat output looks good" '
     cat mountdir/planets/venus.txt mountdir/planets/venus.txt >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs add --quieter succeeds" '
-    ipfs add -r -Q $EXTRA_ARGS mountdir/planets >actual
+  test_expect_success "udfs add --quieter succeeds" '
+    udfs add -r -Q $EXTRA_ARGS mountdir/planets >actual
   '
 
-  test_expect_success "ipfs add --quieter returns only one correct hash" '
+  test_expect_success "udfs add --quieter returns only one correct hash" '
     echo "$PLANETS" > expected &&
     test_cmp expected actual
   '
@@ -528,16 +528,16 @@ MARS="zCT5htkdz1ZBHYVQXFQn51ngPXLVqaHSWoae87V1d6e9qWpSAjXw"
 VENUS="zCT5htke5JcdoMM4WhmUKXWf2QC3TnQToqGZHH1WsZERv6kPhFPg"
 add_directory '--hash=blake2b-256'
 
-test_expect_success "'ipfs add -rn' succeeds" '
+test_expect_success "'udfs add -rn' succeeds" '
   mkdir -p mountdir/moons/jupiter &&
   mkdir -p mountdir/moons/saturn &&
   echo "Hello Europa!" >mountdir/moons/jupiter/europa.txt &&
   echo "Hello Titan!" >mountdir/moons/saturn/titan.txt &&
   echo "hey youre no moon!" >mountdir/moons/mercury.txt &&
-  ipfs add -rn mountdir/moons >actual
+  udfs add -rn mountdir/moons >actual
 '
 
-test_expect_success "'ipfs add -rn' output looks good" '
+test_expect_success "'udfs add -rn' output looks good" '
   MOONS="QmVKvomp91nMih5j6hYBA8KjbiaYvEetU2Q7KvtZkLe9nQ" &&
   EUROPA="Qmbjg7zWdqdMaK2BucPncJQDxiALExph5k3NkQv5RHpccu" &&
   JUPITER="QmS5mZddhFPLWFX3w6FzAy9QxyYkaxvUpsWCtZ3r7jub9J" &&
@@ -596,13 +596,13 @@ test_add_pwd_is_symlink
 
 test_add_cat_raw
 
-test_expect_success "ipfs add --cid-version=9 fails" '
+test_expect_success "udfs add --cid-version=9 fails" '
   echo "context" > afile.txt &&
-  test_must_fail ipfs add --cid-version=9 afile.txt 2>&1 | tee add_out &&
+  test_must_fail udfs add --cid-version=9 afile.txt 2>&1 | tee add_out &&
   grep -q "unknown CID version" add_out
 '
 
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 # should work offline
 
@@ -610,13 +610,13 @@ test_add_cat_file
 
 test_add_cat_raw
 
-test_expect_success "ipfs add --only-hash succeeds" '
-  echo "unknown content for only-hash" | ipfs add --only-hash -q > oh_hash
+test_expect_success "udfs add --only-hash succeeds" '
+  echo "unknown content for only-hash" | udfs add --only-hash -q > oh_hash
 '
 
 #TODO: this doesn't work when online hence separated out from test_add_cat_file
-test_expect_success "ipfs cat file fails" '
-  test_must_fail ipfs cat $(cat oh_hash)
+test_expect_success "udfs cat file fails" '
+  test_must_fail udfs cat $(cat oh_hash)
 '
 
 test_add_named_pipe ""
@@ -624,10 +624,10 @@ test_add_named_pipe ""
 test_add_pwd_is_symlink
 
 # Test daemon in offline mode
-test_launch_ipfs_daemon --offline
+test_launch_udfs_daemon --offline
 
 test_add_cat_file
 
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 test_done

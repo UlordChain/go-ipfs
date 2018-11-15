@@ -11,9 +11,9 @@ import (
 	gc "github.com/udfs/go-udfs/pin/gc"
 	repo "github.com/udfs/go-udfs/repo"
 
-	humanize "gx/ipfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	humanize "gx/udfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
 )
 
 var log = logging.Logger("corerepo")
@@ -21,7 +21,7 @@ var log = logging.Logger("corerepo")
 var ErrMaxStorageExceeded = errors.New("maximum storage limit exceeded. Try to unpin some files")
 
 type GC struct {
-	Node       *core.IpfsNode
+	Node       *core.UdfsNode
 	Repo       repo.Repo
 	StorageMax uint64
 	StorageGC  uint64
@@ -29,7 +29,7 @@ type GC struct {
 	Storage    uint64
 }
 
-func NewGC(n *core.IpfsNode) (*GC, error) {
+func NewGC(n *core.UdfsNode) (*GC, error) {
 	r := n.Repo
 	cfg, err := r.Config()
 	if err != nil {
@@ -79,7 +79,7 @@ func BestEffortRoots(filesRoot *mfs.Root) ([]*cid.Cid, error) {
 	return []*cid.Cid{rootDag.Cid()}, nil
 }
 
-func GarbageCollect(n *core.IpfsNode, ctx context.Context) error {
+func GarbageCollect(n *core.UdfsNode, ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel() // in case error occurs during operation
 	roots, err := BestEffortRoots(n.FilesRoot)
@@ -145,7 +145,7 @@ func (e *MultiError) Error() string {
 	return buf.String()
 }
 
-func GarbageCollectAsync(n *core.IpfsNode, ctx context.Context) <-chan gc.Result {
+func GarbageCollectAsync(n *core.UdfsNode, ctx context.Context) <-chan gc.Result {
 	roots, err := BestEffortRoots(n.FilesRoot)
 	if err != nil {
 		out := make(chan gc.Result)
@@ -157,7 +157,7 @@ func GarbageCollectAsync(n *core.IpfsNode, ctx context.Context) <-chan gc.Result
 	return gc.GC(ctx, n.Blockstore, n.Repo.Datastore(), n.Pinning, roots)
 }
 
-func PeriodicGC(ctx context.Context, node *core.IpfsNode) error {
+func PeriodicGC(ctx context.Context, node *core.UdfsNode) error {
 	cfg, err := node.Repo.Config()
 	if err != nil {
 		return err
@@ -194,7 +194,7 @@ func PeriodicGC(ctx context.Context, node *core.IpfsNode) error {
 	}
 }
 
-func ConditionalGC(ctx context.Context, node *core.IpfsNode, offset uint64) error {
+func ConditionalGC(ctx context.Context, node *core.UdfsNode, offset uint64) error {
 	gc, err := NewGC(node)
 	if err != nil {
 		return err
@@ -220,12 +220,12 @@ func (gc *GC) maybeGC(ctx context.Context, offset uint64) error {
 		if err := GarbageCollect(gc.Node, ctx); err != nil {
 			return err
 		}
-		log.Infof("Repo GC done. See `ipfs repo stat` to see how much space got freed.\n")
+		log.Infof("Repo GC done. See `udfs repo stat` to see how much space got freed.\n")
 	}
 	return nil
 }
 
-func Remove(n *core.IpfsNode, ctx context.Context, cids []*cid.Cid, recursive bool, checkPined bool) error {
+func Remove(n *core.UdfsNode, ctx context.Context, cids []*cid.Cid, recursive bool, checkPined bool) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel() // in case error occurs during operation
 
@@ -234,6 +234,6 @@ func Remove(n *core.IpfsNode, ctx context.Context, cids []*cid.Cid, recursive bo
 	return CollectResult(ctx, rmed, nil)
 }
 
-func RemoveAsync(n *core.IpfsNode, ctx context.Context, cids []*cid.Cid, recursive bool, checkPined bool) <-chan gc.Result {
+func RemoveAsync(n *core.UdfsNode, ctx context.Context, cids []*cid.Cid, recursive bool, checkPined bool) <-chan gc.Result {
 	return gc.Remove(ctx, n.Blockstore, n.Repo.Datastore(), n.Pinning, cids, recursive, checkPined)
 }

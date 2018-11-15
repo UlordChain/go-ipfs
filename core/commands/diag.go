@@ -3,7 +3,7 @@ package commands
 import (
 	cmds "github.com/udfs/go-udfs/commands"
 
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 var DiagCmd = &cmds.Command{

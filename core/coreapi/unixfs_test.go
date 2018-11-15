@@ -20,23 +20,23 @@ import (
 	config "github.com/udfs/go-udfs/repo/config"
 	unixfs "github.com/udfs/go-udfs/unixfs"
 
-	cbor "gx/ipfs/QmWrbExtUaQQHjJ8FVVDAWj5o1MRAELDUV3VmoQsZHHb6L/go-ipld-cbor"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	ci "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
-	datastore "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
-	syncds "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore/sync"
+	cbor "gx/udfs/QmWrbExtUaQQHjJ8FVVDAWj5o1MRAELDUV3VmoQsZHHb6L/go-ipld-cbor"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	ci "gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	datastore "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
+	syncds "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore/sync"
 )
 
 const testPeerID = "QmTFauExutTsy4XP6JbMFcw2Wa9645HJt2bTqL6qYDCKfe"
 
-// `echo -n 'hello, world!' | ipfs add`
-var hello = "/ipfs/QmQy2Dw4Wk7rdJKjThjYXzfFJNaRKRHhHP5gHHXroJMYxk"
+// `echo -n 'hello, world!' | udfs add`
+var hello = "/udfs/QmQy2Dw4Wk7rdJKjThjYXzfFJNaRKRHhHP5gHHXroJMYxk"
 var helloStr = "hello, world!"
 
-// `echo -n | ipfs add`
-var emptyFile = "/ipfs/QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH"
+// `echo -n | udfs add`
+var emptyFile = "/udfs/QmbFMke1KXqnYyBBWxB74N4c5SBnJMVAiMNRcGu6x1AwQH"
 
-func makeAPIIdent(ctx context.Context, fullIdentity bool) (*core.IpfsNode, coreiface.CoreAPI, error) {
+func makeAPIIdent(ctx context.Context, fullIdentity bool) (*core.UdfsNode, coreiface.CoreAPI, error) {
 	var ident config.Identity
 	if fullIdentity {
 		sk, pk, err := ci.GenerateKeyPair(ci.RSA, 512)
@@ -79,7 +79,7 @@ func makeAPIIdent(ctx context.Context, fullIdentity bool) (*core.IpfsNode, corei
 	return node, api, nil
 }
 
-func makeAPI(ctx context.Context) (*core.IpfsNode, coreiface.CoreAPI, error) {
+func makeAPI(ctx context.Context) (*core.UdfsNode, coreiface.CoreAPI, error) {
 	return makeAPIIdent(ctx, false)
 }
 
@@ -145,7 +145,7 @@ func TestCatBasic(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	p = "/ipfs/" + p
+	p = "/udfs/" + p
 
 	if p != hello {
 		t.Fatalf("expected CID %s, got: %s", hello, p)
@@ -214,18 +214,18 @@ func TestCatDir(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	p := coreiface.IpfsPath(edir.Cid())
+	p := coreiface.UdfsPath(edir.Cid())
 
 	emptyDir, err := api.Object().New(ctx, options.Object.Type("unixfs-dir"))
 	if err != nil {
 		t.Error(err)
 	}
 
-	if p.String() != coreiface.IpfsPath(emptyDir.Cid()).String() {
+	if p.String() != coreiface.UdfsPath(emptyDir.Cid()).String() {
 		t.Fatalf("expected path %s, got: %s", emptyDir.Cid(), p.String())
 	}
 
-	_, err = api.Unixfs().Cat(ctx, coreiface.IpfsPath(emptyDir.Cid()))
+	_, err = api.Unixfs().Cat(ctx, coreiface.UdfsPath(emptyDir.Cid()))
 	if err != coreiface.ErrIsDir {
 		t.Fatalf("expected ErrIsDir, got: %s", err)
 	}
@@ -244,7 +244,7 @@ func TestCatNonUnixfs(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = api.Unixfs().Cat(ctx, coreiface.IpfsPath(nd.Cid()))
+	_, err = api.Unixfs().Cat(ctx, coreiface.UdfsPath(nd.Cid()))
 	if !strings.Contains(err.Error(), "proto: required field") {
 		t.Fatalf("expected protobuf error, got: %s", err)
 	}
@@ -283,7 +283,7 @@ func TestLs(t *testing.T) {
 	if len(parts) != 2 {
 		t.Errorf("unexpected path: %s", k)
 	}
-	p, err := coreiface.ParsePath("/ipfs/" + parts[0])
+	p, err := coreiface.ParsePath("/udfs/" + parts[0])
 	if err != nil {
 		t.Error(err)
 	}
@@ -324,7 +324,7 @@ func TestLsEmptyDir(t *testing.T) {
 		t.Error(err)
 	}
 
-	links, err := api.Unixfs().Ls(ctx, coreiface.IpfsPath(emptyDir.Cid()))
+	links, err := api.Unixfs().Ls(ctx, coreiface.UdfsPath(emptyDir.Cid()))
 	if err != nil {
 		t.Error(err)
 	}
@@ -352,7 +352,7 @@ func TestLsNonUnixfs(t *testing.T) {
 		t.Error(err)
 	}
 
-	links, err := api.Unixfs().Ls(ctx, coreiface.IpfsPath(nd.Cid()))
+	links, err := api.Unixfs().Ls(ctx, coreiface.UdfsPath(nd.Cid()))
 	if err != nil {
 		t.Error(err)
 	}

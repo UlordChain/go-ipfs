@@ -1,14 +1,14 @@
-# The go-ipfs config file
+# The go-udfs config file
 
-The go-ipfs config file is a json document. It is read once at node instantiation,
+The go-udfs config file is a json document. It is read once at node instantiation,
 either for an offline command, or when starting the daemon. Commands that execute
 on a running daemon do not read the config file at runtime.
 
 #### Profiles
 Configuration profiles allow to tweak configuration quickly. Profiles can be
-applied with `--profile` flag to `ipfs init` or with `ipfs config profile apply`
+applied with `--profile` flag to `udfs init` or with `udfs config profile apply`
 command. When a profile is applied a backup of the configuration file will
-be created in $IPFS_PATH
+be created in $UDFS_PATH
 
 Available profiles:
 - `server`
@@ -23,7 +23,7 @@ Available profiles:
 
 - `test`
 
-  Reduces external interference, useful for running ipfs in test environments.
+  Reduces external interference, useful for running udfs in test environments.
   Note that with these settings node won't be able to talk to the rest of the
   network without manual bootstrap.
 
@@ -34,8 +34,8 @@ Available profiles:
 - `badgerds`
 
   Replaces default datastore configuration with experimental badger datastore.
-  If you apply this profile after `ipfs init`, you will need to convert your
-  datastore to the new configuration. You can do this using [ipfs-ds-convert](https://github.com/ipfs/ipfs-ds-convert)
+  If you apply this profile after `udfs init`, you will need to convert your
+  datastore to the new configuration. You can do this using [udfs-ds-convert](https://github.com/udfs/udfs-ds-convert)
 
   WARNING: badger datastore is experimental. Make sure to backup your data
   frequently.
@@ -116,14 +116,14 @@ Default: `null`
 Bootstrap is an array of multiaddrs of trusted nodes to connect to in order to
 initiate a connection to the network.
 
-Default: The ipfs.io bootstrap nodes
+Default: The udfs.io bootstrap nodes
 
 ## `Datastore`
 Contains information related to the construction and operation of the on-disk
 storage system.
 
 - `StorageMax`
-A soft upper limit for the size of the ipfs repository's datastore. With `StorageGCWatermark`,
+A soft upper limit for the size of the udfs repository's datastore. With `StorageGCWatermark`,
 is used to calculate whether to trigger a gc run (only if `--enable-gc` flag is set).
 
 Default: `10GB`
@@ -151,15 +151,15 @@ A number representing the size in bytes of the blockstore's [bloom filter](https
 This site generates useful graphs for various bloom filter values: <https://hur.st/bloomfilter/?n=1e6&p=0.01&m=&k=7>  
 You may use it to find a preferred optimal value, where `m` is `BloomFilterSize` in bits. Remember to convert the value `m` from bits, into bytes for use as `BloomFilterSize` in the config file.  
 For example, for 1,000,000 blocks, expecting a 1% false positive rate, you'd end up with a filter size of 9592955 bits, so for `BloomFilterSize` we'd want to use 1199120 bytes.  
-As of writing, [7 hash functions](https://github.com/ipfs/go-ipfs-blockstore/blob/547442836ade055cc114b562a3cc193d4e57c884/caching.go#L22) are used, so the constant `k` is 7 in the formula.
+As of writing, [7 hash functions](https://github.com/udfs/go-udfs-blockstore/blob/547442836ade055cc114b562a3cc193d4e57c884/caching.go#L22) are used, so the constant `k` is 7 in the formula.
 
 
 Default: `0`
 
 - `Spec`
-Spec defines the structure of the ipfs datastore. It is a composable structure, where each datastore is represented by a json object. Datastores can wrap other datastores to provide extra functionality (eg metrics, logging, or caching).
+Spec defines the structure of the udfs datastore. It is a composable structure, where each datastore is represented by a json object. Datastores can wrap other datastores to provide extra functionality (eg metrics, logging, or caching).
 
-This can be changed manually, however, if you make any changes that require a different on-disk structure, you will need to run the [ipfs-ds-convert tool](https://github.com/ipfs/ipfs-ds-convert) to migrate data into the new structures.
+This can be changed manually, however, if you make any changes that require a different on-disk structure, you will need to run the [udfs-ds-convert tool](https://github.com/udfs/udfs-ds-convert) to migrate data into the new structures.
 
 For more information on possible values for this configuration option, see docs/datastores.md 
 
@@ -194,7 +194,7 @@ Default:
 ```
 
 ## `Discovery`
-Contains options for configuring ipfs node discovery mechanisms.
+Contains options for configuring udfs node discovery mechanisms.
 
 - `MDNS`
 Options for multicast dns peer discovery.
@@ -254,7 +254,7 @@ Default: `[]`
 
 - `PeerID`
 The unique PKI identity label for this configs peer. Set on init and never read,
-its merely here for convenience. Ipfs will always generate the peerID from its
+its merely here for convenience. Udfs will always generate the peerID from its
 keypair at runtime.
 
 - `PrivKey`
@@ -280,8 +280,8 @@ Default: `128`
 ## `Mounts`
 FUSE mount point configuration options.
 
-- `IPFS`
-Mountpoint for `/ipfs/`.
+- `UDFS`
+Mountpoint for `/udfs/`.
 
 - `IPNS`
 Mountpoint for `/ipns/`.
@@ -312,11 +312,11 @@ Options for configuring the swarm.
 
 - `AddrFilters`
 An array of address filters (multiaddr netmasks) to filter dials to.
-See [this issue](https://github.com/ipfs/go-ipfs/issues/1226#issuecomment-120494604) for more
+See [this issue](https://github.com/udfs/go-udfs/issues/1226#issuecomment-120494604) for more
 information.
 
 - `DisableBandwidthMetrics`
-A boolean value that when set to true, will cause ipfs to not keep track of
+A boolean value that when set to true, will cause udfs to not keep track of
 bandwidth metrics. Disabling bandwidth metrics can lead to a slight performance
 improvement, as well as a reduction in memory usage.
 

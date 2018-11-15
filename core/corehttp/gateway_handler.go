@@ -22,28 +22,28 @@ import (
 	ft "github.com/udfs/go-udfs/unixfs"
 	uio "github.com/udfs/go-udfs/unixfs/io"
 
-	humanize "gx/ipfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
-	chunker "gx/ipfs/QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4/go-ipfs-chunker"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	routing "gx/ipfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	multibase "gx/ipfs/QmexBtiTTEwwn42Yi6ouKt6VqzpA6wjJgiW1oh9VfaRrup/go-multibase"
+	humanize "gx/udfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
+	chunker "gx/udfs/QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4/go-udfs-chunker"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	routing "gx/udfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	multibase "gx/udfs/QmexBtiTTEwwn42Yi6ouKt6VqzpA6wjJgiW1oh9VfaRrup/go-multibase"
 )
 
 const (
-	ipfsPathPrefix = "/ipfs/"
+	udfsPathPrefix = "/udfs/"
 	ipnsPathPrefix = "/ipns/"
 )
 
-// gatewayHandler is a HTTP handler that serves IPFS objects (accessible by default at /ipfs/<path>)
-// (it serves requests like GET /ipfs/QmVRzPKPzNtSrEzBFm2UZfxmPAgnaLke4DMcerbsGGSaFe/link)
+// gatewayHandler is a HTTP handler that serves UDFS objects (accessible by default at /udfs/<path>)
+// (it serves requests like GET /udfs/QmVRzPKPzNtSrEzBFm2UZfxmPAgnaLke4DMcerbsGGSaFe/link)
 type gatewayHandler struct {
-	node   *core.IpfsNode
+	node   *core.UdfsNode
 	config GatewayConfig
 	api    coreiface.CoreAPI
 }
 
-func newGatewayHandler(n *core.IpfsNode, c GatewayConfig, api coreiface.CoreAPI) *gatewayHandler {
+func newGatewayHandler(n *core.UdfsNode, c GatewayConfig, api coreiface.CoreAPI) *gatewayHandler {
 	i := &gatewayHandler{
 		node:   n,
 		config: c,
@@ -138,7 +138,7 @@ func (i *gatewayHandler) getOrHeadHandler(ctx context.Context, w http.ResponseWr
 	// the prefix header can be set to signal this sub-path.
 	// It will be prepended to links in directory listings and the index.html redirect.
 	prefix := ""
-	if prfx := r.Header.Get("X-Ipfs-Gateway-Prefix"); len(prfx) > 0 {
+	if prfx := r.Header.Get("X-Udfs-Gateway-Prefix"); len(prfx) > 0 {
 		for _, p := range i.config.PathPrefixes {
 			if prfx == p || strings.HasPrefix(prfx, p+"/") {
 				prefix = prfx
@@ -161,17 +161,17 @@ func (i *gatewayHandler) getOrHeadHandler(ctx context.Context, w http.ResponseWr
 
 	parsedPath, err := coreiface.ParsePath(urlPath)
 	if err != nil {
-		webError(w, "invalid ipfs path", err, http.StatusBadRequest)
+		webError(w, "invalid udfs path", err, http.StatusBadRequest)
 		return
 	}
 
 	// Resolve path to the final DAG node for the ETag
 	resolvedPath, err := i.api.ResolvePath(ctx, parsedPath)
 	if err == coreiface.ErrOffline && !i.node.OnlineMode() {
-		webError(w, "ipfs resolve -r "+escapedURLPath, err, http.StatusServiceUnavailable)
+		webError(w, "udfs resolve -r "+escapedURLPath, err, http.StatusServiceUnavailable)
 		return
 	} else if err != nil {
-		webError(w, "ipfs resolve -r "+escapedURLPath, err, http.StatusNotFound)
+		webError(w, "udfs resolve -r "+escapedURLPath, err, http.StatusNotFound)
 		return
 	}
 
@@ -184,7 +184,7 @@ func (i *gatewayHandler) getOrHeadHandler(ctx context.Context, w http.ResponseWr
 	case coreiface.ErrIsDir:
 		dir = true
 	default:
-		webError(w, "ipfs cat "+escapedURLPath, err, http.StatusNotFound)
+		webError(w, "udfs cat "+escapedURLPath, err, http.StatusNotFound)
 		return
 	}
 
@@ -196,7 +196,7 @@ func (i *gatewayHandler) getOrHeadHandler(ctx context.Context, w http.ResponseWr
 	}
 
 	i.addUserHeaders(w) // ok, _now_ write user's headers.
-	w.Header().Set("X-IPFS-Path", urlPath)
+	w.Header().Set("X-UDFS-Path", urlPath)
 	w.Header().Set("Etag", etag)
 
 	// set 'allowed' headers
@@ -223,7 +223,7 @@ func (i *gatewayHandler) getOrHeadHandler(ctx context.Context, w http.ResponseWr
 	//
 	// NOTE: This is not yet widely supported by browsers.
 	if !ipnsHostname {
-		// e.g.: 1="ipfs", 2="QmYuNaKwY...", ...
+		// e.g.: 1="udfs", 2="QmYuNaKwY...", ...
 		pathComponents := strings.SplitN(urlPath, "/", 4)
 
 		var suboriginRaw []byte
@@ -247,11 +247,11 @@ func (i *gatewayHandler) getOrHeadHandler(ctx context.Context, w http.ResponseWr
 
 	// set these headers _after_ the error, for we may just not have it
 	// and dont want the client to cache a 500 response...
-	// and only if it's /ipfs!
-	// TODO: break this out when we split /ipfs /ipns routes.
+	// and only if it's /udfs!
+	// TODO: break this out when we split /udfs /ipns routes.
 	modtime := time.Now()
 
-	if strings.HasPrefix(urlPath, ipfsPathPrefix) && !dir {
+	if strings.HasPrefix(urlPath, udfsPathPrefix) && !dir {
 		w.Header().Set("Cache-Control", "public, max-age=29030400, immutable")
 
 		// set modtime to a really long time ago, since files are immutable and should stay cached
@@ -287,7 +287,7 @@ func (i *gatewayHandler) getOrHeadHandler(ctx context.Context, w http.ResponseWr
 			return
 		}
 
-		dr, err := i.api.Unixfs().Cat(ctx, coreiface.IpfsPath(ixnd.Cid()))
+		dr, err := i.api.Unixfs().Cat(ctx, coreiface.UdfsPath(ixnd.Cid()))
 		if err != nil {
 			internalWebError(w, err)
 			return
@@ -317,17 +317,17 @@ func (i *gatewayHandler) getOrHeadHandler(ctx context.Context, w http.ResponseWr
 	})
 
 	// construct the correct back link
-	// https://github.com/ipfs/go-ipfs/issues/1365
+	// https://github.com/udfs/go-udfs/issues/1365
 	var backLink string = prefix + urlPath
 
-	// don't go further up than /ipfs/$hash/
+	// don't go further up than /udfs/$hash/
 	pathSplit := path.SplitList(backLink)
 	switch {
 	// keep backlink
-	case len(pathSplit) == 3: // url: /ipfs/$hash
+	case len(pathSplit) == 3: // url: /udfs/$hash
 
 	// keep backlink
-	case len(pathSplit) == 4 && pathSplit[3] == "": // url: /ipfs/$hash/
+	case len(pathSplit) == 4 && pathSplit[3] == "": // url: /udfs/$hash/
 
 	// add the correct link depending on wether the path ends with a slash
 	default:
@@ -338,7 +338,7 @@ func (i *gatewayHandler) getOrHeadHandler(ctx context.Context, w http.ResponseWr
 		}
 	}
 
-	// strip /ipfs/$hash from backlink if IPNSHostnameOption touched the path.
+	// strip /udfs/$hash from backlink if IPNSHostnameOption touched the path.
 	if ipnsHostname {
 		backLink = prefix + "/"
 		if len(pathSplit) > 5 {
@@ -397,7 +397,7 @@ func (i *gatewayHandler) postHandler(ctx context.Context, w http.ResponseWriter,
 	}
 
 	i.addUserHeaders(w) // ok, _now_ write user's headers.
-	w.Header().Set("IPFS-Hash", p.Cid().String())
+	w.Header().Set("UDFS-Hash", p.Cid().String())
 	http.Redirect(w, r, p.String(), http.StatusCreated)
 }
 
@@ -408,7 +408,7 @@ func (i *gatewayHandler) putHandler(w http.ResponseWriter, r *http.Request) {
 
 	rootPath, err := path.ParsePath(r.URL.Path)
 	if err != nil {
-		webError(w, "putHandler: IPFS path not valid", err, http.StatusBadRequest)
+		webError(w, "putHandler: UDFS path not valid", err, http.StatusBadRequest)
 		return
 	}
 
@@ -504,8 +504,8 @@ func (i *gatewayHandler) putHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	i.addUserHeaders(w) // ok, _now_ write user's headers.
-	w.Header().Set("IPFS-Hash", newcid.String())
-	http.Redirect(w, r, gopath.Join(ipfsPathPrefix, newcid.String(), newPath), http.StatusCreated)
+	w.Header().Set("UDFS-Hash", newcid.String())
+	http.Redirect(w, r, gopath.Join(udfsPathPrefix, newcid.String(), newPath), http.StatusCreated)
 }
 
 func (i *gatewayHandler) deleteHandler(w http.ResponseWriter, r *http.Request) {
@@ -581,8 +581,8 @@ func (i *gatewayHandler) deleteHandler(w http.ResponseWriter, r *http.Request) {
 	ncid := newnode.Cid()
 
 	i.addUserHeaders(w) // ok, _now_ write user's headers.
-	w.Header().Set("IPFS-Hash", ncid.String())
-	http.Redirect(w, r, gopath.Join(ipfsPathPrefix+ncid.String(), path.Join(components[:len(components)-1])), http.StatusCreated)
+	w.Header().Set("UDFS-Hash", ncid.String())
+	http.Redirect(w, r, gopath.Join(udfsPathPrefix+ncid.String(), path.Join(components[:len(components)-1])), http.StatusCreated)
 }
 
 func (i *gatewayHandler) addUserHeaders(w http.ResponseWriter) {

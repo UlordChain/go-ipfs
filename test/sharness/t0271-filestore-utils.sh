@@ -10,13 +10,13 @@ test_description="Test out the filestore nocopy functionality"
 
 test_init_filestore() {
   test_expect_success "clean up old node" '
-    rm -rf "$IPFS_PATH" mountdir ipfs ipns
+    rm -rf "$UDFS_PATH" mountdir udfs ipns
   '
 
-  test_init_ipfs
+  test_init_udfs
 
   test_expect_success "enable filestore config setting" '
-    ipfs config --json Experimental.FilestoreEnabled true
+    udfs config --json Experimental.FilestoreEnabled true
   '
 }
 
@@ -65,38 +65,38 @@ sort < verify_expect_file_order > verify_expect_key_order
 
 test_filestore_adds() {
   test_expect_success "nocopy add succeeds" '
-    HASH=$(ipfs add --raw-leaves --nocopy -r -q somedir | tail -n1)
+    HASH=$(udfs add --raw-leaves --nocopy -r -q somedir | tail -n1)
   '
 
   test_expect_success "nocopy add has right hash" '
     test "$HASH" = "$EXPHASH"
   '
 
-  test_expect_success "'ipfs filestore ls' output looks good'" '
-    ipfs filestore ls | sort > ls_actual &&
+  test_expect_success "'udfs filestore ls' output looks good'" '
+    udfs filestore ls | sort > ls_actual &&
     test_cmp ls_expect_key_order ls_actual
   '
 
-  test_expect_success "'ipfs filestore ls --file-order' output looks good'" '
-    ipfs filestore ls --file-order > ls_actual &&
+  test_expect_success "'udfs filestore ls --file-order' output looks good'" '
+    udfs filestore ls --file-order > ls_actual &&
     test_cmp ls_expect_file_order ls_actual
   '
 
-  test_expect_success "'ipfs filestore ls HASH' works" '
-    ipfs filestore ls $FILE1_HASH > ls_actual &&
+  test_expect_success "'udfs filestore ls HASH' works" '
+    udfs filestore ls $FILE1_HASH > ls_actual &&
     grep -q somedir/file1 ls_actual
   '
 
   test_expect_success "can retrieve multi-block file" '
-    ipfs cat $FILE3_HASH > file3.data &&
+    udfs cat $FILE3_HASH > file3.data &&
     test_cmp somedir/file3 file3.data
   '
 }
 
 # check that the filestore is in a clean state
 test_filestore_state() {
-  test_expect_success "ipfs filestore verify' output looks good'" '
-    ipfs filestore verify | LC_ALL=C sort > verify_actual
+  test_expect_success "udfs filestore verify' output looks good'" '
+    udfs filestore verify | LC_ALL=C sort > verify_actual
     test_cmp verify_expect_key_order verify_actual
   '
 }
@@ -104,13 +104,13 @@ test_filestore_state() {
 test_filestore_verify() {
   test_filestore_state
 
-  test_expect_success "ipfs filestore verify --file-order' output looks good'" '
-    ipfs filestore verify --file-order > verify_actual
+  test_expect_success "udfs filestore verify --file-order' output looks good'" '
+    udfs filestore verify --file-order > verify_actual
     test_cmp verify_expect_file_order verify_actual
   '
 
-  test_expect_success "'ipfs filestore verify HASH' works" '
-    ipfs filestore verify $FILE1_HASH > verify_actual &&
+  test_expect_success "'udfs filestore verify HASH' works" '
+    udfs filestore verify $FILE1_HASH > verify_actual &&
     grep -q somedir/file1 verify_actual
   '
 
@@ -119,11 +119,11 @@ test_filestore_verify() {
   '
 
   test_expect_success "can not retrieve block after backing file moved" '
-    test_must_fail ipfs cat $FILE1_HASH
+    test_must_fail udfs cat $FILE1_HASH
   '
 
-  test_expect_success "'ipfs filestore verify' shows file as missing" '
-    ipfs filestore verify > verify_actual &&
+  test_expect_success "'udfs filestore verify' shows file as missing" '
+    udfs filestore verify > verify_actual &&
     grep no-file verify_actual | grep -q somedir/file1
   '
 
@@ -132,7 +132,7 @@ test_filestore_verify() {
   '
 
   test_expect_success "block okay now" '
-    ipfs cat $FILE1_HASH > file1.data &&
+    udfs cat $FILE1_HASH > file1.data &&
     test_cmp somedir/file1 file1.data
   '
 
@@ -141,11 +141,11 @@ test_filestore_verify() {
   '
 
   test_expect_success "can not retrieve block after backing file changed" '
-    test_must_fail ipfs cat $FILE3_HASH
+    test_must_fail udfs cat $FILE3_HASH
   '
 
-  test_expect_success "'ipfs filestore verify' shows file as changed" '
-    ipfs filestore verify > verify_actual &&
+  test_expect_success "'udfs filestore verify' shows file as changed" '
+    udfs filestore verify > verify_actual &&
     grep changed verify_actual | grep -q somedir/file3
   '
 
@@ -157,9 +157,9 @@ test_filestore_dups() {
   # make sure the filestore is in a clean state
   test_filestore_state
 
-  test_expect_success "'ipfs filestore dups'" '
-    ipfs add --raw-leaves somedir/file1 &&
-    ipfs filestore dups > dups_actual &&
+  test_expect_success "'udfs filestore dups'" '
+    udfs add --raw-leaves somedir/file1 &&
+    udfs filestore dups > dups_actual &&
     echo "$FILE1_HASH" > dups_expect
     test_cmp dups_expect dups_actual
   '
@@ -185,7 +185,7 @@ test_init
 
 # must be in offline mode so tests that retrieve non-existent blocks
 # doesn't hang
-test_launch_ipfs_daemon --offline
+test_launch_udfs_daemon --offline
 
 test_filestore_adds
 
@@ -193,6 +193,6 @@ test_filestore_verify
 
 test_filestore_dups
 
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 test_done

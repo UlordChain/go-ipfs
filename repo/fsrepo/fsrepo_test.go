@@ -9,7 +9,7 @@ import (
 
 	"github.com/udfs/go-udfs/repo/config"
 	"github.com/udfs/go-udfs/thirdparty/assert"
-	datastore "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
+	datastore "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
 )
 
 // swap arg order

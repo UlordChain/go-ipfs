@@ -5,12 +5,12 @@ import (
 	"context"
 	"testing"
 
-	"gx/ipfs/QmVzK524a2VWLqyvtBeiHKsUAWYgeAk4DBeZoY7vpNPNRx/go-block-format"
+	"gx/udfs/QmVzK524a2VWLqyvtBeiHKsUAWYgeAk4DBeZoY7vpNPNRx/go-block-format"
 
 	"github.com/udfs/go-udfs/core"
 	"github.com/udfs/go-udfs/core/mock"
 
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 
 	mocknet "github.com/udfs/go-udfs/udfs/go-libp2p/p2p/net/mock"
 )
@@ -23,7 +23,7 @@ func TestBitswapWithoutRouting(t *testing.T) {
 	// create network
 	mn := mocknet.New(ctx)
 
-	var nodes []*core.IpfsNode
+	var nodes []*core.UdfsNode
 	for i := 0; i < numPeers; i++ {
 		n, err := core.NewNode(ctx, &core.BuildCfg{
 			Online:  true,

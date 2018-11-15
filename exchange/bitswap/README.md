@@ -1,7 +1,7 @@
 # Bitswap
 
 ## Protocol
-Bitswap is the data trading module for ipfs, it manages requesting and sending
+Bitswap is the data trading module for udfs, it manages requesting and sending
 blocks to and from other peers in the network. Bitswap has two main jobs, the
 first is to acquire blocks requested by the client from the network. The second
 is to judiciously send blocks in its possession to other peers who want them.
@@ -12,7 +12,7 @@ sending out wanted blocks if they have them. Upon receiving blocks, the node
 should send out a notification called a 'Cancel' signifying that they no longer
 want the block. At a protocol level, bitswap is very simple.
 
-## go-ipfs Implementation
+## go-udfs Implementation
 Internally, when a message with a wantlist is received, it is sent to the
 decision engine to be considered, and blocks that we have that are wanted are
 placed into the peer request queue. Any block we possess that is wanted by

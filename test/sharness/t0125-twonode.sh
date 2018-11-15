@@ -4,7 +4,7 @@
 # MIT Licensed; see the LICENSE file in this repository.
 #
 
-test_description="Test two ipfs nodes transferring a file"
+test_description="Test two udfs nodes transferring a file"
 
 . lib/test-lib.sh
 
@@ -14,7 +14,7 @@ check_file_fetch() {
   fname=$3
 
   test_expect_success "can fetch file" '
-    ipfsi $node cat $fhash > fetch_out
+    udfsi $node cat $fhash > fetch_out
   '
 
   test_expect_success "file looks good" '
@@ -27,14 +27,14 @@ check_dir_fetch() {
   ref=$2
 
   test_expect_success "node can fetch all refs for dir" '
-    ipfsi $node refs -r $ref > /dev/null
+    udfsi $node refs -r $ref > /dev/null
   '
 }
 
 run_single_file_test() {
   test_expect_success "add a file on node1" '
     random 1000000 > filea &&
-    FILEA_HASH=$(ipfsi 1 add -q filea)
+    FILEA_HASH=$(udfsi 1 add -q filea)
   '
 
   check_file_fetch 0 $FILEA_HASH filea
@@ -46,7 +46,7 @@ run_random_dir_test() {
   '
 
   test_expect_success "add those on node 0" '
-    DIR_HASH=$(ipfsi 0 add -r -q foobar | tail -n1)
+    DIR_HASH=$(udfsi 0 add -r -q foobar | tail -n1)
   '
 
   check_dir_fetch 1 $DIR_HASH
@@ -56,8 +56,8 @@ run_advanced_test() {
   startup_cluster 2 "$@"
 
   test_expect_success "clean repo before test" '
-    ipfsi 0 repo gc > /dev/null &&
-    ipfsi 1 repo gc > /dev/null
+    udfsi 0 repo gc > /dev/null &&
+    udfsi 1 repo gc > /dev/null
   '
 
   run_single_file_test
@@ -65,7 +65,7 @@ run_advanced_test() {
   run_random_dir_test
 
   test_expect_success "node0 data transferred looks correct" '
-    ipfsi 0 bitswap stat > stat0 &&
+    udfsi 0 bitswap stat > stat0 &&
     grep "blocks sent: 126" stat0 > /dev/null &&
     grep "blocks received: 5" stat0 > /dev/null &&
     grep "data sent: 228113" stat0 > /dev/null &&
@@ -73,7 +73,7 @@ run_advanced_test() {
   '
 
   test_expect_success "node1 data transferred looks correct" '
-    ipfsi 1 bitswap stat > stat1 &&
+    udfsi 1 bitswap stat > stat1 &&
     grep "blocks received: 126" stat1 > /dev/null &&
     grep "blocks sent: 5" stat1 > /dev/null &&
     grep "data received: 228113" stat1 > /dev/null &&

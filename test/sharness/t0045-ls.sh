@@ -8,11 +8,11 @@ test_description="Test ls command"
 
 . lib/test-lib.sh
 
-test_init_ipfs
+test_init_udfs
 
 test_ls_cmd() {
 
-  test_expect_success "'ipfs add -r testData' succeeds" '
+  test_expect_success "'udfs add -r testData' succeeds" '
     mkdir -p testData testData/d1 testData/d2 &&
     echo "test" >testData/f1 &&
     echo "data" >testData/f2 &&
@@ -20,10 +20,10 @@ test_ls_cmd() {
     random 128 42 >testData/d1/128 &&
     echo "world" >testData/d2/a &&
     random 1024 42 >testData/d2/1024 &&
-    ipfs add -r testData >actual_add
+    udfs add -r testData >actual_add
   '
 
-  test_expect_success "'ipfs add' output looks good" '
+  test_expect_success "'udfs add' output looks good" '
     cat <<-\EOF >expected_add &&
 added QmQNd6ubRXaNG6Prov8o6vk3bn6eWsj9FxLGrAVDUAGkGe testData/d1/128
 added QmZULkCELmmk5XNfCgTnCyFgAVxBRBXyDHGGMVoLFLiXEN testData/d1/a
@@ -38,11 +38,11 @@ EOF
     test_cmp expected_add actual_add
   '
 
-  test_expect_success "'ipfs ls <three dir hashes>' succeeds" '
-    ipfs ls QmfNy183bXiRVyrhyWtq3TwHn79yHEkiAGFr18P7YNzESj QmR3jhV4XpxxPjPT3Y8vNnWvWNvakdcT3H6vqpRBsX1MLy QmSix55yz8CzWXf5ZVM9vgEvijnEeeXiTSarVtsqiiCJss >actual_ls
+  test_expect_success "'udfs ls <three dir hashes>' succeeds" '
+    udfs ls QmfNy183bXiRVyrhyWtq3TwHn79yHEkiAGFr18P7YNzESj QmR3jhV4XpxxPjPT3Y8vNnWvWNvakdcT3H6vqpRBsX1MLy QmSix55yz8CzWXf5ZVM9vgEvijnEeeXiTSarVtsqiiCJss >actual_ls
   '
 
-  test_expect_success "'ipfs ls <three dir hashes>' output looks good" '
+  test_expect_success "'udfs ls <three dir hashes>' output looks good" '
     cat <<-\EOF >expected_ls &&
 QmfNy183bXiRVyrhyWtq3TwHn79yHEkiAGFr18P7YNzESj:
 QmSix55yz8CzWXf5ZVM9vgEvijnEeeXiTSarVtsqiiCJss 246  d1/
@@ -62,11 +62,11 @@ EOF
     test_cmp expected_ls actual_ls
   '
 
-  test_expect_success "'ipfs ls --headers <three dir hashes>' succeeds" '
-    ipfs ls --headers QmfNy183bXiRVyrhyWtq3TwHn79yHEkiAGFr18P7YNzESj QmR3jhV4XpxxPjPT3Y8vNnWvWNvakdcT3H6vqpRBsX1MLy QmSix55yz8CzWXf5ZVM9vgEvijnEeeXiTSarVtsqiiCJss >actual_ls_headers
+  test_expect_success "'udfs ls --headers <three dir hashes>' succeeds" '
+    udfs ls --headers QmfNy183bXiRVyrhyWtq3TwHn79yHEkiAGFr18P7YNzESj QmR3jhV4XpxxPjPT3Y8vNnWvWNvakdcT3H6vqpRBsX1MLy QmSix55yz8CzWXf5ZVM9vgEvijnEeeXiTSarVtsqiiCJss >actual_ls_headers
   '
 
-  test_expect_success "'ipfs ls --headers  <three dir hashes>' output looks good" '
+  test_expect_success "'udfs ls --headers  <three dir hashes>' output looks good" '
     cat <<-\EOF >expected_ls_headers &&
 QmfNy183bXiRVyrhyWtq3TwHn79yHEkiAGFr18P7YNzESj:
 Hash                                           Size Name
@@ -91,23 +91,23 @@ EOF
 }
 
 test_ls_cmd_raw_leaves() {
-  test_expect_success "'ipfs add -r --raw-leaves' then 'ipfs ls' works as expected" '
+  test_expect_success "'udfs add -r --raw-leaves' then 'udfs ls' works as expected" '
     mkdir -p somedir &&
     echo bar > somedir/foo &&
-    ipfs add --raw-leaves -r somedir/ > /dev/null &&
-    ipfs ls QmThNTdtKaVoCVrYmM5EBS6U3S5vfKFue2TxbxxAxRcKKE > ls-actual
+    udfs add --raw-leaves -r somedir/ > /dev/null &&
+    udfs ls QmThNTdtKaVoCVrYmM5EBS6U3S5vfKFue2TxbxxAxRcKKE > ls-actual
     echo "zb2rhf6GzX4ckKZtjy8yy8iyq1KttCrRyqDedD6xubhY3sw2F 4 foo" > ls-expect
     test_cmp ls-actual ls-expect
   '
 }
 
 test_ls_object() {
-  test_expect_success "ipfs add medium size file then 'ipfs ls' works as expected" '
+  test_expect_success "udfs add medium size file then 'udfs ls' works as expected" '
     random 500000 2 > somefile &&
-    HASH=$(ipfs add somefile -q) &&
+    HASH=$(udfs add somefile -q) &&
     echo "QmPrM8S5T7Q3M8DQvQMS7m41m3Aq4jBjzAzvky5fH3xfr4 262158 " > ls-expect &&
     echo "QmdaAntAzQqqVMo4B8V69nkQd5d918YjHXUe2oF6hr72ri 237870 " >> ls-expect &&
-    ipfs ls $HASH > ls-actual &&
+    udfs ls $HASH > ls-actual &&
     test_cmp ls-actual ls-expect
   '
 }
@@ -118,22 +118,22 @@ test_ls_cmd_raw_leaves
 test_ls_object
 
 # should work online
-test_launch_ipfs_daemon
+test_launch_udfs_daemon
 test_ls_cmd
 test_ls_cmd_raw_leaves
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 test_ls_object
 
 #
 # test for ls --resolve-type=false
 #
 
-test_expect_success "'ipfs add -r' succeeds" '
+test_expect_success "'udfs add -r' succeeds" '
   mkdir adir &&
   # note: not using a seed as the files need to have truly random content
   random 1000 > adir/file1 &&
   random 1000 > adir/file2 &&
-  ipfs add --pin=false -q -r adir > adir-hashes
+  udfs add --pin=false -q -r adir > adir-hashes
 '
 
 test_expect_success "get hashes from add output" '
@@ -143,40 +143,40 @@ test_expect_success "get hashes from add output" '
 '
 
 test_expect_success "remove a file in dir" '
-  ipfs block rm $FILE
+  udfs block rm $FILE
 '
 
-test_expect_success "'ipfs ls --resolve-type=false ' ok" '
-  ipfs ls --resolve-type=false $DIR > /dev/null
+test_expect_success "'udfs ls --resolve-type=false ' ok" '
+  udfs ls --resolve-type=false $DIR > /dev/null
 '
 
-test_expect_success "'ipfs ls' fails" '
-  test_must_fail ipfs ls $DIR
+test_expect_success "'udfs ls' fails" '
+  test_must_fail udfs ls $DIR
 '
 
-test_launch_ipfs_daemon --offline
+test_launch_udfs_daemon --offline
 
-test_expect_success "'ipfs ls --resolve-type=false' ok" '
-  ipfs ls --resolve-type=false $DIR > /dev/null
+test_expect_success "'udfs ls --resolve-type=false' ok" '
+  udfs ls --resolve-type=false $DIR > /dev/null
 '
 
-test_expect_success "'ipfs ls' fails" '
-  test_must_fail ipfs ls $DIR
+test_expect_success "'udfs ls' fails" '
+  test_must_fail udfs ls $DIR
 '
 
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
-test_launch_ipfs_daemon
+test_launch_udfs_daemon
 
-# now we try `ipfs ls --resolve-type=false` with the daemon online It
+# now we try `udfs ls --resolve-type=false` with the daemon online It
 # should not even attempt to retrieve the file from the network.  If
 # it does it should eventually fail as the content is random and
 # should not exist on the network, but we don't want to wait for a
 # timeout so we will kill the request after a few seconds
-test_expect_success "'ipfs ls --resolve-type=false' ok and does not hang" '
-  go-timeout 2 ipfs ls --resolve-type=false $DIR
+test_expect_success "'udfs ls --resolve-type=false' ok and does not hang" '
+  go-timeout 2 udfs ls --resolve-type=false $DIR
 '
 
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 test_done

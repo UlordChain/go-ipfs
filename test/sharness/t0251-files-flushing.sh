@@ -8,11 +8,11 @@ test_description="test the unix files api flushing"
 
 . lib/test-lib.sh
 
-test_init_ipfs
+test_init_udfs
 
 verify_path_exists() {
   # simply running ls on a file should be a good 'check'
-  ipfs files ls $1
+  udfs files ls $1
 }
 
 verify_dir_contents() {
@@ -26,7 +26,7 @@ verify_dir_contents() {
   done
 
   test_expect_success "can list dir" '
-    ipfs files ls $dir > output
+    udfs files ls $dir > output
   '
 
   test_expect_success "dir entries look good" '
@@ -34,20 +34,20 @@ verify_dir_contents() {
   '
 }
 
-test_launch_ipfs_daemon
+test_launch_udfs_daemon
 
 test_expect_success "can copy a file in" '
-  HASH=$(echo "foo" | ipfs add -q) &&
-  ipfs files cp /ipfs/$HASH /file
+  HASH=$(echo "foo" | udfs add -q) &&
+  udfs files cp /udfs/$HASH /file
 '
 
-test_kill_ipfs_daemon
-test_launch_ipfs_daemon
+test_kill_udfs_daemon
+test_launch_udfs_daemon
 
 test_expect_success "file is still there" '
   verify_path_exists /file
 '
 
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 test_done

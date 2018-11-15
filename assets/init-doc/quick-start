@@ -4,15 +4,15 @@ This is a set of short examples with minimal explanation. It is meant as
 a "quick start".
 
 
-Add a file to ipfs:
+Add a file to udfs:
 
   echo "hello world" >hello
-  ipfs add hello
+  udfs add hello
 
 
 View it:
 
-  ipfs cat <the-hash-you-got-here>
+  udfs cat <the-hash-you-got-here>
 
 
 Try a directory:
@@ -21,76 +21,76 @@ Try a directory:
   mkdir foo/bar
   echo "baz" > foo/baz
   echo "baz" > foo/bar/baz
-  ipfs add -r foo
+  udfs add -r foo
 
 
 View things:
 
-  ipfs ls <the-hash-here>
-  ipfs ls <the-hash-here>/bar
-  ipfs cat <the-hash-here>/baz
-  ipfs cat <the-hash-here>/bar/baz
-  ipfs cat <the-hash-here>/bar
-  ipfs ls <the-hash-here>/baz
+  udfs ls <the-hash-here>
+  udfs ls <the-hash-here>/bar
+  udfs cat <the-hash-here>/baz
+  udfs cat <the-hash-here>/bar/baz
+  udfs cat <the-hash-here>/bar
+  udfs ls <the-hash-here>/baz
 
 
 References:
 
-  ipfs refs <the-hash-here>
-  ipfs refs -r <the-hash-here>
-  ipfs refs --help
+  udfs refs <the-hash-here>
+  udfs refs -r <the-hash-here>
+  udfs refs --help
 
 
 Get:
 
-  ipfs get <the-hash-here> -o foo2
+  udfs get <the-hash-here> -o foo2
   diff foo foo2
 
 
 Objects:
 
-  ipfs object get <the-hash-here>
-  ipfs object get <the-hash-here>/foo2
-  ipfs object --help
+  udfs object get <the-hash-here>
+  udfs object get <the-hash-here>/foo2
+  udfs object --help
 
 
 Pin + GC:
 
-  ipfs pin add <the-hash-here>
-  ipfs repo gc
-  ipfs ls <the-hash-here>
-  ipfs pin rm <the-hash-here>
-  ipfs repo gc
+  udfs pin add <the-hash-here>
+  udfs repo gc
+  udfs ls <the-hash-here>
+  udfs pin rm <the-hash-here>
+  udfs repo gc
 
 
 Daemon:
 
-  ipfs daemon  (in another terminal)
-  ipfs id
+  udfs daemon  (in another terminal)
+  udfs id
 
 
 Network:
 
   (must be online)
-  ipfs swarm peers
-  ipfs id
-  ipfs cat <hash-of-remote-object>
+  udfs swarm peers
+  udfs id
+  udfs cat <hash-of-remote-object>
 
 
 Mount:
 
   (warning: fuse is finicky!)
-  ipfs mount
-  cd /ipfs/<the-hash-here>
+  udfs mount
+  cd /udfs/<the-hash-here>
   ls
 
 
 Tool:
 
-  ipfs version
-  ipfs update
-  ipfs commands
-  ipfs config --help
+  udfs version
+  udfs update
+  udfs commands
+  udfs config --help
   open http://localhost:5001/webui
 
 
@@ -102,12 +102,12 @@ Browse:
 
   video:
 
-    http://localhost:8080/ipfs/QmVc6zuAneKJzicnJpfrqCH9gSy6bz54JhcypfJYhGUFQu/play#/ipfs/QmTKZgRNwDNZwHtJSjCp6r5FYefzpULfy37JvMt9DwvXse
+    http://localhost:8080/udfs/QmVc6zuAneKJzicnJpfrqCH9gSy6bz54JhcypfJYhGUFQu/play#/udfs/QmTKZgRNwDNZwHtJSjCp6r5FYefzpULfy37JvMt9DwvXse
 
   images:
 
-    http://localhost:8080/ipfs/QmZpc3HvfjEXvLWGQPWbHk3AjD5j8NEN4gmFN8Jmrd5g83/cs
+    http://localhost:8080/udfs/QmZpc3HvfjEXvLWGQPWbHk3AjD5j8NEN4gmFN8Jmrd5g83/cs
 
   markdown renderer app:
 
-    http://localhost:8080/ipfs/QmX7M9CiYXjVeFnkfVGf3y5ixTZ2ACeSGyL1vBJY1HvQPp/mdown
+    http://localhost:8080/udfs/QmX7M9CiYXjVeFnkfVGf3y5ixTZ2ACeSGyL1vBJY1HvQPp/mdown

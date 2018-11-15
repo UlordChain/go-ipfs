@@ -17,10 +17,10 @@ import (
 	uio "github.com/udfs/go-udfs/unixfs/io"
 	unixfspb "github.com/udfs/go-udfs/unixfs/pb"
 
-	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	offline "gx/udfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-udfs-exchange-offline"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 type LsLink struct {
@@ -42,7 +42,7 @@ var LsCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "List directory contents for Unix filesystem objects.",
 		ShortDescription: `
-Displays the contents of an IPFS or IPNS object(s) at the given path, with
+Displays the contents of an UDFS or IPNS object(s) at the given path, with
 the following format:
 
   <link base58 hash> <link size in bytes> <link name>
@@ -52,7 +52,7 @@ The JSON output contains type information.
 	},
 
 	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("ipfs-path", true, true, "The path to the IPFS object(s) to list links from.").EnableStdin(),
+		cmdkit.StringArg("udfs-path", true, true, "The path to the UDFS object(s) to list links from.").EnableStdin(),
 	},
 	Options: []cmdkit.Option{
 		cmdkit.BoolOption("headers", "v", "Print table headers (Hash, Size, Name)."),

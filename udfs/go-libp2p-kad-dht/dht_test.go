@@ -15,16 +15,16 @@ import (
 	opts "github.com/udfs/go-udfs/udfs/go-libp2p-kad-dht/opts"
 	pb "github.com/udfs/go-udfs/udfs/go-libp2p-kad-dht/pb"
 
-	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
-	record "gx/ipfs/QmVsp2KdPYE6M8ryzCk5KHLo3zprcY5hBDaYx6uPCFUdxA/go-libp2p-record"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	routing "gx/ipfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	ci "gx/ipfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil/ci"
-	travisci "gx/ipfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil/ci/travis"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	swarmt "gx/ipfs/QmemVjhp1UuWPQqrWSvPcaqH3QJRMjMqNm4T2RULMkDDQe/go-libp2p-swarm/testing"
+	u "gx/udfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-udfs-util"
+	record "gx/udfs/QmVsp2KdPYE6M8ryzCk5KHLo3zprcY5hBDaYx6uPCFUdxA/go-libp2p-record"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ma "gx/udfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	routing "gx/udfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	ci "gx/udfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil/ci"
+	travisci "gx/udfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil/ci/travis"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	swarmt "gx/udfs/QmemVjhp1UuWPQqrWSvPcaqH3QJRMjMqNm4T2RULMkDDQe/go-libp2p-swarm/testing"
 
 	kb "github.com/udfs/go-udfs/udfs/go-libp2p-kbucket"
 
@@ -73,7 +73,7 @@ func (testValidator) Validate(_ string, b []byte) error {
 	return nil
 }
 
-func setupDHT(ctx context.Context, t *testing.T, client bool) *IpfsDHT {
+func setupDHT(ctx context.Context, t *testing.T, client bool) *UdfsDHT {
 	d, err := New(
 		ctx,
 		bhost.New(swarmt.GenSwarm(t, ctx, swarmt.OptDisableReuseport)),
@@ -87,9 +87,9 @@ func setupDHT(ctx context.Context, t *testing.T, client bool) *IpfsDHT {
 	return d
 }
 
-func setupDHTS(ctx context.Context, n int, t *testing.T) ([]ma.Multiaddr, []peer.ID, []*IpfsDHT) {
+func setupDHTS(ctx context.Context, n int, t *testing.T) ([]ma.Multiaddr, []peer.ID, []*UdfsDHT) {
 	addrs := make([]ma.Multiaddr, n)
-	dhts := make([]*IpfsDHT, n)
+	dhts := make([]*UdfsDHT, n)
 	peers := make([]peer.ID, n)
 
 	sanityAddrsMap := make(map[string]struct{})
@@ -115,7 +115,7 @@ func setupDHTS(ctx context.Context, n int, t *testing.T) ([]ma.Multiaddr, []peer
 	return addrs, peers, dhts
 }
 
-func connectNoSync(t *testing.T, ctx context.Context, a, b *IpfsDHT) {
+func connectNoSync(t *testing.T, ctx context.Context, a, b *UdfsDHT) {
 	t.Helper()
 
 	idB := b.self
@@ -131,7 +131,7 @@ func connectNoSync(t *testing.T, ctx context.Context, a, b *IpfsDHT) {
 	}
 }
 
-func wait(t *testing.T, ctx context.Context, a, b *IpfsDHT) {
+func wait(t *testing.T, ctx context.Context, a, b *UdfsDHT) {
 	t.Helper()
 
 	// loop until connection notification has been received.
@@ -145,14 +145,14 @@ func wait(t *testing.T, ctx context.Context, a, b *IpfsDHT) {
 	}
 }
 
-func connect(t *testing.T, ctx context.Context, a, b *IpfsDHT) {
+func connect(t *testing.T, ctx context.Context, a, b *UdfsDHT) {
 	t.Helper()
 	connectNoSync(t, ctx, a, b)
 	wait(t, ctx, a, b)
 	wait(t, ctx, b, a)
 }
 
-func bootstrap(t *testing.T, ctx context.Context, dhts []*IpfsDHT) {
+func bootstrap(t *testing.T, ctx context.Context, dhts []*UdfsDHT) {
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -179,7 +179,7 @@ func TestValueGetSet(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	var dhts [5]*IpfsDHT
+	var dhts [5]*UdfsDHT
 
 	for i := range dhts {
 		dhts[i] = setupDHT(ctx, t, false)
@@ -459,7 +459,7 @@ func TestLocalProvides(t *testing.T) {
 }
 
 // if minPeers or avgPeers is 0, dont test for it.
-func waitForWellFormedTables(t *testing.T, dhts []*IpfsDHT, minPeers, avgPeers int, timeout time.Duration) bool {
+func waitForWellFormedTables(t *testing.T, dhts []*UdfsDHT, minPeers, avgPeers int, timeout time.Duration) bool {
 	// test "well-formed-ness" (>= minPeers peers in every routing table)
 
 	checkTables := func() bool {
@@ -495,7 +495,7 @@ func waitForWellFormedTables(t *testing.T, dhts []*IpfsDHT, minPeers, avgPeers i
 	}
 }
 
-func printRoutingTables(dhts []*IpfsDHT) {
+func printRoutingTables(dhts []*UdfsDHT) {
 	// the routing tables should be full now. let's inspect them.
 	fmt.Printf("checking routing table of %d\n", len(dhts))
 	for _, dht := range dhts {
@@ -692,7 +692,7 @@ func TestProvidesMany(t *testing.T) {
 	defer cancel()
 
 	var wg sync.WaitGroup
-	getProvider := func(dht *IpfsDHT, k *cid.Cid) {
+	getProvider := func(dht *UdfsDHT, k *cid.Cid) {
 		defer wg.Done()
 
 		expected := providers[k.KeyString()]

@@ -11,11 +11,11 @@ import (
 	bitswap "github.com/udfs/go-udfs/exchange/bitswap"
 	decision "github.com/udfs/go-udfs/exchange/bitswap/decision"
 
-	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	"gx/ipfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	cmds "gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	"gx/udfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	cmdkit "gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 )
 
 var BitswapCmd = &cmds.Command{
@@ -198,7 +198,7 @@ var ledgerCmd = &oldcmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Show the current ledger for a peer.",
 		ShortDescription: `
-The Bitswap decision engine tracks the number of bytes exchanged between IPFS
+The Bitswap decision engine tracks the number of bytes exchanged between UDFS
 nodes, and stores this information as a collection of ledgers. This command
 prints the ledger associated with a given peer.
 `,

@@ -14,14 +14,14 @@
 */
 package merkledag_pb
 
-import proto "gx/ipfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
+import proto "gx/udfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
 import math "math"
 
 // discarding unused import gogoproto "code.google.com/p/gogoprotobuf/gogoproto/gogo.pb"
 
 import io "io"
 import fmt "fmt"
-import github_com_gogo_protobuf_proto "gx/ipfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
+import github_com_gogo_protobuf_proto "gx/udfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
 
 import strings "strings"
 import reflect "reflect"
@@ -35,7 +35,7 @@ import bytes "bytes"
 var _ = proto.Marshal
 var _ = math.Inf
 
-// An IPFS MerkleDAG Link
+// An UDFS MerkleDAG Link
 type PBLink struct {
 	// multihash of the target object
 	Hash []byte `protobuf:"bytes,1,opt" json:"Hash,omitempty"`
@@ -70,7 +70,7 @@ func (m *PBLink) GetTsize() uint64 {
 	return 0
 }
 
-// An IPFS MerkleDAG Node
+// An UDFS MerkleDAG Node
 type PBNode struct {
 	// refs to other objects
 	Links []*PBLink `protobuf:"bytes,2,rep" json:"Links,omitempty"`

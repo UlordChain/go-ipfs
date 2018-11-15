@@ -72,7 +72,7 @@ var measureConfig = []byte(`{
 }`)
 
 func TestDefaultDatastoreConfig(t *testing.T) {
-	dir, err := ioutil.TempDir("", "ipfs-datastore-config-test")
+	dir, err := ioutil.TempDir("", "udfs-datastore-config-test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -110,7 +110,7 @@ func TestLevelDbConfig(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	dir, err := ioutil.TempDir("", "ipfs-datastore-config-test")
+	dir, err := ioutil.TempDir("", "udfs-datastore-config-test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -148,7 +148,7 @@ func TestFlatfsConfig(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	dir, err := ioutil.TempDir("", "ipfs-datastore-config-test")
+	dir, err := ioutil.TempDir("", "udfs-datastore-config-test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -186,7 +186,7 @@ func TestMeasureConfig(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	dir, err := ioutil.TempDir("", "ipfs-datastore-config-test")
+	dir, err := ioutil.TempDir("", "udfs-datastore-config-test")
 	if err != nil {
 		t.Fatal(err)
 	}

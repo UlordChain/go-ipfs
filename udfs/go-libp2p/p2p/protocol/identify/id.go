@@ -7,27 +7,27 @@ import (
 
 	pb "github.com/udfs/go-udfs/udfs/go-libp2p/p2p/protocol/identify/pb"
 
-	inet "gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
-	lgbl "gx/ipfs/QmRPkGkHLB72caXgdDYnoaWigXNWx95BcYDKV1n3KTEpaG/go-libp2p-loggables"
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	ggio "gx/ipfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/io"
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	host "gx/ipfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
-	msmux "gx/ipfs/QmbXRda5H2K3MSQyWWxTMtd8DWuguEBUCe6hpxfXVpFUGj/go-multistream"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
-	semver "gx/ipfs/QmcrrEpx3VMUbrbgVroH3YiYyUS5c4YAykzyPJWKspUYLa/go-semver/semver"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	ic "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	inet "gx/udfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
+	lgbl "gx/udfs/QmRPkGkHLB72caXgdDYnoaWigXNWx95BcYDKV1n3KTEpaG/go-libp2p-loggables"
+	ma "gx/udfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	ggio "gx/udfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/io"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	host "gx/udfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
+	msmux "gx/udfs/QmbXRda5H2K3MSQyWWxTMtd8DWuguEBUCe6hpxfXVpFUGj/go-multistream"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	semver "gx/udfs/QmcrrEpx3VMUbrbgVroH3YiYyUS5c4YAykzyPJWKspUYLa/go-semver/semver"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	ic "gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
 )
 
 var log = logging.Logger("net/identify")
 
 // ID is the protocol.ID of the Identify Service.
-const ID = "/ipfs/id/1.0.0"
+const ID = "/udfs/id/1.0.0"
 
 // LibP2PVersion holds the current protocol version for a client running this code
 // TODO(jbenet): fix the versioning mess.
-const LibP2PVersion = "ipfs/0.1.0"
+const LibP2PVersion = "udfs/0.1.0"
 
 var ClientVersion = "go-libp2p/3.3.4"
 
@@ -36,8 +36,8 @@ var ClientVersion = "go-libp2p/3.3.4"
 // useful information about the local peer. A sort of hello.
 //
 // The IDService sends:
-//  * Our IPFS Protocol Version
-//  * Our IPFS Agent Version
+//  * Our UDFS Protocol Version
+//  * Our UDFS Agent Version
 //  * Our public Listen Addresses
 type IDService struct {
 	Host host.Host
@@ -420,10 +420,10 @@ func addrInAddrs(a ma.Multiaddr, as []ma.Multiaddr) bool {
 // we're in tight development, we will return false for minor version
 // changes too.
 func protocolVersionsAreCompatible(v1, v2 string) bool {
-	if strings.HasPrefix(v1, "ipfs/") {
+	if strings.HasPrefix(v1, "udfs/") {
 		v1 = v1[5:]
 	}
-	if strings.HasPrefix(v2, "ipfs/") {
+	if strings.HasPrefix(v2, "udfs/") {
 		v2 = v2[5:]
 	}
 
@@ -440,7 +440,7 @@ func protocolVersionsAreCompatible(v1, v2 string) bool {
 	return v1s.Major == v2s.Major && v1s.Minor == v2s.Minor
 }
 
-// netNotifiee defines methods to be used with the IpfsDHT
+// netNotifiee defines methods to be used with the UdfsDHT
 type netNotifiee IDService
 
 func (nn *netNotifiee) IDService() *IDService {

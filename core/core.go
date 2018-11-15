@@ -1,11 +1,11 @@
 /*
-Package core implements the IpfsNode object and related methods.
+Package core implements the UdfsNode object and related methods.
 
 Packages underneath core/ provide a (relatively) stable, low-level API
-to carry out most IPFS-related tasks.  For more details on the other
-interfaces and how core/... fits into the bigger IPFS picture, see:
+to carry out most UDFS-related tasks.  For more details on the other
+interfaces and how core/... fits into the bigger UDFS picture, see:
 
-  $ godoc github.com/ipfs/go-ipfs
+  $ godoc github.com/udfs/go-udfs
 */
 package core
 
@@ -37,36 +37,36 @@ import (
 	config "github.com/udfs/go-udfs/repo/config"
 	ft "github.com/udfs/go-udfs/unixfs"
 
-	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
-	rhelpers "gx/ipfs/QmQpvpeXa8rBfDmt3bdh2ckw2867vsYN1ozf79X7U5rij9/go-libp2p-routing-helpers"
-	pnet "gx/ipfs/QmRGvSwDpN4eunxgDNfmQhayZ6Z9F5a2v31V2D7y77osLg/go-libp2p-pnet"
-	psrouter "gx/ipfs/QmS3QZaaGMLwYQD1cWaGnM4san4zzT7z31tmhuXJMZ91dh/go-libp2p-pubsub-router"
-	goprocess "gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess"
-	mamask "gx/ipfs/QmSMZwvs3n4GBikZ7hKzT17c3bk65FmyZo2JqtJ16swqCv/multiaddr-filter"
-	mafilter "gx/ipfs/QmSW4uNHbvQia8iZDXzbwjiyHQtnyo9aFqfQAMasj3TJ6Y/go-maddr-filter"
-	record "gx/ipfs/QmVsp2KdPYE6M8ryzCk5KHLo3zprcY5hBDaYx6uPCFUdxA/go-libp2p-record"
-	floodsub "gx/ipfs/QmXScvRbYh9X9okLuX9YMnz1HR4WgRTU2hocjBs15nmCNG/go-libp2p-floodsub"
-	ifconnmgr "gx/ipfs/QmXuucFcuvAWYAJfhHV2h4BYreHEAsLSsiquosiXeuduTN/go-libp2p-interface-connmgr"
-	smux "gx/ipfs/QmY9JXR3FupnYAYJWK9aMr9bCpqWKcToQ1tz8DVGTrHpHw/go-stream-muxer"
-	connmgr "gx/ipfs/QmYAL9JsqVVPFWwM1ZzHNsofmTzRYQHJ2KqQaBmFJjJsNx/go-libp2p-connmgr"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	routing "gx/ipfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
-	mplex "gx/ipfs/QmZHiqdRuNXujvSPNu1ZWxxzV6a2WhoZpfYkesdgyaKF9f/go-smux-multiplex"
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	bstore "gx/ipfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-ipfs-blockstore"
-	p2phost "gx/ipfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
-	nilrouting "gx/ipfs/QmbFRJeEmEU16y3BmKKaD4a9fm5oHsEAMHe2vSB1UnfLMi/go-ipfs-routing/none"
-	offroute "gx/ipfs/QmbFRJeEmEU16y3BmKKaD4a9fm5oHsEAMHe2vSB1UnfLMi/go-ipfs-routing/offline"
-	exchange "gx/ipfs/Qmc2faLf7URkHpsbfYM4EMbr8iSAcGAe8VPgVi64HVnwji/go-ipfs-exchange-interface"
-	circuit "gx/ipfs/QmcQ56iqKP8ZRhRGLe5EReJVvrJZDaGzkuatrPv4Z1B6cG/go-libp2p-circuit"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
-	metrics "gx/ipfs/QmcoBbyTiL9PFjo1GFixJwqQ8mZLJ36CribuqyKmS1okPu/go-libp2p-metrics"
-	yamux "gx/ipfs/QmcsgrV3nCAKjiHKZhKVXWc4oY3WBECJCqahXEMpHeMrev/go-smux-yamux"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	ic "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
-	ds "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
+	u "gx/udfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-udfs-util"
+	rhelpers "gx/udfs/QmQpvpeXa8rBfDmt3bdh2ckw2867vsYN1ozf79X7U5rij9/go-libp2p-routing-helpers"
+	pnet "gx/udfs/QmRGvSwDpN4eunxgDNfmQhayZ6Z9F5a2v31V2D7y77osLg/go-libp2p-pnet"
+	psrouter "gx/udfs/QmS3QZaaGMLwYQD1cWaGnM4san4zzT7z31tmhuXJMZ91dh/go-libp2p-pubsub-router"
+	goprocess "gx/udfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess"
+	mamask "gx/udfs/QmSMZwvs3n4GBikZ7hKzT17c3bk65FmyZo2JqtJ16swqCv/multiaddr-filter"
+	mafilter "gx/udfs/QmSW4uNHbvQia8iZDXzbwjiyHQtnyo9aFqfQAMasj3TJ6Y/go-maddr-filter"
+	record "gx/udfs/QmVsp2KdPYE6M8ryzCk5KHLo3zprcY5hBDaYx6uPCFUdxA/go-libp2p-record"
+	floodsub "gx/udfs/QmXScvRbYh9X9okLuX9YMnz1HR4WgRTU2hocjBs15nmCNG/go-libp2p-floodsub"
+	ifconnmgr "gx/udfs/QmXuucFcuvAWYAJfhHV2h4BYreHEAsLSsiquosiXeuduTN/go-libp2p-interface-connmgr"
+	smux "gx/udfs/QmY9JXR3FupnYAYJWK9aMr9bCpqWKcToQ1tz8DVGTrHpHw/go-stream-muxer"
+	connmgr "gx/udfs/QmYAL9JsqVVPFWwM1ZzHNsofmTzRYQHJ2KqQaBmFJjJsNx/go-libp2p-connmgr"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ma "gx/udfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	routing "gx/udfs/QmZ383TySJVeZWzGnWui6pRcKyYZk9VkKTuW7tmKRWk5au/go-libp2p-routing"
+	mplex "gx/udfs/QmZHiqdRuNXujvSPNu1ZWxxzV6a2WhoZpfYkesdgyaKF9f/go-smux-multiplex"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	bstore "gx/udfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-udfs-blockstore"
+	p2phost "gx/udfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
+	nilrouting "gx/udfs/QmbFRJeEmEU16y3BmKKaD4a9fm5oHsEAMHe2vSB1UnfLMi/go-udfs-routing/none"
+	offroute "gx/udfs/QmbFRJeEmEU16y3BmKKaD4a9fm5oHsEAMHe2vSB1UnfLMi/go-udfs-routing/offline"
+	exchange "gx/udfs/Qmc2faLf7URkHpsbfYM4EMbr8iSAcGAe8VPgVi64HVnwji/go-udfs-exchange-interface"
+	circuit "gx/udfs/QmcQ56iqKP8ZRhRGLe5EReJVvrJZDaGzkuatrPv4Z1B6cG/go-libp2p-circuit"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	metrics "gx/udfs/QmcoBbyTiL9PFjo1GFixJwqQ8mZLJ36CribuqyKmS1okPu/go-libp2p-metrics"
+	yamux "gx/udfs/QmcsgrV3nCAKjiHKZhKVXWc4oY3WBECJCqahXEMpHeMrev/go-smux-yamux"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	ic "gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	ds "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
 
 	libp2p "github.com/udfs/go-udfs/udfs/go-libp2p"
 	discovery "github.com/udfs/go-udfs/udfs/go-libp2p/p2p/discovery"
@@ -96,11 +96,11 @@ const (
 )
 
 func init() {
-	identify.ClientVersion = "go-ipfs/" + config.CurrentVersionNumber + "/" + config.CurrentCommit
+	identify.ClientVersion = "go-udfs/" + config.CurrentVersionNumber + "/" + config.CurrentCommit
 }
 
-// IpfsNode is IPFS Core module. It represents an IPFS instance.
-type IpfsNode struct {
+// UdfsNode is UDFS Core module. It represents an UDFS instance.
+type UdfsNode struct {
 
 	// Self
 	Identity peer.ID // the local node's identity
@@ -130,7 +130,7 @@ type IpfsNode struct {
 	// Online
 	PeerHost     p2phost.Host        // the network host (server+client)
 	Bootstrapper io.Closer           // the periodic bootstrapper
-	Routing      routing.IpfsRouting // the routing system. recommend ipfs-dht
+	Routing      routing.UdfsRouting // the routing system. recommend udfs-dht
 	Exchange     exchange.Interface  // the block exchange + strategy (bitswap)
 	Namesys      namesys.NameSystem  // the name system, resolves paths to hashes
 	Ping         *ping.PingService
@@ -139,7 +139,7 @@ type IpfsNode struct {
 
 	Floodsub *floodsub.PubSub
 	PSRouter *psrouter.PubsubValueStore
-	DHT      *dht.IpfsDHT
+	DHT      *dht.UdfsDHT
 	P2P      *p2p.P2P
 
 	proc goprocess.Process
@@ -153,11 +153,11 @@ type IpfsNode struct {
 // perhaps be moved to the daemon or mount. It's here because
 // it needs to be accessible across daemon requests.
 type Mounts struct {
-	Ipfs mount.Mount
+	Udfs mount.Mount
 	Ipns mount.Mount
 }
 
-func (n *IpfsNode) startOnlineServices(ctx context.Context, routingOption RoutingOption, hostOption HostOption, do DiscoveryOption, pubsub, ipnsps, mplex bool) error {
+func (n *UdfsNode) startOnlineServices(ctx context.Context, routingOption RoutingOption, hostOption HostOption, do DiscoveryOption, pubsub, ipnsps, mplex bool) error {
 	if n.PeerHost != nil { // already online.
 		return errors.New("node already online")
 	}
@@ -253,8 +253,8 @@ func (n *IpfsNode) startOnlineServices(ctx context.Context, routingOption Routin
 
 	// check self if a master node
 	if !cfg.Master {
-		// check exist environment variant IPFS_MASTER exist
-		if os.Getenv("_IPFS_MASTER_NODE") != "" {
+		// check exist environment variant UDFS_MASTER exist
+		if os.Getenv("_UDFS_MASTER_NODE") != "" {
 			cfg.Master = true
 		}
 	}
@@ -311,7 +311,7 @@ func constructConnMgr(cfg config.ConnMgr) (ifconnmgr.ConnManager, error) {
 	}
 }
 
-func (n *IpfsNode) startLateOnlineServices(ctx context.Context) error {
+func (n *UdfsNode) startLateOnlineServices(ctx context.Context) error {
 	cfg, err := n.Repo.Config()
 	if err != nil {
 		return err
@@ -450,7 +450,7 @@ func setupDiscoveryOption(d config.Discovery) DiscoveryOption {
 
 // HandlePeerFound attempts to connect to peer from `PeerInfo`, if it fails
 // logs a warning log.
-func (n *IpfsNode) HandlePeerFound(p pstore.PeerInfo) {
+func (n *UdfsNode) HandlePeerFound(p pstore.PeerInfo) {
 	log.Warning("trying peer info: ", p)
 	ctx, cancel := context.WithTimeout(n.Context(), discoveryConnTimeout)
 	defer cancel()
@@ -461,7 +461,7 @@ func (n *IpfsNode) HandlePeerFound(p pstore.PeerInfo) {
 
 // startOnlineServicesWithHost  is the set of services which need to be
 // initialized with the host and _before_ we start listening.
-func (n *IpfsNode) startOnlineServicesWithHost(ctx context.Context, host p2phost.Host, routingOption RoutingOption, pubsub bool, ipnsps bool) error {
+func (n *UdfsNode) startOnlineServicesWithHost(ctx context.Context, host p2phost.Host, routingOption RoutingOption, pubsub bool, ipnsps bool) error {
 	// setup diagnostics service
 	n.Ping = ping.NewPingService(host)
 
@@ -482,18 +482,18 @@ func (n *IpfsNode) startOnlineServicesWithHost(ctx context.Context, host p2phost
 
 	// TODO: I'm not a fan of type assertions like this but the
 	// `RoutingOption` system doesn't currently provide access to the
-	// IpfsNode.
+	// UdfsNode.
 	//
 	// Ideally, we'd do something like:
 	//
 	// 1. Add some fancy method to introspect into tiered routers to extract
 	//    things like the pubsub router or the DHT (complicated, messy,
 	//    probably not worth it).
-	// 2. Pass the IpfsNode into the RoutingOption (would also remove the
+	// 2. Pass the UdfsNode into the RoutingOption (would also remove the
 	//    PSRouter case below.
 	// 3. Introduce some kind of service manager? (my personal favorite but
 	//    that requires a fair amount of work).
-	if dht, ok := r.(*dht.IpfsDHT); ok {
+	if dht, ok := r.(*dht.UdfsDHT); ok {
 		n.DHT = dht
 	}
 
@@ -521,7 +521,7 @@ func (n *IpfsNode) startOnlineServicesWithHost(ctx context.Context, host p2phost
 	n.PeerHost = rhost.Wrap(host, n.Routing)
 
 	// setup exchange service
-	bitswapNetwork := bsnet.NewFromIpfsHost(n.PeerHost, n.Routing)
+	bitswapNetwork := bsnet.NewFromUdfsHost(n.PeerHost, n.Routing)
 	n.Exchange = bitswap.New(ctx, bitswapNetwork, n.Blockstore)
 
 	size, err := n.getCacheSize()
@@ -537,7 +537,7 @@ func (n *IpfsNode) startOnlineServicesWithHost(ctx context.Context, host p2phost
 }
 
 // getCacheSize returns cache life and cache size
-func (n *IpfsNode) getCacheSize() (int, error) {
+func (n *UdfsNode) getCacheSize() (int, error) {
 	cfg, err := n.Repo.Config()
 	if err != nil {
 		return 0, err
@@ -553,7 +553,7 @@ func (n *IpfsNode) getCacheSize() (int, error) {
 	return cs, nil
 }
 
-func (n *IpfsNode) setupIpnsRepublisher() error {
+func (n *UdfsNode) setupIpnsRepublisher() error {
 	cfg, err := n.Repo.Config()
 	if err != nil {
 		return err
@@ -589,17 +589,17 @@ func (n *IpfsNode) setupIpnsRepublisher() error {
 }
 
 // Process returns the Process object
-func (n *IpfsNode) Process() goprocess.Process {
+func (n *UdfsNode) Process() goprocess.Process {
 	return n.proc
 }
 
 // Close calls Close() on the Process object
-func (n *IpfsNode) Close() error {
+func (n *UdfsNode) Close() error {
 	return n.proc.Close()
 }
 
-// Context returns the IpfsNode context
-func (n *IpfsNode) Context() context.Context {
+// Context returns the UdfsNode context
+func (n *UdfsNode) Context() context.Context {
 	if n.ctx == nil {
 		n.ctx = context.TODO()
 	}
@@ -608,7 +608,7 @@ func (n *IpfsNode) Context() context.Context {
 
 // teardown closes owned children. If any errors occur, this function returns
 // the first error.
-func (n *IpfsNode) teardown() error {
+func (n *UdfsNode) teardown() error {
 	log.Debug("core is shutting down...")
 	// owned objects are closed in this teardown to ensure that they're closed
 	// regardless of which constructor was used to add them to the node.
@@ -626,8 +626,8 @@ func (n *IpfsNode) teardown() error {
 		closers = append(closers, n.Exchange)
 	}
 
-	if n.Mounts.Ipfs != nil && !n.Mounts.Ipfs.IsActive() {
-		closers = append(closers, mount.Closer(n.Mounts.Ipfs))
+	if n.Mounts.Udfs != nil && !n.Mounts.Udfs.IsActive() {
+		closers = append(closers, mount.Closer(n.Mounts.Udfs))
 	}
 	if n.Mounts.Ipns != nil && !n.Mounts.Ipns.IsActive() {
 		closers = append(closers, mount.Closer(n.Mounts.Ipns))
@@ -664,21 +664,21 @@ func (n *IpfsNode) teardown() error {
 	return nil
 }
 
-// OnlineMode returns whether or not the IpfsNode is in OnlineMode.
-func (n *IpfsNode) OnlineMode() bool {
+// OnlineMode returns whether or not the UdfsNode is in OnlineMode.
+func (n *UdfsNode) OnlineMode() bool {
 	return n.mode == onlineMode
 }
 
-// SetLocal will set the IpfsNode to local mode
-func (n *IpfsNode) SetLocal(isLocal bool) {
+// SetLocal will set the UdfsNode to local mode
+func (n *UdfsNode) SetLocal(isLocal bool) {
 	if isLocal {
 		n.mode = localMode
 	}
 	n.localModeSet = true
 }
 
-// LocalMode returns whether or not the IpfsNode is in LocalMode
-func (n *IpfsNode) LocalMode() bool {
+// LocalMode returns whether or not the UdfsNode is in LocalMode
+func (n *UdfsNode) LocalMode() bool {
 	if !n.localModeSet {
 		// programmer error should not happen
 		panic("local mode not set")
@@ -686,8 +686,8 @@ func (n *IpfsNode) LocalMode() bool {
 	return n.mode == localMode
 }
 
-// Bootstrap will set and call the IpfsNodes bootstrap function.
-func (n *IpfsNode) Bootstrap(cfg BootstrapConfig) error {
+// Bootstrap will set and call the UdfsNodes bootstrap function.
+func (n *UdfsNode) Bootstrap(cfg BootstrapConfig) error {
 	// TODO what should return value be when in offlineMode?
 	if n.Routing == nil {
 		return nil
@@ -715,7 +715,7 @@ func (n *IpfsNode) Bootstrap(cfg BootstrapConfig) error {
 	return err
 }
 
-func (n *IpfsNode) loadID() error {
+func (n *UdfsNode) loadID() error {
 	if n.Identity != "" {
 		return errors.New("identity already loaded")
 	}
@@ -727,10 +727,10 @@ func (n *IpfsNode) loadID() error {
 
 	cid := cfg.Identity.PeerID
 	if cid == "" {
-		return errors.New("identity was not set in config (was 'ipfs init' run?)")
+		return errors.New("identity was not set in config (was 'udfs init' run?)")
 	}
 	if len(cid) == 0 {
-		return errors.New("no peer ID in config! (was 'ipfs init' run?)")
+		return errors.New("no peer ID in config! (was 'udfs init' run?)")
 	}
 
 	id, err := peer.IDB58Decode(cid)
@@ -743,7 +743,7 @@ func (n *IpfsNode) loadID() error {
 }
 
 // GetKey will return a key from the Keystore with name `name`.
-func (n *IpfsNode) GetKey(name string) (ic.PrivKey, error) {
+func (n *UdfsNode) GetKey(name string) (ic.PrivKey, error) {
 	if name == "self" {
 		return n.PrivateKey, nil
 	} else {
@@ -751,7 +751,7 @@ func (n *IpfsNode) GetKey(name string) (ic.PrivKey, error) {
 	}
 }
 
-func (n *IpfsNode) LoadPrivateKey() error {
+func (n *UdfsNode) LoadPrivateKey() error {
 	if n.Identity == "" || n.Peerstore == nil {
 		return errors.New("loaded private key out of order")
 	}
@@ -776,7 +776,7 @@ func (n *IpfsNode) LoadPrivateKey() error {
 	return nil
 }
 
-func (n *IpfsNode) loadBootstrapPeers() ([]pstore.PeerInfo, error) {
+func (n *UdfsNode) loadBootstrapPeers() ([]pstore.PeerInfo, error) {
 	cfg, err := n.Repo.Config()
 	if err != nil {
 		return nil, err
@@ -789,7 +789,7 @@ func (n *IpfsNode) loadBootstrapPeers() ([]pstore.PeerInfo, error) {
 	return toPeerInfos(parsed), nil
 }
 
-func (n *IpfsNode) loadFilesRoot() error {
+func (n *UdfsNode) loadFilesRoot() error {
 	dsk := ds.NewKey("/local/filesroot")
 	pf := func(ctx context.Context, c *cid.Cid) error {
 		return n.Repo.Datastore().Put(dsk, c.Bytes())
@@ -837,7 +837,7 @@ func (n *IpfsNode) loadFilesRoot() error {
 
 // SetupOfflineRouting instantiates a routing system in offline mode. This is
 // primarily used for offline ipns modifications.
-func (n *IpfsNode) SetupOfflineRouting() error {
+func (n *UdfsNode) SetupOfflineRouting() error {
 	if n.Routing != nil {
 		// Routing was already set up
 		return nil
@@ -953,7 +953,7 @@ func startListening(host p2phost.Host, cfg *config.Config) error {
 	return nil
 }
 
-func constructDHTRouting(ctx context.Context, host p2phost.Host, dstore ds.Batching, validator record.Validator) (routing.IpfsRouting, error) {
+func constructDHTRouting(ctx context.Context, host p2phost.Host, dstore ds.Batching, validator record.Validator) (routing.UdfsRouting, error) {
 	return dht.New(
 		ctx, host,
 		dhtopts.Datastore(dstore),
@@ -961,7 +961,7 @@ func constructDHTRouting(ctx context.Context, host p2phost.Host, dstore ds.Batch
 	)
 }
 
-func constructClientDHTRouting(ctx context.Context, host p2phost.Host, dstore ds.Batching, validator record.Validator) (routing.IpfsRouting, error) {
+func constructClientDHTRouting(ctx context.Context, host p2phost.Host, dstore ds.Batching, validator record.Validator) (routing.UdfsRouting, error) {
 	return dht.New(
 		ctx, host,
 		dhtopts.Client(true),
@@ -970,7 +970,7 @@ func constructClientDHTRouting(ctx context.Context, host p2phost.Host, dstore ds
 	)
 }
 
-type RoutingOption func(context.Context, p2phost.Host, ds.Batching, record.Validator) (routing.IpfsRouting, error)
+type RoutingOption func(context.Context, p2phost.Host, ds.Batching, record.Validator) (routing.UdfsRouting, error)
 
 type DiscoveryOption func(context.Context, p2phost.Host) (discovery.Service, error)
 

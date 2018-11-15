@@ -1,9 +1,9 @@
-# ipfs can generate profiling dump files
+# udfs can generate profiling dump files
 *.cpuprof
 *.memprof
 
 *.swp
-.ipfsconfig
+.udfsconfig
 *.out
 *.coverprofile
 *.test
@@ -13,17 +13,17 @@
 coverage.txt
 gx-workspace-update.json
 
-.ipfs
+.udfs
 bin/gx
 bin/gx*
 bin/tmp
 
 
 vendor
-!vendor/gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr
+!vendor/gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr
 .tarball
-go-ipfs-source.tar.gz
-ipfs_linux
+go-udfs-source.tar.gz
+udfs_linux
 .idea
 .vscode
 

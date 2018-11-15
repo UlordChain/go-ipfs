@@ -1,9 +1,9 @@
 package config
 
 import (
-	transport "gx/ipfs/QmW5LxJm2Yo3S7uVsfLM7NsJn2QnKbvZD7uYsZVYR7YViE/go-libp2p-transport"
-	tptu "gx/ipfs/Qma7AuxEA7dd1wAy95hTxXgxy4q7mU4Pyd1x4PRAzGP1fs/go-libp2p-transport-upgrader"
-	host "gx/ipfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
+	transport "gx/udfs/QmW5LxJm2Yo3S7uVsfLM7NsJn2QnKbvZD7uYsZVYR7YViE/go-libp2p-transport"
+	tptu "gx/udfs/Qma7AuxEA7dd1wAy95hTxXgxy4q7mU4Pyd1x4PRAzGP1fs/go-libp2p-transport-upgrader"
+	host "gx/udfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
 )
 
 // TptC is the type for libp2p transport constructors. You probably won't ever

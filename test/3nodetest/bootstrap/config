@@ -5,7 +5,7 @@
   },
   "Datastore": {
     "Type": "leveldb",
-    "Path": "/root/.ipfs/datastore"
+    "Path": "/root/.udfs/datastore"
   },
   "Addresses": {
     "Swarm": [
@@ -14,7 +14,7 @@
     "API": "/ip4/127.0.0.1/tcp/5001"
   },
   "Mounts": {
-    "IPFS": "/ipfs",
+    "UDFS": "/udfs",
     "IPNS": "/ipns"
   },
   "Version": {

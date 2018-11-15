@@ -18,9 +18,9 @@ test_expect_success 'peer ids' '
 
 test_expect_success 'check namesys pubsub state' '
     echo enabled > expected &&
-    ipfsi 0 name pubsub state > state0 &&
-    ipfsi 1 name pubsub state > state1 &&
-    ipfsi 2 name pubsub state > state2 &&
+    udfsi 0 name pubsub state > state0 &&
+    udfsi 1 name pubsub state > state1 &&
+    udfsi 2 name pubsub state > state2 &&
     test_cmp expected state0 &&
     test_cmp expected state1 &&
     test_cmp expected state2
@@ -28,26 +28,26 @@ test_expect_success 'check namesys pubsub state' '
 
 # These commands are *expected* to fail. We haven't published anything yet.
 test_expect_success 'subscribe nodes to the publisher topic' '
-    ipfsi 1 name resolve /ipns/$PEERID_0;
-    ipfsi 2 name resolve /ipns/$PEERID_0;
+    udfsi 1 name resolve /ipns/$PEERID_0;
+    udfsi 2 name resolve /ipns/$PEERID_0;
     true
 '
 
 test_expect_success 'check subscriptions' '
     echo /ipns/$PEERID_0 > expected &&
-    ipfsi 1 name pubsub subs > subs1 &&
-    ipfsi 2 name pubsub subs > subs2 &&
+    udfsi 1 name pubsub subs > subs1 &&
+    udfsi 2 name pubsub subs > subs2 &&
     test_cmp expected subs1 &&
     test_cmp expected subs2
 '
 
 test_expect_success 'add an obect on publisher node' '
     echo "ipns is super fun" > file &&
-    HASH_FILE=$(ipfsi 0 add -q file)
+    HASH_FILE=$(udfsi 0 add -q file)
 '
 
 test_expect_success 'publish that object as an ipns entry' '
-    ipfsi 0 name publish $HASH_FILE
+    udfsi 0 name publish $HASH_FILE
 '
 
 test_expect_success 'wait for the flood' '
@@ -55,22 +55,22 @@ test_expect_success 'wait for the flood' '
 '
 
 test_expect_success 'resolve name in subscriber nodes' '
-    echo "/ipfs/$HASH_FILE" > expected &&
-    ipfsi 1 name resolve /ipns/$PEERID_0 > name1 &&
-    ipfsi 2 name resolve /ipns/$PEERID_0 > name2 &&
+    echo "/udfs/$HASH_FILE" > expected &&
+    udfsi 1 name resolve /ipns/$PEERID_0 > name1 &&
+    udfsi 2 name resolve /ipns/$PEERID_0 > name2 &&
     test_cmp expected name1 &&
     test_cmp expected name2
 '
 
 test_expect_success 'cancel subscriptions to the publisher topic' '
-    ipfsi 1 name pubsub cancel /ipns/$PEERID_0 &&
-    ipfsi 2 name pubsub cancel /ipns/$PEERID_0
+    udfsi 1 name pubsub cancel /ipns/$PEERID_0 &&
+    udfsi 2 name pubsub cancel /ipns/$PEERID_0
 '
 
 test_expect_success 'check subscriptions' '
     rm -f expected && touch expected &&
-    ipfsi 1 name pubsub subs > subs1 &&
-    ipfsi 2 name pubsub subs > subs2 &&
+    udfsi 1 name pubsub subs > subs1 &&
+    udfsi 2 name pubsub subs > subs2 &&
     test_cmp expected subs1 &&
     test_cmp expected subs2
 '

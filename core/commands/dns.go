@@ -9,7 +9,7 @@ import (
 	namesys "github.com/udfs/go-udfs/namesys"
 	nsopts "github.com/udfs/go-udfs/namesys/opts"
 
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 var DNSCmd = &cmds.Command{
@@ -18,31 +18,31 @@ var DNSCmd = &cmds.Command{
 		ShortDescription: `
 Multihashes are hard to remember, but domain names are usually easy to
 remember.  To create memorable aliases for multihashes, DNS TXT
-records can point to other DNS links, IPFS objects, IPNS keys, etc.
+records can point to other DNS links, UDFS objects, IPNS keys, etc.
 This command resolves those links to the referenced object.
 `,
 		LongDescription: `
 Multihashes are hard to remember, but domain names are usually easy to
 remember.  To create memorable aliases for multihashes, DNS TXT
-records can point to other DNS links, IPFS objects, IPNS keys, etc.
+records can point to other DNS links, UDFS objects, IPNS keys, etc.
 This command resolves those links to the referenced object.
 
 For example, with this DNS TXT record:
 
-	> dig +short TXT _dnslink.ipfs.io
-	dnslink=/ipfs/QmRzTuh2Lpuz7Gr39stNr6mTFdqAghsZec1JoUnfySUzcy
+	> dig +short TXT _dnslink.udfs.io
+	dnslink=/udfs/QmRzTuh2Lpuz7Gr39stNr6mTFdqAghsZec1JoUnfySUzcy
 
 The resolver will give:
 
-	> ipfs dns ipfs.io
-	/ipfs/QmRzTuh2Lpuz7Gr39stNr6mTFdqAghsZec1JoUnfySUzcy
+	> udfs dns udfs.io
+	/udfs/QmRzTuh2Lpuz7Gr39stNr6mTFdqAghsZec1JoUnfySUzcy
 
 The resolver can recursively resolve:
 
-	> dig +short TXT recursive.ipfs.io
-	dnslink=/ipns/ipfs.io
-	> ipfs dns -r recursive.ipfs.io
-	/ipfs/QmRzTuh2Lpuz7Gr39stNr6mTFdqAghsZec1JoUnfySUzcy
+	> dig +short TXT recursive.udfs.io
+	dnslink=/ipns/udfs.io
+	> udfs dns -r recursive.udfs.io
+	/udfs/QmRzTuh2Lpuz7Gr39stNr6mTFdqAghsZec1JoUnfySUzcy
 `,
 	},
 

@@ -5,8 +5,8 @@ import (
 	bitswap "github.com/udfs/go-udfs/exchange/bitswap"
 	tn "github.com/udfs/go-udfs/exchange/bitswap/testnet"
 
-	delay "gx/ipfs/QmRJVNatYJwTAHgdSM1Xef9QVQ1Ch3XHdmcrykjP5Y4soL/go-ipfs-delay"
-	mockrouting "gx/ipfs/QmbFRJeEmEU16y3BmKKaD4a9fm5oHsEAMHe2vSB1UnfLMi/go-ipfs-routing/mock"
+	delay "gx/udfs/QmRJVNatYJwTAHgdSM1Xef9QVQ1Ch3XHdmcrykjP5Y4soL/go-udfs-delay"
+	mockrouting "gx/udfs/QmbFRJeEmEU16y3BmKKaD4a9fm5oHsEAMHe2vSB1UnfLMi/go-udfs-routing/mock"
 )
 
 // Mocks returns |n| connected mock Blockservices

@@ -22,10 +22,10 @@ import (
 	pin "github.com/udfs/go-udfs/pin"
 	ft "github.com/udfs/go-udfs/unixfs"
 
-	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	cmds "gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	cmdkit "gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 // ErrObjectTooLarge is returned when too much data was read from stdin. current limit 2m
@@ -50,9 +50,9 @@ type Object struct {
 
 var ObjectCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Interact with IPFS objects.",
+		Tagline: "Interact with UDFS objects.",
 		ShortDescription: `
-'ipfs object' is a plumbing command used to manipulate DAG objects
+'udfs object' is a plumbing command used to manipulate DAG objects
 directly.`,
 	},
 
@@ -70,13 +70,13 @@ directly.`,
 
 var ObjectDataCmd = &oldcmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Output the raw bytes of an IPFS object.",
+		Tagline: "Output the raw bytes of an UDFS object.",
 		ShortDescription: `
-'ipfs object data' is a plumbing command for retrieving the raw bytes stored
+'udfs object data' is a plumbing command for retrieving the raw bytes stored
 in a DAG node. It outputs to stdout, and <key> is a base58 encoded multihash.
 `,
 		LongDescription: `
-'ipfs object data' is a plumbing command for retrieving the raw bytes stored
+'udfs object data' is a plumbing command for retrieving the raw bytes stored
 in a DAG node. It outputs to stdout, and <key> is a base58 encoded multihash.
 
 Note that the "--encoding" option does not affect the output, since the output
@@ -120,7 +120,7 @@ var ObjectLinksCmd = &oldcmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Output the links pointed to by the specified object.",
 		ShortDescription: `
-'ipfs object links' is a plumbing command for retrieving the links from
+'udfs object links' is a plumbing command for retrieving the links from
 a DAG node. It outputs to stdout, and <key> is a base58 encoded
 multihash.
 `,
@@ -191,12 +191,12 @@ var ObjectGetCmd = &oldcmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Get and serialize the DAG node named by <key>.",
 		ShortDescription: `
-'ipfs object get' is a plumbing command for retrieving DAG nodes.
+'udfs object get' is a plumbing command for retrieving DAG nodes.
 It serializes the DAG node to the format specified by the "--encoding"
 flag. It outputs to stdout, and <key> is a base58 encoded multihash.
 `,
 		LongDescription: `
-'ipfs object get' is a plumbing command for retrieving DAG nodes.
+'udfs object get' is a plumbing command for retrieving DAG nodes.
 It serializes the DAG node to the format specified by the "--encoding"
 flag. It outputs to stdout, and <key> is a base58 encoded multihash.
 
@@ -301,7 +301,7 @@ var ObjectStatCmd = &oldcmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Get stats for the DAG node named by <key>.",
 		ShortDescription: `
-'ipfs object stat' is a plumbing command to print DAG node statistics.
+'udfs object stat' is a plumbing command to print DAG node statistics.
 <key> is a base58 encoded multihash. It outputs to stdout:
 
 	NumLinks        int number of links in link table
@@ -370,11 +370,11 @@ var ObjectPutCmd = &oldcmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Store input as a DAG object, print its key.",
 		ShortDescription: `
-'ipfs object put' is a plumbing command for storing DAG nodes.
+'udfs object put' is a plumbing command for storing DAG nodes.
 It reads from stdin, and the output is a base58 encoded multihash.
 `,
 		LongDescription: `
-'ipfs object put' is a plumbing command for storing DAG nodes.
+'udfs object put' is a plumbing command for storing DAG nodes.
 It reads from stdin, and the output is a base58 encoded multihash.
 
 Data should be in the format specified by the --inputenc flag.
@@ -384,7 +384,7 @@ Data should be in the format specified by the --inputenc flag.
 
 Examples:
 
-	$ echo '{ "Data": "abc" }' | ipfs object put
+	$ echo '{ "Data": "abc" }' | udfs object put
 
 This creates a node with the data 'abc' and no links. For an object with
 links, create a file named 'node.json' with the contents:
@@ -400,7 +400,7 @@ links, create a file named 'node.json' with the contents:
 
 And then run:
 
-	$ ipfs object put node.json
+	$ udfs object put node.json
 `,
 	},
 
@@ -495,12 +495,12 @@ And then run:
 
 var ObjectNewCmd = &oldcmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Create a new object from an ipfs template.",
+		Tagline: "Create a new object from an udfs template.",
 		ShortDescription: `
-'ipfs object new' is a plumbing command for creating new DAG nodes.
+'udfs object new' is a plumbing command for creating new DAG nodes.
 `,
 		LongDescription: `
-'ipfs object new' is a plumbing command for creating new DAG nodes.
+'udfs object new' is a plumbing command for creating new DAG nodes.
 By default it creates and returns a new empty merkledag node, but
 you may pass an optional template argument to create a preformatted
 node.
@@ -564,11 +564,11 @@ func nodeFromTemplate(template string) (*dag.ProtoNode, error) {
 	}
 }
 
-// ErrEmptyNode is returned when the input to 'ipfs object put' contains no data
+// ErrEmptyNode is returned when the input to 'udfs object put' contains no data
 var ErrEmptyNode = errors.New("no data or links in this node")
 
 // objectPut takes a format option, serializes bytes from stdin and updates the dag with that data
-func objectPut(ctx context.Context, n *core.IpfsNode, input io.Reader, encoding string, dataFieldEncoding string) (*cid.Cid, error) {
+func objectPut(ctx context.Context, n *core.UdfsNode, input io.Reader, encoding string, dataFieldEncoding string) (*cid.Cid, error) {
 
 	data, err := ioutil.ReadAll(io.LimitReader(input, inputLimit+10))
 	if err != nil {

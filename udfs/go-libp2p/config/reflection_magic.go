@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"runtime"
 
-	tptu "gx/ipfs/Qma7AuxEA7dd1wAy95hTxXgxy4q7mU4Pyd1x4PRAzGP1fs/go-libp2p-transport-upgrader"
-	host "gx/ipfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
+	tptu "gx/udfs/Qma7AuxEA7dd1wAy95hTxXgxy4q7mU4Pyd1x4PRAzGP1fs/go-libp2p-transport-upgrader"
+	host "gx/udfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
 )
 
 var errorType = reflect.TypeOf((*error)(nil)).Elem()

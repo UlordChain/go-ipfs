@@ -12,12 +12,12 @@ import (
 
 	// We need to import libp2p's libraries that we use in this project.
 	// In order to work, these libraries need to be rewritten by gx-go.
-	inet "gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
-	manet "gx/ipfs/QmV6FjemM1K8oXjrvuq3wuVWWoU2TLDPmNnKrxHzY3v6Ai/go-multiaddr-net"
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	ps "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	host "gx/ipfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	inet "gx/udfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
+	manet "gx/udfs/QmV6FjemM1K8oXjrvuq3wuVWWoU2TLDPmNnKrxHzY3v6Ai/go-multiaddr-net"
+	ma "gx/udfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
+	ps "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	host "gx/udfs/Qmb8T6YBBsjYsVGfrihQLfCJveczZnneSBqBKkYEBWDjge/go-libp2p-host"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 
 	libp2p "github.com/udfs/go-udfs/udfs/go-libp2p"
 )
@@ -66,7 +66,7 @@ func NewProxyService(h host.Host, proxyAddr ma.Multiaddr, dest peer.ID) *ProxySe
 	fmt.Println("Proxy server is ready")
 	fmt.Println("libp2p-peer addresses:")
 	for _, a := range h.Addrs() {
-		fmt.Printf("%s/ipfs/%s\n", a, peer.IDB58Encode(h.ID()))
+		fmt.Printf("%s/udfs/%s\n", a, peer.IDB58Encode(h.ID()))
 	}
 
 	return &ProxyService{
@@ -198,11 +198,11 @@ func (p *ProxyService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func addAddrToPeerstore(h host.Host, addr string) peer.ID {
 	// The following code extracts target's the peer ID from the
 	// given multiaddress
-	ipfsaddr, err := ma.NewMultiaddr(addr)
+	udfsaddr, err := ma.NewMultiaddr(addr)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	pid, err := ipfsaddr.ValueForProtocol(ma.P_IPFS)
+	pid, err := udfsaddr.ValueForProtocol(ma.P_UDFS)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -212,11 +212,11 @@ func addAddrToPeerstore(h host.Host, addr string) peer.ID {
 		log.Fatalln(err)
 	}
 
-	// Decapsulate the /ipfs/<peerID> part from the target
-	// /ip4/<a.b.c.d>/ipfs/<peer> becomes /ip4/<a.b.c.d>
+	// Decapsulate the /udfs/<peerID> part from the target
+	// /ip4/<a.b.c.d>/udfs/<peer> becomes /ip4/<a.b.c.d>
 	targetPeerAddr, _ := ma.NewMultiaddr(
-		fmt.Sprintf("/ipfs/%s", peer.IDB58Encode(peerid)))
-	targetAddr := ipfsaddr.Decapsulate(targetPeerAddr)
+		fmt.Sprintf("/udfs/%s", peer.IDB58Encode(peerid)))
+	targetAddr := udfsaddr.Decapsulate(targetPeerAddr)
 
 	// We have a peer ID and a targetAddr so we add
 	// it to the peerstore so LibP2P knows how to contact it
@@ -233,7 +233,7 @@ send the sends the response back.
 Usage: Start remote peer first with:   ./proxy
        Then start the local peer with: ./proxy -d <remote-peer-multiaddress>
 
-Then you can do something like: curl -x "localhost:9900" "http://ipfs.io".
+Then you can do something like: curl -x "localhost:9900" "http://udfs.io".
 This proxies sends the request through the local peer, which proxies it to
 the remote peer, which makes it and sends the response back.
 `

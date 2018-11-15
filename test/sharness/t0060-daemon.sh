@@ -9,38 +9,38 @@ test_description="Test daemon command"
 . lib/test-lib.sh
 
 
-test_init_ipfs
-test_launch_ipfs_daemon
+test_init_udfs
+test_launch_udfs_daemon
 
-# this errors if we didn't --init $IPFS_PATH correctly
-test_expect_success "'ipfs config Identity.PeerID' works" '
-  PEERID=$(ipfs config Identity.PeerID)
+# this errors if we didn't --init $UDFS_PATH correctly
+test_expect_success "'udfs config Identity.PeerID' works" '
+  PEERID=$(udfs config Identity.PeerID)
 '
 
-test_expect_success "'ipfs swarm addrs local' works" '
-  ipfs swarm addrs local >local_addrs
+test_expect_success "'udfs swarm addrs local' works" '
+  udfs swarm addrs local >local_addrs
 '
 
-test_expect_success "ipfs swarm addrs listen; works" '
-  ipfs swarm addrs listen >listen_addrs
+test_expect_success "udfs swarm addrs listen; works" '
+  udfs swarm addrs listen >listen_addrs
 '
 
-test_expect_success "ipfs peer id looks good" '
+test_expect_success "udfs peer id looks good" '
   test_check_peerid "$PEERID"
 '
 
 # this is for checking SetAllowedOrigins race condition for the api and gateway
-# See https://github.com/ipfs/go-ipfs/pull/1966
-test_expect_success "ipfs API works with the correct allowed origin port" '
+# See https://github.com/udfs/go-udfs/pull/1966
+test_expect_success "udfs API works with the correct allowed origin port" '
   curl -s -X GET -H "Origin:http://localhost:$API_PORT" -I "http://$API_ADDR/api/v0/version"
 '
 
-test_expect_success "ipfs gateway works with the correct allowed origin port" '
+test_expect_success "udfs gateway works with the correct allowed origin port" '
   curl -s -X GET -H "Origin:http://localhost:$GWAY_PORT" -I "http://$GWAY_ADDR/api/v0/version"
 '
 
-test_expect_success "ipfs daemon output looks good" '
-  STARTFILE="ipfs cat /ipfs/$HASH_WELCOME_DOCS/readme" &&
+test_expect_success "udfs daemon output looks good" '
+  STARTFILE="udfs cat /udfs/$HASH_WELCOME_DOCS/readme" &&
   echo "Initializing daemon..." >expected_daemon &&
   sed "s/^/Swarm listening on /" listen_addrs >>expected_daemon &&
   sed "s/^/Swarm announcing /" local_addrs >>expected_daemon &&
@@ -50,32 +50,32 @@ test_expect_success "ipfs daemon output looks good" '
   test_cmp expected_daemon actual_daemon
 '
 
-test_expect_success ".ipfs/ has been created" '
-  test -d ".ipfs" &&
-  test -f ".ipfs/config" &&
-  test -d ".ipfs/datastore" &&
-  test -d ".ipfs/blocks" ||
-  test_fsh ls -al .ipfs
+test_expect_success ".udfs/ has been created" '
+  test -d ".udfs" &&
+  test -f ".udfs/config" &&
+  test -d ".udfs/datastore" &&
+  test -d ".udfs/blocks" ||
+  test_fsh ls -al .udfs
 '
 
 # begin same as in t0010
 
-test_expect_success "ipfs version succeeds" '
-  ipfs version >version.txt
+test_expect_success "udfs version succeeds" '
+  udfs version >version.txt
 '
 
-test_expect_success "ipfs version output looks good" '
-  egrep "^ipfs version [0-9]+\.[0-9]+\.[0-9]" version.txt >/dev/null ||
+test_expect_success "udfs version output looks good" '
+  egrep "^udfs version [0-9]+\.[0-9]+\.[0-9]" version.txt >/dev/null ||
   test_fsh cat version.txt
 '
 
-test_expect_success "ipfs help succeeds" '
-  ipfs help >help.txt
+test_expect_success "udfs help succeeds" '
+  udfs help >help.txt
 '
 
-test_expect_success "ipfs help output looks good" '
+test_expect_success "udfs help output looks good" '
   egrep -i "^Usage" help.txt >/dev/null &&
-  egrep "ipfs .* <command>" help.txt >/dev/null ||
+  egrep "udfs .* <command>" help.txt >/dev/null ||
   test_fsh cat help.txt
 '
 
@@ -106,17 +106,17 @@ test_expect_success "output looks good" '
 # end same as in t0010
 
 test_expect_success "daemon is still running" '
-  kill -0 $IPFS_PID
+  kill -0 $UDFS_PID
 '
 
-test_expect_success "'ipfs daemon' can be killed" '
-  test_kill_repeat_10_sec $IPFS_PID
+test_expect_success "'udfs daemon' can be killed" '
+  test_kill_repeat_10_sec $UDFS_PID
 '
 
-test_expect_success "'ipfs daemon' should be able to run with a pipe attached to stdin (issue #861)" '
-  yes | ipfs daemon >stdin_daemon_out 2>stdin_daemon_err &
+test_expect_success "'udfs daemon' should be able to run with a pipe attached to stdin (issue #861)" '
+  yes | udfs daemon >stdin_daemon_out 2>stdin_daemon_err &
   DAEMON_PID=$!
-  test_wait_for_file 20 100ms "$IPFS_PATH/api" &&
+  test_wait_for_file 20 100ms "$UDFS_PATH/api" &&
   test_set_address_vars stdin_daemon_out
 '
 
@@ -128,7 +128,7 @@ test_expect_success "daemon with pipe eventually becomes live" '
 
 ulimit -S -n 512
 TEST_ULIMIT_PRESET=1
-test_launch_ipfs_daemon
+test_launch_udfs_daemon
 
 test_expect_success "daemon raised its fd limit" '
   grep "raised file descriptor limit to 2048." actual_daemon > /dev/null
@@ -142,6 +142,6 @@ test_expect_success "daemon didnt throw any errors" '
   test_expect_code 1 grep "too many open files" daemon_err
 '
 
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 test_done

@@ -1,5 +1,5 @@
 FROM golang:1.10
-MAINTAINER Jakub Sztandera <kubuxu@ipfs.io>
+MAINTAINER Jakub Sztandera <kubuxu@udfs.io>
 
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -8,11 +8,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		&& rm -rf /var/lib/apt/lists/*
 
 ENV GOBIN      $GOPATH/bin
-ENV SRC_PATH   /go/src/github.com/ipfs/go-ipfs
+ENV SRC_PATH   /go/src/github.com/udfs/go-udfs
 
 RUN curl -s https://codecov.io/bash > /usr/bin/codecov && chmod +x /usr/bin/codecov \
 	&& go get -u github.com/Kubuxu/gocovmerge && go get -u golang.org/x/tools/cmd/cover
-ENV IPFS_SKIP_COVER_BINS 1
+ENV UDFS_SKIP_COVER_BINS 1
 
 
 RUN useradd user
@@ -28,7 +28,7 @@ USER user
 # install gx and gx-go
 RUN make -j 4 -f bin/Rules.mk d=bin bin/gx bin/gx-go && cp bin/gx bin/gx-go $GOBIN
 USER root
-ENV IPFS_GX_USE_GLOBAL 1
+ENV UDFS_GX_USE_GLOBAL 1
 
 COPY package.json $SRC_PATH/
 ENV PATH      $SRC_PATH/bin:$PATH
@@ -41,6 +41,6 @@ COPY . $SRC_PATH
 RUN chown -R user:user $GOPATH
 USER user
 # mkdir .git/objects is required for git to detect repo
-RUN mkdir .git/objects && make cmd/ipfs/ipfs #populate go cache
+RUN mkdir .git/objects && make cmd/udfs/udfs #populate go cache
 
 CMD ["/bin/bash", "-c", "trap : TERM INT; sleep infinity & wait"]

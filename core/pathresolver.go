@@ -9,15 +9,15 @@ import (
 	path "github.com/udfs/go-udfs/path"
 	resolver "github.com/udfs/go-udfs/path/resolver"
 
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
 )
 
-// ErrNoNamesys is an explicit error for when an IPFS node doesn't
+// ErrNoNamesys is an explicit error for when an UDFS node doesn't
 // (yet) have a name system
 var ErrNoNamesys = errors.New(
-	"core/resolve: no Namesys on IpfsNode - can't resolve ipns entry")
+	"core/resolve: no Namesys on UdfsNode - can't resolve ipns entry")
 
 // ResolveIPNS resolves /ipns paths
 func ResolveIPNS(ctx context.Context, nsys namesys.NameSystem, p path.Path) (path.Path, error) {
@@ -63,7 +63,7 @@ func ResolveIPNS(ctx context.Context, nsys namesys.NameSystem, p path.Path) (pat
 }
 
 // Resolve resolves the given path by parsing out protocol-specific
-// entries (e.g. /ipns/<node-key>) and then going through the /ipfs/
+// entries (e.g. /ipns/<node-key>) and then going through the /udfs/
 // entries and returning the final node.
 func Resolve(ctx context.Context, nsys namesys.NameSystem, r *resolver.Resolver, p path.Path) (ipld.Node, error) {
 	p, err := ResolveIPNS(ctx, nsys, p)
@@ -71,19 +71,19 @@ func Resolve(ctx context.Context, nsys namesys.NameSystem, r *resolver.Resolver,
 		return nil, err
 	}
 
-	// ok, we have an IPFS path now (or what we'll treat as one)
+	// ok, we have an UDFS path now (or what we'll treat as one)
 	return r.ResolvePath(ctx, p)
 }
 
 // ResolveToCid resolves a path to a cid.
 //
 // It first checks if the path is already in the form of just a cid (<cid> or
-// /ipfs/<cid>) and returns immediately if so. Otherwise, it falls back onto
+// /udfs/<cid>) and returns immediately if so. Otherwise, it falls back onto
 // Resolve to perform resolution of the dagnode being referenced.
 func ResolveToCid(ctx context.Context, nsys namesys.NameSystem, r *resolver.Resolver, p path.Path) (*cid.Cid, error) {
 
 	// If the path is simply a cid, parse and return it. Parsed paths are already
-	// normalized (read: prepended with /ipfs/ if needed), so segment[1] should
+	// normalized (read: prepended with /udfs/ if needed), so segment[1] should
 	// always be the key.
 	if p.IsJustAKey() {
 		return cid.Decode(p.Segments()[1])

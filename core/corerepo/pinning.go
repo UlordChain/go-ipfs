@@ -1,8 +1,8 @@
 /*
 Package corerepo provides pinning and garbage collection for local
-IPFS block services.
+UDFS block services.
 
-IPFS nodes will keep local copies of any object that have either been
+UDFS nodes will keep local copies of any object that have either been
 added or requested locally.  Not all of these objects are worth
 preserving forever though, so the node administrator can pin objects
 they want to keep and unpin objects that they don't care about.
@@ -22,10 +22,10 @@ import (
 	resolver "github.com/udfs/go-udfs/path/resolver"
 	uio "github.com/udfs/go-udfs/unixfs/io"
 
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 )
 
-func Pin(n *core.IpfsNode, ctx context.Context, paths []string, recursive bool) ([]*cid.Cid, error) {
+func Pin(n *core.UdfsNode, ctx context.Context, paths []string, recursive bool) ([]*cid.Cid, error) {
 	out := make([]*cid.Cid, len(paths))
 
 	r := &resolver.Resolver{
@@ -58,7 +58,7 @@ func Pin(n *core.IpfsNode, ctx context.Context, paths []string, recursive bool) 
 	return out, nil
 }
 
-func Unpin(n *core.IpfsNode, ctx context.Context, paths []string, recursive bool) ([]*cid.Cid, error) {
+func Unpin(n *core.UdfsNode, ctx context.Context, paths []string, recursive bool) ([]*cid.Cid, error) {
 	unpinned := make([]*cid.Cid, len(paths))
 
 	r := &resolver.Resolver{

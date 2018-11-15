@@ -6,16 +6,16 @@ import (
 	"fmt"
 	"time"
 
-	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
-	inet "gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
-	lgbl "gx/ipfs/QmRPkGkHLB72caXgdDYnoaWigXNWx95BcYDKV1n3KTEpaG/go-libp2p-loggables"
-	recpb "gx/ipfs/QmVsp2KdPYE6M8ryzCk5KHLo3zprcY5hBDaYx6uPCFUdxA/go-libp2p-record/pb"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	proto "gx/ipfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	ds "gx/ipfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
-	base32 "gx/ipfs/QmfVj3x4D6Jkq9SEoi5n2NmoUomLwoeiwnYz2KQa15wRw6/base32"
+	u "gx/udfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-udfs-util"
+	inet "gx/udfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
+	lgbl "gx/udfs/QmRPkGkHLB72caXgdDYnoaWigXNWx95BcYDKV1n3KTEpaG/go-libp2p-loggables"
+	recpb "gx/udfs/QmVsp2KdPYE6M8ryzCk5KHLo3zprcY5hBDaYx6uPCFUdxA/go-libp2p-record/pb"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	proto "gx/udfs/QmZ4Qi3GaRbjcx28Sme5eMH7RQjGkt8wHxt2a65oLaeFEV/gogo-protobuf/proto"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	ds "gx/udfs/QmeiCcJfDW1GJnWUArudsv5rQsihpi4oyddPhdqo3CfX6i/go-datastore"
+	base32 "gx/udfs/QmfVj3x4D6Jkq9SEoi5n2NmoUomLwoeiwnYz2KQa15wRw6/base32"
 
 	pb "github.com/udfs/go-udfs/udfs/go-libp2p-kad-dht/pb"
 )
@@ -26,7 +26,7 @@ var CloserPeerCount = KValue
 // dhthandler specifies the signature of functions that handle DHT messages.
 type dhtHandler func(context.Context, peer.ID, *pb.Message) (*pb.Message, error)
 
-func (dht *IpfsDHT) handlerForMsgType(t pb.Message_MessageType) dhtHandler {
+func (dht *UdfsDHT) handlerForMsgType(t pb.Message_MessageType) dhtHandler {
 	switch t {
 	case pb.Message_GET_VALUE:
 		return dht.handleGetValue
@@ -48,7 +48,7 @@ func (dht *IpfsDHT) handlerForMsgType(t pb.Message_MessageType) dhtHandler {
 	}
 }
 
-func (dht *IpfsDHT) handleGetValue(ctx context.Context, p peer.ID, pmes *pb.Message) (_ *pb.Message, err error) {
+func (dht *UdfsDHT) handleGetValue(ctx context.Context, p peer.ID, pmes *pb.Message) (_ *pb.Message, err error) {
 	eip := log.EventBegin(ctx, "handleGetValue", p)
 	defer func() {
 		if err != nil {
@@ -94,7 +94,7 @@ func (dht *IpfsDHT) handleGetValue(ctx context.Context, p peer.ID, pmes *pb.Mess
 	return resp, nil
 }
 
-func (dht *IpfsDHT) checkLocalDatastore(k string) (*recpb.Record, error) {
+func (dht *UdfsDHT) checkLocalDatastore(k string) (*recpb.Record, error) {
 	log.Debugf("%s handleGetValue looking into ds", dht.self)
 	dskey := convertToDsKey(k)
 	iVal, err := dht.datastore.Get(dskey)
@@ -159,7 +159,7 @@ func cleanRecord(rec *recpb.Record) {
 }
 
 // Store a value in this peer local storage
-func (dht *IpfsDHT) handlePutValue(ctx context.Context, p peer.ID, pmes *pb.Message) (_ *pb.Message, err error) {
+func (dht *UdfsDHT) handlePutValue(ctx context.Context, p peer.ID, pmes *pb.Message) (_ *pb.Message, err error) {
 	eip := log.EventBegin(ctx, "handlePutValue", p)
 	defer func() {
 		if err != nil {
@@ -224,7 +224,7 @@ func (dht *IpfsDHT) handlePutValue(ctx context.Context, p peer.ID, pmes *pb.Mess
 
 // returns nil, nil when either nothing is found or the value found doesn't properly validate.
 // returns nil, some_error when there's a *datastore* error (i.e., something goes very wrong)
-func (dht *IpfsDHT) getRecordFromDatastore(dskey ds.Key) (*recpb.Record, error) {
+func (dht *UdfsDHT) getRecordFromDatastore(dskey ds.Key) (*recpb.Record, error) {
 	reci, err := dht.datastore.Get(dskey)
 	if err == ds.ErrNotFound {
 		return nil, nil
@@ -260,12 +260,12 @@ func (dht *IpfsDHT) getRecordFromDatastore(dskey ds.Key) (*recpb.Record, error) 
 	return rec, nil
 }
 
-func (dht *IpfsDHT) handlePing(_ context.Context, p peer.ID, pmes *pb.Message) (*pb.Message, error) {
+func (dht *UdfsDHT) handlePing(_ context.Context, p peer.ID, pmes *pb.Message) (*pb.Message, error) {
 	log.Debugf("%s Responding to ping from %s!\n", dht.self, p)
 	return pmes, nil
 }
 
-func (dht *IpfsDHT) handleFindPeer(ctx context.Context, p peer.ID, pmes *pb.Message) (*pb.Message, error) {
+func (dht *UdfsDHT) handleFindPeer(ctx context.Context, p peer.ID, pmes *pb.Message) (*pb.Message, error) {
 	defer log.EventBegin(ctx, "handleFindPeer", p).Done()
 	resp := pb.NewMessage(pmes.GetType(), "", pmes.GetClusterLevel())
 	var closest []peer.ID
@@ -314,7 +314,7 @@ func (dht *IpfsDHT) handleFindPeer(ctx context.Context, p peer.ID, pmes *pb.Mess
 	return resp, nil
 }
 
-func (dht *IpfsDHT) handleGetProviders(ctx context.Context, p peer.ID, pmes *pb.Message) (*pb.Message, error) {
+func (dht *UdfsDHT) handleGetProviders(ctx context.Context, p peer.ID, pmes *pb.Message) (*pb.Message, error) {
 	lm := make(lgbl.DeferredMap)
 	lm["peer"] = func() interface{} { return p.Pretty() }
 	eip := log.EventBegin(ctx, "handleGetProviders", lm)
@@ -365,7 +365,7 @@ func (dht *IpfsDHT) handleGetProviders(ctx context.Context, p peer.ID, pmes *pb.
 	return resp, nil
 }
 
-func (dht *IpfsDHT) handleAddProvider(ctx context.Context, p peer.ID, pmes *pb.Message) (*pb.Message, error) {
+func (dht *UdfsDHT) handleAddProvider(ctx context.Context, p peer.ID, pmes *pb.Message) (*pb.Message, error) {
 	lm := make(lgbl.DeferredMap)
 	lm["peer"] = func() interface{} { return p.Pretty() }
 	eip := log.EventBegin(ctx, "handleAddProvider", lm)
@@ -411,7 +411,7 @@ func convertToDsKey(s string) ds.Key {
 	return ds.NewKey(base32.RawStdEncoding.EncodeToString([]byte(s)))
 }
 
-func (dht *IpfsDHT) handleFindMasterPeer(ctx context.Context, p peer.ID, pmes *pb.Message) (*pb.Message, error) {
+func (dht *UdfsDHT) handleFindMasterPeer(ctx context.Context, p peer.ID, pmes *pb.Message) (*pb.Message, error) {
 	defer log.EventBegin(ctx, "handleFindMasterPeer", p).Done()
 	resp := pb.NewMessage(pmes.GetType(), "", pmes.GetClusterLevel())
 	var closest []peer.ID

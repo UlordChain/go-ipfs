@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	tu "gx/ipfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil"
+	tu "gx/udfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil"
 )
 
 func TestNotifieeMultipleConn(t *testing.T) {
@@ -74,7 +74,7 @@ func TestNotifieeFuzz(t *testing.T) {
 	connect(t, ctx, d1, d2)
 }
 
-func checkRoutingTable(a, b *IpfsDHT) bool {
+func checkRoutingTable(a, b *UdfsDHT) bool {
 	// loop until connection notification has been received.
 	// under high load, this may not happen as immediately as we would like.
 	return a.routingTable.Find(b.self) != "" && b.routingTable.Find(a.self) != ""

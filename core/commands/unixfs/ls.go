@@ -7,7 +7,7 @@ import (
 	"sort"
 	"text/tabwriter"
 
-	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	cmdkit "gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 
 	cmds "github.com/udfs/go-udfs/commands"
 	core "github.com/udfs/go-udfs/core"
@@ -42,39 +42,39 @@ var LsCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "List directory contents for Unix filesystem objects.",
 		ShortDescription: `
-Displays the contents of an IPFS or IPNS object(s) at the given path.
+Displays the contents of an UDFS or IPNS object(s) at the given path.
 
 The JSON output contains size information. For files, the child size
 is the total size of the file contents. For directories, the child
-size is the IPFS link size.
+size is the UDFS link size.
 
 This functionality is deprecated, and will be removed in future versions. If
-possible, please use 'ipfs ls' instead.
+possible, please use 'udfs ls' instead.
 `,
 		LongDescription: `
-Displays the contents of an IPFS or IPNS object(s) at the given path.
+Displays the contents of an UDFS or IPNS object(s) at the given path.
 
 The JSON output contains size information. For files, the child size
 is the total size of the file contents. For directories, the child
-size is the IPFS link size.
+size is the UDFS link size.
 
 The path can be a prefixless ref; in this case, we assume it to be an
-/ipfs ref and not /ipns.
+/udfs ref and not /ipns.
 
 Example:
 
-    > ipfs file ls QmW2WQi7j6c7UgJTarActp7tDNikE4B2qXtFCfLPdsgaTQ
+    > udfs file ls QmW2WQi7j6c7UgJTarActp7tDNikE4B2qXtFCfLPdsgaTQ
     cat.jpg
-    > ipfs file ls /ipfs/QmW2WQi7j6c7UgJTarActp7tDNikE4B2qXtFCfLPdsgaTQ
+    > udfs file ls /udfs/QmW2WQi7j6c7UgJTarActp7tDNikE4B2qXtFCfLPdsgaTQ
     cat.jpg
 
 This functionality is deprecated, and will be removed in future versions. If
-possible, please use 'ipfs ls' instead.
+possible, please use 'udfs ls' instead.
 `,
 	},
 
 	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("ipfs-path", true, true, "The path to the IPFS object(s) to list links from.").EnableStdin(),
+		cmdkit.StringArg("udfs-path", true, true, "The path to the UDFS object(s) to list links from.").EnableStdin(),
 	},
 	Run: func(req cmds.Request, res cmds.Response) {
 		node, err := req.InvocContext().GetNode()

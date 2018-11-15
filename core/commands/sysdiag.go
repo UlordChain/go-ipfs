@@ -8,9 +8,9 @@ import (
 	cmds "github.com/udfs/go-udfs/commands"
 	config "github.com/udfs/go-udfs/repo/config"
 
-	manet "gx/ipfs/QmV6FjemM1K8oXjrvuq3wuVWWoU2TLDPmNnKrxHzY3v6Ai/go-multiaddr-net"
-	sysi "gx/ipfs/QmZRjKbHa6DenStpQJFiaPcEwkZqrx7TH6xTf342LDU3qM/go-sysinfo"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	manet "gx/udfs/QmV6FjemM1K8oXjrvuq3wuVWWoU2TLDPmNnKrxHzY3v6Ai/go-multiaddr-net"
+	sysi "gx/udfs/QmZRjKbHa6DenStpQJFiaPcEwkZqrx7TH6xTf342LDU3qM/go-sysinfo"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 var sysDiagCmd = &cmds.Command{
@@ -57,8 +57,8 @@ Prints out information about your computer to aid in easier debugging.
 			return
 		}
 
-		info["ipfs_version"] = config.CurrentVersionNumber
-		info["ipfs_commit"] = config.CurrentCommit
+		info["udfs_version"] = config.CurrentVersionNumber
+		info["udfs_commit"] = config.CurrentCommit
 		res.SetOutput(info)
 	},
 }
@@ -80,23 +80,23 @@ func runtimeInfo(out map[string]interface{}) error {
 func envVarInfo(out map[string]interface{}) error {
 	ev := make(map[string]interface{})
 	ev["GOPATH"] = os.Getenv("GOPATH")
-	ev["IPFS_PATH"] = os.Getenv("IPFS_PATH")
+	ev["UDFS_PATH"] = os.Getenv("UDFS_PATH")
 
 	out["environment"] = ev
 	return nil
 }
 
-func ipfsPath() string {
-	p := os.Getenv("IPFS_PATH")
+func udfsPath() string {
+	p := os.Getenv("UDFS_PATH")
 	if p == "" {
-		p = path.Join(os.Getenv("HOME"), ".ipfs")
+		p = path.Join(os.Getenv("HOME"), ".udfs")
 	}
 	return p
 }
 
 func diskSpaceInfo(out map[string]interface{}) error {
 	di := make(map[string]interface{})
-	dinfo, err := sysi.DiskUsage(ipfsPath())
+	dinfo, err := sysi.DiskUsage(udfsPath())
 	if err != nil {
 		return err
 	}

@@ -15,7 +15,7 @@ option (gogoproto.sizer_all) = true;
 option (gogoproto.unmarshaler_all) = true;
 
 
-// An IPFS MerkleDAG Link
+// An UDFS MerkleDAG Link
 message PBLink {
 
   // multihash of the target object
@@ -28,7 +28,7 @@ message PBLink {
   optional uint64 Tsize = 3;
 }
 
-// An IPFS MerkleDAG Node
+// An UDFS MerkleDAG Node
 message PBNode {
 
   // refs to other objects

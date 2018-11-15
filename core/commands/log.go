@@ -6,9 +6,9 @@ import (
 
 	cmds "github.com/udfs/go-udfs/commands"
 
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
-	lwriter "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log/writer"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	lwriter "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log/writer"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 // Golang os.Args overrides * and replaces the character argument with
@@ -21,7 +21,7 @@ var LogCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Interact with the daemon log output.",
 		ShortDescription: `
-'ipfs log' contains utility commands to affect or read the logging
+'udfs log' contains utility commands to affect or read the logging
 output of a running daemon.
 `,
 	},
@@ -78,7 +78,7 @@ var logLsCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "List the logging subsystems.",
 		ShortDescription: `
-'ipfs log ls' is a utility command used to list the logging
+'udfs log ls' is a utility command used to list the logging
 subsystems of a running daemon.
 `,
 	},

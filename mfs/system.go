@@ -1,4 +1,4 @@
-// package mfs implements an in memory model of a mutable IPFS filesystem.
+// package mfs implements an in memory model of a mutable UDFS filesystem.
 //
 // It consists of four main structs:
 // 1) The Filesystem
@@ -19,9 +19,9 @@ import (
 	dag "github.com/udfs/go-udfs/merkledag"
 	ft "github.com/udfs/go-udfs/unixfs"
 
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
 )
 
 var ErrNotExist = errors.New("no such rootfs")

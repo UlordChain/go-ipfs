@@ -13,7 +13,7 @@ import (
 	mount "github.com/udfs/go-udfs/fuse/mount"
 	rofs "github.com/udfs/go-udfs/fuse/readonly"
 
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
 )
 
 var log = logging.Logger("node")
@@ -26,16 +26,16 @@ const fuseExitStatus1 = "fusermount: exit status 1"
 
 // platformFuseChecks can get overridden by arch-specific files
 // to run fuse checks (like checking the OSXFUSE version)
-var platformFuseChecks = func(*core.IpfsNode) error {
+var platformFuseChecks = func(*core.UdfsNode) error {
 	return nil
 }
 
-func Mount(node *core.IpfsNode, fsdir, nsdir string) error {
+func Mount(node *core.UdfsNode, fsdir, nsdir string) error {
 	// check if we already have live mounts.
 	// if the user said "Mount", then there must be something wrong.
 	// so, close them and try again.
-	if node.Mounts.Ipfs != nil && node.Mounts.Ipfs.IsActive() {
-		node.Mounts.Ipfs.Unmount()
+	if node.Mounts.Udfs != nil && node.Mounts.Udfs.IsActive() {
+		node.Mounts.Udfs.Unmount()
 	}
 	if node.Mounts.Ipns != nil && node.Mounts.Ipns.IsActive() {
 		node.Mounts.Ipns.Unmount()
@@ -48,7 +48,7 @@ func Mount(node *core.IpfsNode, fsdir, nsdir string) error {
 	return doMount(node, fsdir, nsdir)
 }
 
-func doMount(node *core.IpfsNode, fsdir, nsdir string) error {
+func doMount(node *core.UdfsNode, fsdir, nsdir string) error {
 	fmtFuseErr := func(err error, mountpoint string) error {
 		s := err.Error()
 		if strings.Contains(s, fuseNoDirectory) {
@@ -108,7 +108,7 @@ func doMount(node *core.IpfsNode, fsdir, nsdir string) error {
 	}
 
 	// setup node state, so that it can be cancelled
-	node.Mounts.Ipfs = fsmount
+	node.Mounts.Udfs = fsmount
 	node.Mounts.Ipns = nsmount
 	return nil
 }

@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	config "github.com/udfs/go-udfs/repo/config"
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	testutil "gx/ipfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	testutil "gx/udfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil"
 )
 
 func TestSubsetWhenMaxIsGreaterThanLengthOfSlice(t *testing.T) {
@@ -34,13 +34,13 @@ func TestMultipleAddrsPerPeer(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		addr := fmt.Sprintf("/ip4/127.0.0.1/tcp/5001/ipfs/%s", pid.Pretty())
+		addr := fmt.Sprintf("/ip4/127.0.0.1/tcp/5001/udfs/%s", pid.Pretty())
 		bsp1, err := config.ParseBootstrapPeer(addr)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		addr = fmt.Sprintf("/ip4/127.0.0.1/udp/5002/utp/ipfs/%s", pid.Pretty())
+		addr = fmt.Sprintf("/ip4/127.0.0.1/udp/5002/utp/udfs/%s", pid.Pretty())
 		bsp2, err := config.ParseBootstrapPeer(addr)
 		if err != nil {
 			t.Fatal(err)

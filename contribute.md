@@ -1,25 +1,25 @@
 # Contribute
 
-go-ipfs is MIT licensed open source software. We welcome contributions big and
-small! Take a look at the [community contributing notes](https://github.com/ipfs/community/blob/master/contributing.md). 
+go-udfs is MIT licensed open source software. We welcome contributions big and
+small! Take a look at the [community contributing notes](https://github.com/udfs/community/blob/master/contributing.md). 
 
-Please make sure to check out the [issues](https://github.com/ipfs/go-ipfs/issues). Search the closed ones before reporting things, and (if you can!) help us with open ones.
+Please make sure to check out the [issues](https://github.com/udfs/go-udfs/issues). Search the closed ones before reporting things, and (if you can!) help us with open ones.
 
-Please note that the go-ipfs issues are only for bug reports and directly actionable features. Check [the IPFS Community guide on reporting issues](https://github.com/ipfs/community/blob/master/contributing.md#reporting-issues) if your question doesn't fit as a bug report or an actionable feature, and our [guide on opening issues](https://github.com/ipfs/go-ipfs/blob/master/docs/github-issue-guide.md) if you are not sure how to make an issue here.
+Please note that the go-udfs issues are only for bug reports and directly actionable features. Check [the UDFS Community guide on reporting issues](https://github.com/udfs/community/blob/master/contributing.md#reporting-issues) if your question doesn't fit as a bug report or an actionable feature, and our [guide on opening issues](https://github.com/udfs/go-udfs/blob/master/docs/github-issue-guide.md) if you are not sure how to make an issue here.
 
-If you're looking to help out, head to the [captain's log](https://github.com/ipfs/go-ipfs/issues/2247) and
+If you're looking to help out, head to the [captain's log](https://github.com/udfs/go-udfs/issues/2247) and
 try picking up an issue from there.
 
 ## Go Guidelines:
 
-Please look and conform to our [Go Contribution Guidelines](https://github.com/ipfs/community/blob/master/go-code-guidelines.md).
+Please look and conform to our [Go Contribution Guidelines](https://github.com/udfs/community/blob/master/go-code-guidelines.md).
 
 ## General Guidelines:
 
 - See the [dev pseudo-roadmap](dev.md).
-- Please adhere to the protocol described in [the main ipfs repo](https://github.com/ipfs/ipfs) and [specs](https://github.com/ipfs/specs) (WIP).
+- Please adhere to the protocol described in [the main udfs repo](https://github.com/udfs/udfs) and [specs](https://github.com/udfs/specs) (WIP).
 - Please make branches and pull-request, even if working on the main repository.
-- Ask questions or talk about things in [Issues](https://github.com/ipfs/go-ipfs/issues) or #ipfs on freenode.
+- Ask questions or talk about things in [Issues](https://github.com/udfs/go-udfs/issues) or #udfs on freenode.
 - Ensure you are able to contribute (no legal issues please-- we'll probably setup a CLA).
 - Have fun!
 
@@ -42,7 +42,7 @@ Please also try to keep branch names around or under 20 characters. It keeps thi
 A few examples of good branch names:
 
 - `feat/cmds/object-diff`
-  - For a Pull Request that adds an `ipfs object diff` command.
+  - For a Pull Request that adds an `udfs object diff` command.
 - `test/dag/cache-invalid`
   - For adding tests around the merkledag's cache invalidation code.
 - `doc/unixfs/pkg-desc`
@@ -73,11 +73,11 @@ properly written. It checks the following:
   and with licensing the work under the [MIT license](docs/LICENSE).
 
   To help you automatically add these trailers, you can run the
-  [setup_commit_msg_hook.sh](https://raw.githubusercontent.com/ipfs/community/master/dev/hooks/setup_commit_msg_hook.sh)
+  [setup_commit_msg_hook.sh](https://raw.githubusercontent.com/udfs/community/master/dev/hooks/setup_commit_msg_hook.sh)
   script which will setup a Git commit-msg hook that will add the above
   trailers to all the commit messages you write.
 
-See the [documentation about amending commits](https://github.com/ipfs/community/blob/master/docs/amending-commits.md)
+See the [documentation about amending commits](https://github.com/udfs/community/blob/master/docs/amending-commits.md)
 for explanation about how you can rework commit messages.
   
 Some example commit messages:
@@ -117,5 +117,5 @@ reasons why this is _the right thing to do_:
 [0] http://golang.org/src/crypto/tls/conn.go#L886
 
 License: MIT
-Signed-off-by: Juan Benet <juan@ipfs.io>
+Signed-off-by: Juan Benet <juan@udfs.io>
 ```

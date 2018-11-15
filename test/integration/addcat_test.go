@@ -18,9 +18,9 @@ import (
 	mock "github.com/udfs/go-udfs/core/mock"
 	"github.com/udfs/go-udfs/thirdparty/unit"
 
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
-	testutil "gx/ipfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	testutil "gx/udfs/QmcW4FGAt24fdK1jBgWQn3yP4R9ZLyWQqjozv9QK7epRhL/go-testutil"
 
 	mocknet "github.com/udfs/go-udfs/udfs/go-libp2p/p2p/net/mock"
 )
@@ -157,7 +157,7 @@ func DirectAddCat(data []byte, conf testutil.LatencyConfig) error {
 }
 
 func SkipUnlessEpic(t *testing.T) {
-	if os.Getenv("IPFS_EPIC_TEST") == "" {
+	if os.Getenv("UDFS_EPIC_TEST") == "" {
 		t.SkipNow()
 	}
 }

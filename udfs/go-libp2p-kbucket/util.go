@@ -5,8 +5,8 @@ import (
 	"crypto/sha256"
 	"errors"
 
-	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
-	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	u "gx/udfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-udfs-util"
+	peer "gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 
 	ks "github.com/udfs/go-udfs/udfs/go-libp2p-kbucket/keyspace"
 )
@@ -15,7 +15,7 @@ import (
 // behaviour
 var ErrLookupFailure = errors.New("failed to find any peer in table")
 
-// ID for IpfsDHT is in the XORKeySpace
+// ID for UdfsDHT is in the XORKeySpace
 //
 // The type dht.ID signifies that its contents have been hashed from either a
 // peer.ID or a util.Key. This unifies the keyspace

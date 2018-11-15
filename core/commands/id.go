@@ -12,23 +12,23 @@ import (
 	core "github.com/udfs/go-udfs/core"
 	e "github.com/udfs/go-udfs/core/commands/e"
 
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
-	"gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
-	ic "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
+	"gx/udfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
+	ic "gx/udfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
 
 	kb "github.com/udfs/go-udfs/udfs/go-libp2p-kbucket"
 
 	identify "github.com/udfs/go-udfs/udfs/go-libp2p/p2p/protocol/identify"
 )
 
-const offlineIdErrorMessage = `'ipfs id' currently cannot query information on remote
+const offlineIdErrorMessage = `'udfs id' currently cannot query information on remote
 peers without a running daemon; we are working to fix this.
-In the meantime, if you want to query remote peers using 'ipfs id',
+In the meantime, if you want to query remote peers using 'udfs id',
 please run the daemon:
 
-    ipfs daemon &
-    ipfs id QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ
+    udfs daemon &
+    udfs id QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ
 `
 
 type IdOutput struct {
@@ -41,12 +41,12 @@ type IdOutput struct {
 
 var IDCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Show ipfs node id info.",
+		Tagline: "Show udfs node id info.",
 		ShortDescription: `
 Prints out information about the specified peer.
 If no peer is specified, prints out information for local peers.
 
-'ipfs id' supports the format option for output with the following keys:
+'udfs id' supports the format option for output with the following keys:
 <id> : The peers id.
 <aver>: Agent version.
 <pver>: Protocol version.
@@ -55,7 +55,7 @@ If no peer is specified, prints out information for local peers.
 
 EXAMPLE:
 
-    ipfs id Qmece2RkXhsKe5CRooNisBTh4SK119KrXXGmoK6V3kb8aH -f="<addrs>\n"
+    udfs id Qmece2RkXhsKe5CRooNisBTh4SK119KrXXGmoK6V3kb8aH -f="<addrs>\n"
 `,
 	},
 	Arguments: []cmdkit.Argument{
@@ -191,7 +191,7 @@ func printPeer(ps pstore.Peerstore, p peer.ID) (interface{}, error) {
 }
 
 // printing self is special cased as we get values differently.
-func printSelf(node *core.IpfsNode) (interface{}, error) {
+func printSelf(node *core.UdfsNode) (interface{}, error) {
 	info := new(IdOutput)
 	info.ID = node.Identity.Pretty()
 
@@ -210,7 +210,7 @@ func printSelf(node *core.IpfsNode) (interface{}, error) {
 
 	if node.PeerHost != nil {
 		for _, a := range node.PeerHost.Addrs() {
-			s := a.String() + "/ipfs/" + info.ID
+			s := a.String() + "/udfs/" + info.ID
 			info.Addresses = append(info.Addresses, s)
 		}
 	}

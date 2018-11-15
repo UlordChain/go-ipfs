@@ -8,13 +8,13 @@ test_description="test http requests made by cli"
 
 . lib/test-lib.sh
 
-test_init_ipfs
+test_init_udfs
 
 test_expect_success "can make http request against nc server" '
   nc -ld 5005 > nc_out &
   NCPID=$!
   go-sleep 0.5s && kill "$NCPID" &
-  ipfs cat /ipfs/Qmabcdef --api /ip4/127.0.0.1/tcp/5005 || true
+  udfs cat /udfs/Qmabcdef --api /ip4/127.0.0.1/tcp/5005 || true
 '
 
 test_expect_success "output does not contain multipart info" '

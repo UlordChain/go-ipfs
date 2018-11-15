@@ -48,7 +48,7 @@ func benchmarkAdd(amount int64) (*testing.BenchmarkResult, error) {
 				cmd.Env = env
 			}
 
-			cmd := exec.Command("ipfs", "init", "-b=1024")
+			cmd := exec.Command("udfs", "init", "-b=1024")
 			setupCmd(cmd)
 			if err := cmd.Run(); err != nil {
 				b.Fatal(err)
@@ -67,7 +67,7 @@ func benchmarkAdd(amount int64) (*testing.BenchmarkResult, error) {
 			}
 
 			b.StartTimer()
-			cmd = exec.Command("ipfs", "add", f.Name())
+			cmd = exec.Command("udfs", "add", f.Name())
 			setupCmd(cmd)
 			if err := cmd.Run(); err != nil {
 				b.Fatal(err)

@@ -64,15 +64,15 @@ func TestObjectPut(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if p1.String() != "/ipfs/QmQeGyS87nyijii7kFt1zbe4n2PsXTFimzsdxyE9qh9TST" {
+	if p1.String() != "/udfs/QmQeGyS87nyijii7kFt1zbe4n2PsXTFimzsdxyE9qh9TST" {
 		t.Errorf("unexpected path: %s", p1.String())
 	}
 
-	if p2.String() != "/ipfs/QmNeYRbCibmaMMK6Du6ChfServcLqFvLJF76PzzF76SPrZ" {
+	if p2.String() != "/udfs/QmNeYRbCibmaMMK6Du6ChfServcLqFvLJF76PzzF76SPrZ" {
 		t.Errorf("unexpected path: %s", p2.String())
 	}
 
-	if p3.String() != "/ipfs/QmZreR7M2t7bFXAdb1V5FtQhjk4t36GnrvueLJowJbQM9m" {
+	if p3.String() != "/udfs/QmZreR7M2t7bFXAdb1V5FtQhjk4t36GnrvueLJowJbQM9m" {
 		t.Errorf("unexpected path: %s", p3.String())
 	}
 }

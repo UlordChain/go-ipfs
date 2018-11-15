@@ -25,8 +25,8 @@ func resolve(ctx context.Context, r resolver, name string, options *opts.Resolve
 		}
 		log.Debugf("resolved %s to %s", name, p.String())
 
-		if strings.HasPrefix(p.String(), "/ipfs/") {
-			// we've bottomed out with an IPFS path
+		if strings.HasPrefix(p.String(), "/udfs/") {
+			// we've bottomed out with an UDFS path
 			return p, nil
 		}
 

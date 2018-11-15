@@ -8,14 +8,14 @@ test_description="test bitswap commands"
 
 . lib/test-lib.sh
 
-test_init_ipfs
-test_launch_ipfs_daemon
+test_init_udfs
+test_launch_udfs_daemon
 
-test_expect_success "'ipfs bitswap stat' succeeds" '
-  ipfs bitswap stat >stat_out
+test_expect_success "'udfs bitswap stat' succeeds" '
+  udfs bitswap stat >stat_out
 '
 
-test_expect_success "'ipfs bitswap stat' output looks good" '
+test_expect_success "'udfs bitswap stat' output looks good" '
   cat <<EOF | unexpand -t2 >expected &&
 bitswap status
   provides buffer: 0 / 256
@@ -31,29 +31,29 @@ EOF
   test_cmp expected stat_out
 '
 
-test_expect_success "ipfs peer id looks good" '
-  PEERID=$(ipfs config Identity.PeerID) &&
+test_expect_success "udfs peer id looks good" '
+  PEERID=$(udfs config Identity.PeerID) &&
   test_check_peerid "$PEERID"
 '
 
-test_expect_success "'ipfs bitswap wantlist -p' works" '
-  ipfs bitswap wantlist -p "$PEERID" >wantlist_p_out
+test_expect_success "'udfs bitswap wantlist -p' works" '
+  udfs bitswap wantlist -p "$PEERID" >wantlist_p_out
 '
 
-test_expect_success "'ipfs bitswap wantlist -p' output looks good" '
+test_expect_success "'udfs bitswap wantlist -p' output looks good" '
   test_must_be_empty wantlist_p_out
 '
 
 test_expect_success "hash was removed from wantlist" '
-  ipfs bitswap wantlist > wantlist_out &&
+  udfs bitswap wantlist > wantlist_out &&
   test_must_be_empty wantlist_out
 '
 
-test_expect_success "'ipfs bitswap stat' succeeds" '
-  ipfs bitswap stat >stat_out
+test_expect_success "'udfs bitswap stat' succeeds" '
+  udfs bitswap stat >stat_out
 '
 
-test_expect_success "'ipfs bitswap stat' output looks good" '
+test_expect_success "'udfs bitswap stat' output looks good" '
   cat <<EOF | unexpand -t2 >expected &&
 bitswap status
   provides buffer: 0 / 256
@@ -69,14 +69,14 @@ EOF
   test_cmp expected stat_out
 '
 
-test_expect_success "'ipfs bitswap wantlist -p' works" '
-  ipfs bitswap wantlist -p "$PEERID" >wantlist_p_out
+test_expect_success "'udfs bitswap wantlist -p' works" '
+  udfs bitswap wantlist -p "$PEERID" >wantlist_p_out
 '
 
-test_expect_success "'ipfs bitswap wantlist -p' output looks good" '
+test_expect_success "'udfs bitswap wantlist -p' output looks good" '
   test_cmp wantlist_out wantlist_p_out
 '
 
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 test_done

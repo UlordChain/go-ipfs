@@ -1,4 +1,4 @@
-//go:generate go-bindata -pkg=assets -prefix=$GOPATH/src/gx/ipfs/QmdZ4PvPHFQVLLEve7DgoKDcSY19wwpGBB1GKjjKi2rEL1 init-doc $GOPATH/src/gx/ipfs/QmdZ4PvPHFQVLLEve7DgoKDcSY19wwpGBB1GKjjKi2rEL1/dir-index-html
+//go:generate go-bindata -pkg=assets -prefix=$GOPATH/src/gx/udfs/QmdZ4PvPHFQVLLEve7DgoKDcSY19wwpGBB1GKjjKi2rEL1 init-doc $GOPATH/src/gx/udfs/QmdZ4PvPHFQVLLEve7DgoKDcSY19wwpGBB1GKjjKi2rEL1/dir-index-html
 //go:generate gofmt -w bindata.go
 
 package assets
@@ -12,10 +12,10 @@ import (
 	"github.com/udfs/go-udfs/core"
 	"github.com/udfs/go-udfs/core/coreunix"
 	uio "github.com/udfs/go-udfs/unixfs/io"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 
 	// this import keeps gx from thinking the dep isn't used
-	_ "gx/ipfs/QmdZ4PvPHFQVLLEve7DgoKDcSY19wwpGBB1GKjjKi2rEL1/dir-index-html"
+	_ "gx/udfs/QmdZ4PvPHFQVLLEve7DgoKDcSY19wwpGBB1GKjjKi2rEL1/dir-index-html"
 )
 
 // initDocPaths lists the paths for the docs we want to seed during --init
@@ -30,21 +30,21 @@ var initDocPaths = []string{
 }
 
 // SeedInitDocs adds the list of embedded init documentation to the passed node, pins it and returns the root key
-func SeedInitDocs(nd *core.IpfsNode) (*cid.Cid, error) {
+func SeedInitDocs(nd *core.UdfsNode) (*cid.Cid, error) {
 	return addAssetList(nd, initDocPaths)
 }
 
-var initDirPath = filepath.Join(os.Getenv("GOPATH"), "gx", "ipfs", "QmdZ4PvPHFQVLLEve7DgoKDcSY19wwpGBB1GKjjKi2rEL1", "dir-index-html")
+var initDirPath = filepath.Join(os.Getenv("GOPATH"), "gx", "udfs", "QmdZ4PvPHFQVLLEve7DgoKDcSY19wwpGBB1GKjjKi2rEL1", "dir-index-html")
 var initDirIndex = []string{
 	filepath.Join(initDirPath, "knownIcons.txt"),
 	filepath.Join(initDirPath, "dir-index.html"),
 }
 
-func SeedInitDirIndex(nd *core.IpfsNode) (*cid.Cid, error) {
+func SeedInitDirIndex(nd *core.UdfsNode) (*cid.Cid, error) {
 	return addAssetList(nd, initDirIndex)
 }
 
-func addAssetList(nd *core.IpfsNode, l []string) (*cid.Cid, error) {
+func addAssetList(nd *core.UdfsNode, l []string) (*cid.Cid, error) {
 	dirb := uio.NewDirectory(nd.DAG)
 
 	for _, p := range l {

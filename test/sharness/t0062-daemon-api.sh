@@ -7,14 +7,14 @@ test_description="Test daemon command"
 
 . lib/test-lib.sh
 
-test_init_ipfs
+test_init_udfs
 
 differentport=$((API_PORT + 1))
 api_other="/ip4/127.0.0.1/tcp/$differentport"
 api_unreachable="/ip4/127.0.0.1/tcp/1"
 
 test_expect_success "config setup" '
-  peerid=$(ipfs config Identity.PeerID) &&
+  peerid=$(udfs config Identity.PeerID) &&
   test_check_peerid "$peerid"
 '
 
@@ -23,7 +23,7 @@ test_client() {
   echo "OPTS = " $opts
   test_expect_success "client must work properly $state" '
     printf "$peerid" >expected &&
-    ipfs id -f="<id>" $opts >actual &&
+    udfs id -f="<id>" $opts >actual &&
     test_cmp expected actual
   '
 }
@@ -33,7 +33,7 @@ test_client_must_fail() {
   echo "OPTS = " $opts
   test_expect_success "client should fail $state" '
     echo "Error: api not running" >expected_err &&
-    test_must_fail ipfs id -f="<id>" $opts >actual 2>actual_err &&
+    test_must_fail udfs id -f="<id>" $opts >actual 2>actual_err &&
     test_cmp expected_err actual_err
   '
 }
@@ -72,17 +72,17 @@ test_client_suite "(daemon off, no --api, no /api file)" false false "$api_unrea
 
 # then, test things with daemon, with /api file
 
-test_launch_ipfs_daemon
+test_launch_udfs_daemon
 
-test_expect_success "'ipfs daemon' creates api file" '
-  test -f ".ipfs/api"
+test_expect_success "'udfs daemon' creates api file" '
+  test -f ".udfs/api"
 '
 
 test_client_suite "(daemon on, no --api, /api file from cfg)" true false "$API_MADDR" "$api_other"
 
 # then, test things without daemon, with /api file
 
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 # again, both should fail
 test_client_suite "(daemon off, no --api, /api file from cfg)" false false "$API_MADDR" "$api_other"

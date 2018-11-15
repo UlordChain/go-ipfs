@@ -19,13 +19,13 @@ import (
 	"github.com/udfs/go-udfs/pin"
 	unixfs "github.com/udfs/go-udfs/unixfs"
 
-	posinfo "gx/ipfs/QmSHjPDw8yNgLZ7cBfX7w3Smn7PHwYhNEpd4LHQQxUg35L/go-ipfs-posinfo"
-	chunker "gx/ipfs/QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4/go-ipfs-chunker"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	bstore "gx/ipfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-ipfs-blockstore"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
-	files "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit/files"
+	posinfo "gx/udfs/QmSHjPDw8yNgLZ7cBfX7w3Smn7PHwYhNEpd4LHQQxUg35L/go-udfs-posinfo"
+	chunker "gx/udfs/QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4/go-udfs-chunker"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	bstore "gx/udfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-udfs-blockstore"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	files "gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit/files"
 )
 
 var log = logging.Logger("coreunix")
@@ -296,12 +296,12 @@ func (adder *Adder) outputDirs(path string, fsn mfs.FSNode) error {
 // Add builds a merkledag node from a reader, adds it to the blockstore,
 // and returns the key representing that node.
 // If you want to pin it, use NewAdder() and Adder.PinRoot().
-func Add(n *core.IpfsNode, r io.Reader) (string, error) {
+func Add(n *core.UdfsNode, r io.Reader) (string, error) {
 	return AddWithContext(n.Context(), n, r)
 }
 
 // AddWithContext does the same as Add, but with a custom context.
-func AddWithContext(ctx context.Context, n *core.IpfsNode, r io.Reader) (string, error) {
+func AddWithContext(ctx context.Context, n *core.UdfsNode, r io.Reader) (string, error) {
 	defer n.Blockstore.PinLock().Unlock()
 
 	fileAdder, err := NewAdder(ctx, n.Pinning, n.Blockstore, n.DAG)
@@ -318,7 +318,7 @@ func AddWithContext(ctx context.Context, n *core.IpfsNode, r io.Reader) (string,
 }
 
 // AddR recursively adds files in |path|.
-func AddR(n *core.IpfsNode, root string) (key string, err error) {
+func AddR(n *core.UdfsNode, root string) (key string, err error) {
 	defer n.Blockstore.PinLock().Unlock()
 
 	stat, err := os.Lstat(root)
@@ -354,7 +354,7 @@ func AddR(n *core.IpfsNode, root string) (key string, err error) {
 // to preserve the filename.
 // Returns the path of the added file ("<dir hash>/filename"), the DAG node of
 // the directory, and and error if any.
-func AddWrapped(n *core.IpfsNode, r io.Reader, filename string) (string, ipld.Node, error) {
+func AddWrapped(n *core.UdfsNode, r io.Reader, filename string) (string, ipld.Node, error) {
 	file := files.NewReaderFile(filename, filename, ioutil.NopCloser(r), nil)
 	fileAdder, err := NewAdder(n.Context(), n.Pinning, n.Blockstore, n.DAG)
 	if err != nil {

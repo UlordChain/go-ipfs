@@ -19,7 +19,7 @@ type GatewayConfig struct {
 }
 
 func GatewayOption(writable bool, paths ...string) ServeOption {
-	return func(n *core.IpfsNode, _ net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
+	return func(n *core.UdfsNode, _ net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
 		cfg, err := n.Repo.Config()
 		if err != nil {
 			return nil, err
@@ -39,7 +39,7 @@ func GatewayOption(writable bool, paths ...string) ServeOption {
 }
 
 func VersionOption() ServeOption {
-	return func(_ *core.IpfsNode, _ net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
+	return func(_ *core.UdfsNode, _ net.Listener, mux *http.ServeMux) (*http.ServeMux, error) {
 		mux.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "Commit: %s\n", config.CurrentCommit)
 			fmt.Fprintf(w, "Client Version: %s\n", id.ClientVersion)

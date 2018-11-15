@@ -13,19 +13,19 @@ import (
 	core "github.com/udfs/go-udfs/core"
 	e "github.com/udfs/go-udfs/core/commands/e"
 
-	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	blocks "gx/ipfs/QmVzK524a2VWLqyvtBeiHKsUAWYgeAk4DBeZoY7vpNPNRx/go-block-format"
-	floodsub "gx/ipfs/QmXScvRbYh9X9okLuX9YMnz1HR4WgRTU2hocjBs15nmCNG/go-libp2p-floodsub"
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
-	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	cmds "gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	blocks "gx/udfs/QmVzK524a2VWLqyvtBeiHKsUAWYgeAk4DBeZoY7vpNPNRx/go-block-format"
+	floodsub "gx/udfs/QmXScvRbYh9X9okLuX9YMnz1HR4WgRTU2hocjBs15nmCNG/go-libp2p-floodsub"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	cmdkit "gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 var PubsubCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "An experimental publish-subscribe system on ipfs.",
+		Tagline: "An experimental publish-subscribe system on udfs.",
 		ShortDescription: `
-ipfs pubsub allows you to publish messages to a given topic, and also to
+udfs pubsub allows you to publish messages to a given topic, and also to
 subscribe to new messages on a given topic.
 
 This is an experimental feature. It is not intended in its current state
@@ -46,7 +46,7 @@ var PubsubSubCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Subscribe to messages on a given topic.",
 		ShortDescription: `
-ipfs pubsub sub subscribes to messages on a given topic.
+udfs pubsub sub subscribes to messages on a given topic.
 
 This is an experimental feature. It is not intended in its current state
 to be used in a production environment.
@@ -54,7 +54,7 @@ to be used in a production environment.
 To use, the daemon must be run with '--enable-pubsub-experiment'.
 `,
 		LongDescription: `
-ipfs pubsub sub subscribes to messages on a given topic.
+udfs pubsub sub subscribes to messages on a given topic.
 
 This is an experimental feature. It is not intended in its current state
 to be used in a production environment.
@@ -165,7 +165,7 @@ This command outputs data in the following encodings:
 	Type: floodsub.Message{},
 }
 
-func connectToPubSubPeers(ctx context.Context, n *core.IpfsNode, cid *cid.Cid) {
+func connectToPubSubPeers(ctx context.Context, n *core.UdfsNode, cid *cid.Cid) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -193,7 +193,7 @@ var PubsubPubCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "Publish a message to a given pubsub topic.",
 		ShortDescription: `
-ipfs pubsub pub publishes a message to a specified topic.
+udfs pubsub pub publishes a message to a specified topic.
 
 This is an experimental feature. It is not intended in its current state
 to be used in a production environment.
@@ -244,7 +244,7 @@ var PubsubLsCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "List subscribed topics by name.",
 		ShortDescription: `
-ipfs pubsub ls lists out the names of topics you are currently subscribed to.
+udfs pubsub ls lists out the names of topics you are currently subscribed to.
 
 This is an experimental feature. It is not intended in its current state
 to be used in a production environment.
@@ -296,7 +296,7 @@ var PubsubPeersCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline: "List peers we are currently pubsubbing with.",
 		ShortDescription: `
-ipfs pubsub peers with no arguments lists out the pubsub peers you are
+udfs pubsub peers with no arguments lists out the pubsub peers you are
 currently connected to. If given a topic, it will list connected
 peers who are subscribed to the named topic.
 

@@ -8,12 +8,12 @@ test_description="Test private network feature"
 
 . lib/test-lib.sh
 
-test_init_ipfs
+test_init_udfs
 
 export LIBP2P_FORCE_PNET=1
 
 test_expect_success "daemon won't start with force pnet env but with no key" '
-  test_must_fail go-timeout 5 ipfs daemon > stdout 2>&1
+  test_must_fail go-timeout 5 udfs daemon > stdout 2>&1
 '
 
 unset LIBP2P_FORCE_PNET
@@ -29,13 +29,13 @@ pnet_key() {
   random 16
 }
 
-pnet_key > "${IPFS_PATH}/swarm.key"
+pnet_key > "${UDFS_PATH}/swarm.key"
 
-LIBP2P_FORCE_PNET=1 test_launch_ipfs_daemon
+LIBP2P_FORCE_PNET=1 test_launch_udfs_daemon
 
 test_expect_success "set up iptb testbed" '
   iptb init -n 5 -p 0 -f --bootstrap=none  &&
-  iptb for-each ipfs config --json Addresses.Swarm  '"'"'["/ip4/127.0.0.1/tcp/0"]'"'"'
+  iptb for-each udfs config --json Addresses.Swarm  '"'"'["/ip4/127.0.0.1/tcp/0"]'"'"'
 '
 
 set_key() {
@@ -65,8 +65,8 @@ test_expect_success "try connecting node in public network with priv networks" '
 '
 
 test_expect_success "node 0 (public network) swarm is empty" '
-  ipfsi 0 swarm peers &&
-  [ $(ipfsi 0 swarm peers | wc -l) -eq 0 ]
+  udfsi 0 swarm peers &&
+  [ $(udfsi 0 swarm peers | wc -l) -eq 0 ]
 '
 
 test_expect_success "try connecting nodes in different private networks" '
@@ -74,8 +74,8 @@ test_expect_success "try connecting nodes in different private networks" '
 '
 
 test_expect_success "node 3 (pnet 2) swarm is empty" '
-  ipfsi 3 swarm peers &&
-  [ $(ipfsi 3 swarm peers | wc -l) -eq 0 ]
+  udfsi 3 swarm peers &&
+  [ $(udfsi 3 swarm peers | wc -l) -eq 0 ]
 '
 
 test_expect_success "connect nodes in the same pnet" '
@@ -84,13 +84,13 @@ test_expect_success "connect nodes in the same pnet" '
 '
 
 test_expect_success "nodes 1 and 2 have connected" '
-  ipfsi 2 swarm peers &&
-  [ $(ipfsi 2 swarm peers | wc -l) -eq 1 ]
+  udfsi 2 swarm peers &&
+  [ $(udfsi 2 swarm peers | wc -l) -eq 1 ]
 '
 
 test_expect_success "nodes 3 and 4 have connected" '
-  ipfsi 4 swarm peers &&
-  [ $(ipfsi 4 swarm peers | wc -l) -eq 1 ]
+  udfsi 4 swarm peers &&
+  [ $(udfsi 4 swarm peers | wc -l) -eq 1 ]
 '
 
 
@@ -100,7 +100,7 @@ run_single_file_test() {
 
   test_expect_success "add a file on node$node1" '
     random 1000000 > filea &&
-    FILEA_HASH=$(ipfsi $node1 add -q filea)
+    FILEA_HASH=$(udfsi $node1 add -q filea)
   '
 
   check_file_fetch $node1 $FILEA_HASH filea
@@ -113,7 +113,7 @@ check_file_fetch() {
   fname="$3"
 
   test_expect_success "can fetch file" '
-    ipfsi $node cat $fhash > fetch_out
+    udfsi $node cat $fhash > fetch_out
   '
 
   test_expect_success "file looks good" '

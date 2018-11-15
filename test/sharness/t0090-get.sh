@@ -8,23 +8,23 @@ test_description="Test get command"
 
 . lib/test-lib.sh
 
-test_init_ipfs
+test_init_udfs
 
-test_ipfs_get_flag() {
+test_udfs_get_flag() {
   ext="$1"; shift
   tar_flag="$1"; shift
   flag="$@"
 
-  test_expect_success "ipfs get $flag succeeds" '
-    ipfs get "$HASH" '"$flag"' >actual
+  test_expect_success "udfs get $flag succeeds" '
+    udfs get "$HASH" '"$flag"' >actual
   '
 
-  test_expect_success "ipfs get $flag output looks good" '
+  test_expect_success "udfs get $flag output looks good" '
     printf "%s\n" "Saving archive to $HASH$ext" >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs get $flag archive output is valid" '
+  test_expect_success "udfs get $flag archive output is valid" '
     tar "$tar_flag" "$HASH$ext" &&
     test_cmp "$HASH" data &&
     rm "$HASH$ext" &&
@@ -35,88 +35,88 @@ test_ipfs_get_flag() {
 # we use a function so that we can run it both offline + online
 test_get_cmd() {
 
-  test_expect_success "'ipfs get --help' succeeds" '
-    ipfs get --help >actual
+  test_expect_success "'udfs get --help' succeeds" '
+    udfs get --help >actual
   '
 
-  test_expect_success "'ipfs get --help' output looks good" '
-    egrep "ipfs get.*<ipfs-path>" actual >/dev/null ||
+  test_expect_success "'udfs get --help' output looks good" '
+    egrep "udfs get.*<udfs-path>" actual >/dev/null ||
     test_fsh cat actual
   '
 
-  test_expect_success "ipfs get succeeds" '
+  test_expect_success "udfs get succeeds" '
     echo "Hello Worlds!" >data &&
-    HASH=`ipfs add -q data` &&
-    ipfs get "$HASH" >actual
+    HASH=`udfs add -q data` &&
+    udfs get "$HASH" >actual
   '
 
-  test_expect_success "ipfs get output looks good" '
+  test_expect_success "udfs get output looks good" '
     printf "%s\n" "Saving file(s) to $HASH" >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs get file output looks good" '
+  test_expect_success "udfs get file output looks good" '
     test_cmp "$HASH" data
   '
 
-  test_expect_success "ipfs get DOES NOT error when trying to overwrite a file" '
-    ipfs get "$HASH" >actual &&
+  test_expect_success "udfs get DOES NOT error when trying to overwrite a file" '
+    udfs get "$HASH" >actual &&
     rm "$HASH"
   '
 
-  test_expect_success "ipfs get works with raw leaves" '
-  HASH2=$(ipfs add --raw-leaves -q data) &&
-    ipfs get "$HASH2" >actual2
+  test_expect_success "udfs get works with raw leaves" '
+  HASH2=$(udfs add --raw-leaves -q data) &&
+    udfs get "$HASH2" >actual2
   '
 
-  test_expect_success "ipfs get output looks good" '
+  test_expect_success "udfs get output looks good" '
     printf "%s\n" "Saving file(s) to $HASH2" >expected2 &&
     test_cmp expected2 actual2
   '
 
-  test_expect_success "ipfs get file output looks good" '
+  test_expect_success "udfs get file output looks good" '
     test_cmp "$HASH2" data
   '
 
-  test_ipfs_get_flag ".tar" "-xf" -a
+  test_udfs_get_flag ".tar" "-xf" -a
 
-  test_ipfs_get_flag ".tar.gz" "-zxf" -a -C
+  test_udfs_get_flag ".tar.gz" "-zxf" -a -C
 
-  test_ipfs_get_flag ".tar.gz" "-zxf" -a -C -l 9
+  test_udfs_get_flag ".tar.gz" "-zxf" -a -C -l 9
 
-  test_expect_success "ipfs get succeeds (directory)" '
+  test_expect_success "udfs get succeeds (directory)" '
     mkdir -p dir &&
     touch dir/a &&
     mkdir -p dir/b &&
     echo "Hello, Worlds!" >dir/b/c &&
-    HASH2=`ipfs add -r -q dir | tail -n 1` &&
-    ipfs get "$HASH2" >actual
+    HASH2=`udfs add -r -q dir | tail -n 1` &&
+    udfs get "$HASH2" >actual
   '
 
-  test_expect_success "ipfs get output looks good (directory)" '
+  test_expect_success "udfs get output looks good (directory)" '
     printf "%s\n" "Saving file(s) to $HASH2" >expected &&
     test_cmp expected actual
   '
 
-  test_expect_success "ipfs get output is valid (directory)" '
+  test_expect_success "udfs get output is valid (directory)" '
     test_cmp dir/a "$HASH2"/a &&
     test_cmp dir/b/c "$HASH2"/b/c &&
     rm -r "$HASH2"
   '
 
   # Test issue #4720: problems when path contains a trailing slash.
-  test_expect_success "ipfs get with slash (directory)" '
-    ipfs get "$HASH2/" &&
+  test_expect_success "udfs get with slash (directory)" '
+    udfs get "$HASH2/" &&
     test_cmp dir/a "$HASH2"/a &&
     test_cmp dir/b/c "$HASH2"/b/c &&
     rm -r "$HASH2"
   '
 
-  test_expect_success "ipfs get -a -C succeeds (directory)" '
-    ipfs get "$HASH2" -a -C >actual
+  test_expect_success "udfs get -a -C succeeds (directory)" '
+    udfs get "$HASH2" -a -C >actual
   '
 
-  test_expect_success "ipfs get -a -C output looks good (directory)" '
+  test_expect_success "udfs get -a -C output looks good (directory)" '
     printf "%s\n" "Saving archive to $HASH2.tar.gz" >expected &&
     test_cmp expected actual
   '
@@ -128,29 +128,29 @@ test_get_cmd() {
     rm -r "$HASH2"
   '
 
-  test_expect_success "ipfs get ../.. should fail" '
-    echo "Error: invalid 'ipfs ref' path" >expected &&
-    test_must_fail ipfs get ../.. 2>actual &&
+  test_expect_success "udfs get ../.. should fail" '
+    echo "Error: invalid 'udfs ref' path" >expected &&
+    test_must_fail udfs get ../.. 2>actual &&
     test_cmp expected actual
   '
 
   test_expect_success "create small file" '
     echo "foo" > small &&
-    ipfs add -q small > hash_small
+    udfs add -q small > hash_small
   '
 
   test_expect_success "get small file" '
-    ipfs get -o out_small $(cat hash_small) &&
+    udfs get -o out_small $(cat hash_small) &&
     test_cmp small out_small
   '
 
   test_expect_success "create medium file" '
     head -c 16000 > medium &&
-    ipfs add -q medium > hash_medium
+    udfs add -q medium > hash_medium
   '
 
   test_expect_success "get medium file" '
-    ipfs get -o out_medium $(cat hash_medium) &&
+    udfs get -o out_medium $(cat hash_medium) &&
     test_cmp medium out_medium
   '
 }
@@ -160,7 +160,7 @@ test_get_fail() {
     cat <<-\EOF >bad_object &&
 { "Links": [ { "Name": "foo", "Hash": "QmZzaC6ydNXiR65W8VjGA73ET9MZ6VFAqUT1ngYMXcpihn", "Size": 1897 }, { "Name": "bar", "Hash": "Qmd4mG6pDFDmDTn6p3hX1srP8qTbkyXKj5yjpEsiHDX3u8", "Size": 56 }, { "Name": "baz", "Hash": "QmUTjwRnG28dSrFFVTYgbr6LiDLsBmRr2SaUSTGheK2YqG", "Size": 24266 } ], "Data": "\b\u0001" }
 EOF
-    cat bad_object | ipfs object put > put_out
+    cat bad_object | udfs object put > put_out
   '
 
   test_expect_success "output looks good" '
@@ -168,8 +168,8 @@ EOF
     test_cmp put_exp put_out
   '
 
-  test_expect_success "ipfs get fails" '
-    test_expect_code 1 ipfs get QmaGidyrnX8FMbWJoxp8HVwZ1uRKwCyxBJzABnR1S2FVUr
+  test_expect_success "udfs get fails" '
+    test_expect_code 1 udfs get QmaGidyrnX8FMbWJoxp8HVwZ1uRKwCyxBJzABnR1S2FVUr
   '
 }
 
@@ -180,13 +180,13 @@ test_get_cmd
 test_get_fail
 
 # should work online
-test_launch_ipfs_daemon
+test_launch_udfs_daemon
 test_get_cmd
 
 test_expect_success "empty request to get doesn't panic and returns error" '
   curl "http://$API_ADDR/api/v0/get" > curl_out || true &&
-    grep "argument \"ipfs-path\" is required" curl_out
+    grep "argument \"udfs-path\" is required" curl_out
 '
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 test_done

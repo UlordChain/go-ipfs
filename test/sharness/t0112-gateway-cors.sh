@@ -6,17 +6,17 @@
 
 test_description="Test HTTP Gateway CORS Support"
 
-test_config_ipfs_cors_headers() {
-  ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '["*"]'
-  ipfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '["PUT", "GET", "POST"]'
-  ipfs config --json API.HTTPHeaders.Access-Control-Allow-Headers '["X-Requested-With"]'
+test_config_udfs_cors_headers() {
+  udfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '["*"]'
+  udfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '["PUT", "GET", "POST"]'
+  udfs config --json API.HTTPHeaders.Access-Control-Allow-Headers '["X-Requested-With"]'
 }
 
 . lib/test-lib.sh
 
-test_init_ipfs
-test_config_ipfs_cors_headers
-test_launch_ipfs_daemon
+test_init_udfs
+test_config_udfs_cors_headers
+test_launch_udfs_daemon
 
 gwport=$GWAY_PORT
 apiport=$API_PORT
@@ -26,7 +26,7 @@ thash='QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'
 
 # HTTP GET Request
 test_expect_success "GET to Gateway succeeds" '
-  curl -svX GET "http://127.0.0.1:$gwport/ipfs/$thash" 2>curl_output
+  curl -svX GET "http://127.0.0.1:$gwport/udfs/$thash" 2>curl_output
 '
 
 cat curl_output
@@ -39,7 +39,7 @@ test_expect_success "GET response for Gateway resource looks good" '
 
 # HTTP OPTIONS Request
 test_expect_success "OPTIONS to Gateway succeeds" '
-  curl -svX OPTIONS "http://127.0.0.1:$gwport/ipfs/$thash" 2>curl_output
+  curl -svX OPTIONS "http://127.0.0.1:$gwport/udfs/$thash" 2>curl_output
 '
 # OPTION Response from Gateway should contain CORS headers
 test_expect_success "OPTIONS response for Gateway resource looks good" '
@@ -70,6 +70,6 @@ test_expect_success "OPTIONS response for API looks good" '
   grep -q "Access-Control-Allow-" curl_output && false || true
 '
 
-test_kill_ipfs_daemon
+test_kill_udfs_daemon
 
 test_done

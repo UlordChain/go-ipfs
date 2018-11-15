@@ -12,8 +12,8 @@ import (
 	. "github.com/udfs/go-udfs/namesys/republisher"
 	path "github.com/udfs/go-udfs/path"
 
-	goprocess "gx/ipfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess"
-	pstore "gx/ipfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
+	goprocess "gx/udfs/QmSF8fPo3jgVBAy8fpdjjYqgG87dkJgUprRBHRd2tmfgpP/goprocess"
+	pstore "gx/udfs/QmZR2XWVVBCtbgBWnQhWk2xcQfaR3W8faQPriAiaaj7rsr/go-libp2p-peerstore"
 
 	mocknet "github.com/udfs/go-udfs/udfs/go-libp2p/p2p/net/mock"
 )
@@ -27,7 +27,7 @@ func TestRepublish(t *testing.T) {
 	// create network
 	mn := mocknet.New(ctx)
 
-	var nodes []*core.IpfsNode
+	var nodes []*core.UdfsNode
 	for i := 0; i < 10; i++ {
 		nd, err := core.NewNode(ctx, &core.BuildCfg{
 			Online: true,
@@ -58,7 +58,7 @@ func TestRepublish(t *testing.T) {
 
 	// have one node publish a record that is valid for 1 second
 	publisher := nodes[3]
-	p := path.FromString("/ipfs/QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn") // does not need to be valid
+	p := path.FromString("/udfs/QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn") // does not need to be valid
 	rp := namesys.NewIpnsPublisher(publisher.Routing, publisher.Repo.Datastore())
 	name := "/ipns/" + publisher.Identity.Pretty()
 
@@ -110,7 +110,7 @@ func TestRepublish(t *testing.T) {
 	}
 }
 
-func verifyResolution(nodes []*core.IpfsNode, key string, exp path.Path) error {
+func verifyResolution(nodes []*core.UdfsNode, key string, exp path.Path) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	for _, n := range nodes {
@@ -126,7 +126,7 @@ func verifyResolution(nodes []*core.IpfsNode, key string, exp path.Path) error {
 	return nil
 }
 
-func verifyResolutionFails(nodes []*core.IpfsNode, key string) error {
+func verifyResolutionFails(nodes []*core.UdfsNode, key string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	for _, n := range nodes {

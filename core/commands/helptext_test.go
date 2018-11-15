@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
+	cmds "gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
 )
 
 func checkHelptextRecursive(t *testing.T, name []string, c *cmds.Command) {
@@ -32,5 +32,5 @@ func checkHelptextRecursive(t *testing.T, name []string, c *cmds.Command) {
 func TestHelptexts(t *testing.T) {
 	t.Skip("sill isn't 100%")
 	Root.ProcessHelp()
-	checkHelptextRecursive(t, []string{"ipfs"}, Root)
+	checkHelptextRecursive(t, []string{"udfs"}, Root)
 }

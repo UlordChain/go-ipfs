@@ -8,8 +8,8 @@ import (
 	coreunix "github.com/udfs/go-udfs/core/coreunix"
 	uio "github.com/udfs/go-udfs/unixfs/io"
 
-	cid "gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	cid "gx/udfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
 )
 
 type UnixfsAPI CoreAPI
@@ -25,10 +25,10 @@ func (api *UnixfsAPI) Add(ctx context.Context, r io.Reader) (coreiface.ResolvedP
 	if err != nil {
 		return nil, err
 	}
-	return coreiface.IpfsPath(c), nil
+	return coreiface.UdfsPath(c), nil
 }
 
-// Cat returns the data contained by an IPFS or IPNS object(s) at path `p`.
+// Cat returns the data contained by an UDFS or IPNS object(s) at path `p`.
 func (api *UnixfsAPI) Cat(ctx context.Context, p coreiface.Path) (coreiface.Reader, error) {
 	dget := api.node.DAG // TODO: use a session here once routing perf issues are resolved
 
@@ -46,7 +46,7 @@ func (api *UnixfsAPI) Cat(ctx context.Context, p coreiface.Path) (coreiface.Read
 	return r, nil
 }
 
-// Ls returns the contents of an IPFS or IPNS object(s) at path p, with the format:
+// Ls returns the contents of an UDFS or IPNS object(s) at path p, with the format:
 // `<link base58 hash> <link size in bytes> <link name>`
 func (api *UnixfsAPI) Ls(ctx context.Context, p coreiface.Path) ([]*ipld.Link, error) {
 	dagnode, err := api.core().ResolveNode(ctx, p)

@@ -21,17 +21,17 @@ $ export PATH="$PATH:$GOPATH/bin"
 ## Build
 
 The `install_unsupported` target works nicely for openbsd. This will install
-`gx`, `gx-go` and run `go install -tags nofuse ./cmd/ipfs`.
+`gx`, `gx-go` and run `go install -tags nofuse ./cmd/udfs`.
 
 ```
-$ go get -v -u -d github.com/ipfs/go-ipfs
+$ go get -v -u -d github.com/udfs/go-udfs
 
-$ cd $GOPATH/src/github.com/ipfs/go-ipfs
+$ cd $GOPATH/src/github.com/udfs/go-udfs
 $ gmake install_unsupported
 ```
 
-if everything went well, your ipfs binary should be ready at `$GOPATH/bin/ipfs`.
+if everything went well, your udfs binary should be ready at `$GOPATH/bin/udfs`.
 
 ```
-$ ipfs version
+$ udfs version
 ```

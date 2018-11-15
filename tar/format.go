@@ -14,9 +14,9 @@ import (
 	path "github.com/udfs/go-udfs/path"
 	uio "github.com/udfs/go-udfs/unixfs/io"
 
-	chunker "gx/ipfs/QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4/go-ipfs-chunker"
-	ipld "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-	logging "gx/ipfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
+	chunker "gx/udfs/QmVDjhUMtkRskBFAVNwyXuLSKbeAya7JKPnzAxMKDaK4x4/go-udfs-chunker"
+	ipld "gx/udfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
+	logging "gx/udfs/QmcVVHfdyv15GVPk7NrxdWjh2hLVccXnoD8j2tyQShiXJb/go-log"
 )
 
 var log = logging.Logger("tarfmt")
@@ -40,7 +40,7 @@ func ImportTar(ctx context.Context, r io.Reader, ds ipld.DAGService) (*dag.Proto
 	tr := tar.NewReader(r)
 
 	root := new(dag.ProtoNode)
-	root.SetData([]byte("ipfs/tar"))
+	root.SetData([]byte("udfs/tar"))
 
 	e := dagutil.NewDagEditor(root, ds)
 
@@ -199,8 +199,8 @@ func (tr *tarReader) Read(b []byte) (int, error) {
 // ExportTar exports the passed DAG as a tar file. This function is the inverse
 // of ImportTar.
 func ExportTar(ctx context.Context, root *dag.ProtoNode, ds ipld.DAGService) (io.Reader, error) {
-	if string(root.Data()) != "ipfs/tar" {
-		return nil, errors.New("not an IPFS tarchive")
+	if string(root.Data()) != "udfs/tar" {
+		return nil, errors.New("not an UDFS tarchive")
 	}
 	return &tarReader{
 		links: root.Links(),

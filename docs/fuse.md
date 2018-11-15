@@ -1,11 +1,11 @@
 # FUSE
 
-`go-ipfs` makes it possible to mount `/ipfs` and `/ipns` namespaces in your OS,
-allowing arbitrary apps access to IPFS.
+`go-udfs` makes it possible to mount `/udfs` and `/ipns` namespaces in your OS,
+allowing arbitrary apps access to UDFS.
 
 ## Install FUSE
 
-You will need to install and configure fuse before you can mount IPFS
+You will need to install and configure fuse before you can mount UDFS
 
 #### Linux
 
@@ -17,7 +17,7 @@ Install `fuse` with your favorite package manager:
 sudo apt-get install fuse
 ```
 
-Add the user which will be running IPFS daemon to the `fuse` group:
+Add the user which will be running UDFS daemon to the `fuse` group:
 ```sh
 sudo usermod -a -G fuse <username>
 ```
@@ -33,40 +33,40 @@ kernel panic. For everyone's sake, please upgrade (latest at time of writing is
 also a homebrew formula (`brew install osxfuse`) but users report best results
 installing from the official OSXFUSE installer package.
 
-Note that `ipfs` attempts an automatic version check on `osxfuse` to prevent you
+Note that `udfs` attempts an automatic version check on `osxfuse` to prevent you
 from shooting yourself in the foot if you have pre `2.7.0`. Since checking the
-OSXFUSE version [is more complicated than it should be], running `ipfs mount`
+OSXFUSE version [is more complicated than it should be], running `udfs mount`
 may require you to install another binary:
 
 ```sh
 go get github.com/jbenet/go-fuse-version/fuse-version
 ```
 
-If you run into any problems installing FUSE or mounting IPFS, hop on IRC and
+If you run into any problems installing FUSE or mounting UDFS, hop on IRC and
 speak with us, or if you figure something new out, please add to this document!
 
 ## Prepare mountpoints
 
-By default ipfs uses `/ipfs` and `/ipns` directories for mounting, this can be
-changed in config. You will have to create the `/ipfs` and `/ipns` directories
+By default udfs uses `/udfs` and `/ipns` directories for mounting, this can be
+changed in config. You will have to create the `/udfs` and `/ipns` directories
 explicitly. Note that modifying root requires sudo permissions.
 
 ```sh
 # make the directories
-sudo mkdir /ipfs
+sudo mkdir /udfs
 sudo mkdir /ipns
 
-# chown them so ipfs can use them without root permissions
-sudo chown <username> /ipfs
+# chown them so udfs can use them without root permissions
+sudo chown <username> /udfs
 sudo chown <username> /ipns
 ```
 
 Depending on whether you are using OSX or Linux, follow the proceeding instructions.
 
-## Mounting IPFS
+## Mounting UDFS
 
 ```sh
-ipfs daemon --mount
+udfs daemon --mount
 ```
 
 If you wish to allow other users to use the mount points, edit `/etc/fuse.conf`
@@ -84,8 +84,8 @@ user_allow_other
 
 Next set `Mounts.FuseAllowOther` config option to `true`:
 ```sh
-ipfs config --json Mounts.FuseAllowOther true
-ipfs daemon --mount
+udfs config --json Mounts.FuseAllowOther true
+udfs daemon --mount
 ```
 
 ## Troubleshooting
@@ -121,12 +121,12 @@ TODO: udev rules for /dev/fuse?
 
 Note that the use of `fuse` group is optional and may depend on your operating
 system. It is okay to use a different group as long as proper permissions are
-set for user running `ipfs mount` command.
+set for user running `udfs mount` command.
 
 #### Mount command crashes and mountpoint gets stuck
 
 ```
-sudo umount /ipfs
+sudo umount /udfs
 sudo umount /ipns
 ```
 

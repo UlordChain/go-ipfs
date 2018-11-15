@@ -1,7 +1,7 @@
-// Package commands implements the ipfs command interface
+// Package commands implements the udfs command interface
 //
-// Using github.com/ipfs/go-ipfs/commands to define the command line and HTTP
-// APIs.  This is the interface available to folks using IPFS from outside of
+// Using github.com/udfs/go-udfs/commands to define the command line and HTTP
+// APIs.  This is the interface available to folks using UDFS from outside of
 // the Go language.
 package commands
 
@@ -13,8 +13,8 @@ import (
 
 	e "github.com/udfs/go-udfs/core/commands/e"
 
-	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	cmds "gx/udfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-udfs-cmds"
+	"gx/udfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-udfs-cmdkit"
 )
 
 type commandEncoder struct {
@@ -69,7 +69,7 @@ func CommandsCmd(root *cmds.Command) *cmds.Command {
 			cmdkit.BoolOption(flagsOptionName, "f", "Show command flags"),
 		},
 		Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) {
-			rootCmd := cmd2outputCmd("ipfs", root)
+			rootCmd := cmd2outputCmd("udfs", root)
 			rootCmd.showOpts, _ = req.Options[flagsOptionName].(bool)
 			err := cmds.EmitOnce(res, &rootCmd)
 			if err != nil {
