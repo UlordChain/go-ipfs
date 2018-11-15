@@ -25,12 +25,12 @@ import (
 
 	"path/filepath"
 
+	"github.com/pkg/errors"
 	"github.com/udfs/go-udfs/core"
 	"github.com/udfs/go-udfs/core/corerepo"
 	"github.com/udfs/go-udfs/core/coreunix"
 	"github.com/udfs/go-udfs/merkledag"
 	"github.com/udfs/go-udfs/path"
-	"github.com/pkg/errors"
 )
 
 const (

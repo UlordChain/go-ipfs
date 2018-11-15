@@ -18,9 +18,9 @@ import (
 
 	pb "gx/ipfs/QmY51bqSM5XgxQZqsBrQcRkKTnCb8EKpJpR9K6Qax7Njco/go-libp2p/p2p/protocol/verify/pb"
 
-	"github.com/ipfs/go-ipfs/repo"
-	"github.com/ipfs/go-ipfs/repo/config"
-	"github.com/ipfs/go-ipfs/udfs/ca"
+	"github.com/udfs/go-udfs/repo"
+	"github.com/udfs/go-udfs/repo/config"
+	"github.com/udfs/go-udfs/udfs/ca"
 )
 
 const ProtocolVerify = "/ipfs/verify/0.0.1"

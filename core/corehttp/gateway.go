@@ -9,7 +9,7 @@ import (
 	coreapi "github.com/udfs/go-udfs/core/coreapi"
 	config "github.com/udfs/go-udfs/repo/config"
 
-	id "github.com/udfs/go-udfs/udfs/go-libp2p/p2p/protocol/identify"
+	id "gx/ipfs/QmY51bqSM5XgxQZqsBrQcRkKTnCb8EKpJpR9K6Qax7Njco/go-libp2p/p2p/protocol/identify"
 )
 
 type GatewayConfig struct {

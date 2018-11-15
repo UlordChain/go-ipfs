@@ -11,6 +11,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/pkg/errors"
 	"github.com/udfs/go-udfs/blockservice"
 	"github.com/udfs/go-udfs/core"
 	"github.com/udfs/go-udfs/core/coreunix"
@@ -19,7 +20,6 @@ import (
 	dagtest "github.com/udfs/go-udfs/merkledag/test"
 	"github.com/udfs/go-udfs/mfs"
 	ft "github.com/udfs/go-udfs/unixfs"
-	"github.com/pkg/errors"
 
 	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"

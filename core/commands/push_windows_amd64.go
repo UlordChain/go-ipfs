@@ -7,15 +7,15 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ipfs/go-ipfs/blockservice"
-	"github.com/ipfs/go-ipfs/core"
-	"github.com/ipfs/go-ipfs/core/coreunix"
-	"github.com/ipfs/go-ipfs/filestore"
-	dag "github.com/ipfs/go-ipfs/merkledag"
-	dagtest "github.com/ipfs/go-ipfs/merkledag/test"
-	"github.com/ipfs/go-ipfs/mfs"
-	ft "github.com/ipfs/go-ipfs/unixfs"
 	"github.com/pkg/errors"
+	"github.com/udfs/go-udfs/blockservice"
+	"github.com/udfs/go-udfs/core"
+	"github.com/udfs/go-udfs/core/coreunix"
+	"github.com/udfs/go-udfs/filestore"
+	dag "github.com/udfs/go-udfs/merkledag"
+	dagtest "github.com/udfs/go-udfs/merkledag/test"
+	"github.com/udfs/go-udfs/mfs"
+	ft "github.com/udfs/go-udfs/unixfs"
 
 	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
@@ -31,7 +31,7 @@ import (
 
 	"sync"
 
-	"github.com/ipfs/go-ipfs/core/corerepo"
+	"github.com/udfs/go-udfs/core/corerepo"
 )
 
 var PushCmd = &cmds.Command{
