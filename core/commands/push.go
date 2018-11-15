@@ -1,3 +1,7 @@
+// for *inux system
+
+// +build !windows,amd64
+
 package commands
 
 import (
@@ -7,14 +11,14 @@ import (
 	"os"
 	"strings"
 
-	"github.com/udfs/go-udfs/blockservice"
-	"github.com/udfs/go-udfs/core"
-	"github.com/udfs/go-udfs/core/coreunix"
-	"github.com/udfs/go-udfs/filestore"
-	dag "github.com/udfs/go-udfs/merkledag"
-	dagtest "github.com/udfs/go-udfs/merkledag/test"
-	"github.com/udfs/go-udfs/mfs"
-	ft "github.com/udfs/go-udfs/unixfs"
+	"github.com/ipfs/go-ipfs/blockservice"
+	"github.com/ipfs/go-ipfs/core"
+	"github.com/ipfs/go-ipfs/core/coreunix"
+	"github.com/ipfs/go-ipfs/filestore"
+	dag "github.com/ipfs/go-ipfs/merkledag"
+	dagtest "github.com/ipfs/go-ipfs/merkledag/test"
+	"github.com/ipfs/go-ipfs/mfs"
+	ft "github.com/ipfs/go-ipfs/unixfs"
 	"github.com/pkg/errors"
 
 	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
@@ -37,7 +41,7 @@ import (
 
 	"syscall"
 
-	"github.com/udfs/go-udfs/core/corerepo"
+	"github.com/ipfs/go-ipfs/core/corerepo"
 )
 
 var PushCmd = &cmds.Command{
@@ -558,13 +562,11 @@ func (t *pushRecord) Write(k, v string) {
 //加锁
 func (t *pushRecord) lock(fd uintptr) error {
 	return syscall.Flock(int(fd), syscall.LOCK_EX|syscall.LOCK_NB)
-	// return nil
 }
 
 //释放锁
 func (t *pushRecord) unlock(fd uintptr) error {
 	return syscall.Flock(int(fd), syscall.LOCK_UN)
-	// return nil
 }
 
 func (t *pushRecord) Clear(ctx context.Context) {
