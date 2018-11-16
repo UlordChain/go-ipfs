@@ -9,6 +9,8 @@ import (
 
 	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 	ci "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
+
+	"github.com/UlordChain/go-udfs/udfs/global"
 )
 
 func Init(out io.Writer, nBitsForKeypair int) (*Config, error) {
@@ -86,18 +88,13 @@ func Init(out io.Writer, nBitsForKeypair int) (*Config, error) {
 		},
 		Master: false,
 		Blacklist: Blacklist{
-			DirAddress: "/ipns/QmbETUnWes7zdwZkkMGgPRtpZAYpFPxrUrCYy7fWi7JjFY/blacklistdir",
+			DirAddress: global.BlacklistDirAddress,
 			Interval:   "300s",
 			Period:     "168h",
 		},
 		UCenter: UCenterInfo{
-			ServerAddress: "ucenter.ulord.one:5009",
-			ServerPubkeys: []*VersionPubkey{
-				{
-					Licversion: 1,
-					Pubkey:     "03e947099921ee170da47a7acf48143c624d33950af362fc39a734b1b3188ec1e3",
-				},
-			},
+			ServerAddress: global.UCenterServerAddress,
+			ServerPubkeys: []*VersionPubkey{},
 		},
 	}
 
