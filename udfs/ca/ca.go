@@ -360,7 +360,7 @@ func RequestUcenterPublicKeyMap(servAddr string, txid string, voutid int32) (inf
 
 		key, err = ReadString(conn)
 		if err != nil {
-			e = errors.Wrapf(err, "read pubkey failed from the %s jindex", i)
+			e = errors.Wrapf(err, "read pubkey failed from the %d index", i)
 			return
 		}
 
