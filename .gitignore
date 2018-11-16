@@ -26,7 +26,6 @@ ipfs_linux
 .idea
 .vscode
 .DS_Store
-cmd/docker/udfs_publish.sh
-cmd/docker/ulord_publish.sh
-cmd/docker/udfs_linux
 cmd/udfs/udfs
+udfs/release
+
