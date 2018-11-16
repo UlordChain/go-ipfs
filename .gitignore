@@ -22,7 +22,7 @@ bin/tmp
 vendor
 .tarball
 go-ipfs-source.tar.gz
-ipfs_linux
+udfs_linux
 .idea
 .vscode
 .DS_Store
