@@ -2,6 +2,7 @@ package ca
 
 import (
 	"fmt"
+	"log"
 	"testing"
 
 	"time"
@@ -14,7 +15,9 @@ var (
 	voutid  = int32(0)
 	privStr = "5JCRtN29x3QRxY5uyijQGbmyU7e1pN8EXWcifTsfjqKFnYUefyZ"
 
-	testServerAddress = ""
+	testServerAddress = "132.232.98.139:5009"
+
+	localtestSecret = "KzAzCLFC7g4sRqdvEdngGrG2YHJYJ81i4R6Y8Kr3Xg418pB8uhd1"
 )
 
 var secretMap = make(map[string]string, 0)
@@ -25,19 +28,21 @@ func init() {
 }
 
 func getUcenterPubkey(licversion int32) string {
-	switch licversion {
-	case 1:
-		return "03e947099921ee170da47a7acf48143c624d33950af362fc39a734b1b3188ec1e3"
-	case 2:
-		return "03a00f7bf6cf623a7b5aba1b8e5086c05faa9a59e8a0f70a46bea2a2590fd00b95"
-
-	case 999: // for local test
-		p, _ := PublicKeyFromPrivateAddr("KzAzCLFC7g4sRqdvEdngGrG2YHJYJ81i4R6Y8Kr3Xg418pB8uhd1")
+	if licversion == 999 {
+		p, _ := PublicKeyFromPrivateAddr(localtestSecret)
 		return p
-	default:
-		return ""
 	}
-	return ""
+
+	upm, err := RequestUcenterPublicKeyMap(testServerAddress, txid, voutid)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	pk, found := upm.V2key[licversion]
+	if !found {
+		log.Fatalf("can`t found pubkey for licversion=%d", licversion)
+	}
+	return pk
 }
 
 func mocRequestLicense(srvAddr, txid string, voutid int32) (info *LicenseMetaInfo, e error) {
@@ -63,7 +68,7 @@ func mocRequestLicense(srvAddr, txid string, voutid int32) (info *LicenseMetaInf
 	nodeHash := MakeNodeInfoHash(txid, voutid, pubkeyStr, period, 999)
 
 	//do sign
-	s, err := Sign(nodeHash, "KzAzCLFC7g4sRqdvEdngGrG2YHJYJ81i4R6Y8Kr3Xg418pB8uhd1")
+	s, err := Sign(nodeHash, localtestSecret)
 	if err != nil {
 		return nil, errors.Wrap(err, "sign failed")
 	}
