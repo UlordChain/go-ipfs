@@ -22,6 +22,8 @@ bin/tmp
 vendor
 .tarball
 go-ipfs-source.tar.gz
-ipfs_linux
+udfs_linux
 .idea
 .vscode
+cmd/ipfs/udfs
+udfs/release
