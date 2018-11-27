@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -9,17 +8,20 @@ import (
 
 	blockservice "github.com/ipfs/go-ipfs/blockservice"
 	core "github.com/ipfs/go-ipfs/core"
+	corerepo "github.com/ipfs/go-ipfs/core/corerepo"
 	"github.com/ipfs/go-ipfs/core/coreunix"
 	filestore "github.com/ipfs/go-ipfs/filestore"
 	dag "github.com/ipfs/go-ipfs/merkledag"
 	dagtest "github.com/ipfs/go-ipfs/merkledag/test"
 	mfs "github.com/ipfs/go-ipfs/mfs"
 	ft "github.com/ipfs/go-ipfs/unixfs"
+	"github.com/pkg/errors"
 
 	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
 	pb "gx/ipfs/QmPtj12fdwuAqj9sBSTNUxBNu8kCGNp8b3o8yUzMm5GHpq/pb"
 	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"
+	"gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 	bstore "gx/ipfs/QmadMhXJLHMFjpRmh85XjpmVDkEtQpNYEZNRpWRvYVLrvb/go-ipfs-blockstore"
 	cmdkit "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 	files "gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit/files"
@@ -44,6 +46,8 @@ const (
 	fstoreCacheOptionName = "fscache"
 	cidVersionOptionName  = "cid-version"
 	hashOptionName        = "hash"
+	accountOptionName     = "account"
+	checkOptionName       = "check"
 )
 
 const adderOutChanSize = 8
@@ -120,6 +124,8 @@ You can now check what blocks have been created by:
 		cmdkit.BoolOption(fstoreCacheOptionName, "Check the filestore for pre-existing blocks. (experimental)"),
 		cmdkit.IntOption(cidVersionOptionName, "CID version. Defaults to 0 unless an option that depends on CIDv1 is passed. (experimental)"),
 		cmdkit.StringOption(hashOptionName, "Hash function to use. Implies CIDv1 if not sha2-256. (experimental)").WithDefault("sha2-256"),
+		cmdkit.StringOption(accountOptionName, "Account of user to check"),
+		cmdkit.StringOption(checkOptionName, "The hash value for check"),
 	},
 	PreRun: func(req *cmds.Request, env cmds.Environment) error {
 		quiet, _ := req.Options[quietOptionName].(bool)
@@ -141,6 +147,27 @@ You can now check what blocks have been created by:
 		return nil
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) {
+
+		acc := req.Options[accountOptionName]
+		if acc == nil {
+			res.SetError("must set option account.", cmdkit.ErrNormal)
+			return
+		}
+		account := acc.(string)
+
+		h := req.Options[checkOptionName]
+		if h == nil {
+			res.SetError("must set option check.", cmdkit.ErrNormal)
+			return
+		}
+		check := h.(string)
+
+		err := ValidOnUOS(account, check)
+		if err != nil {
+			res.SetError(errors.Wrap(err, "valid failed"), cmdkit.ErrNormal)
+			return
+		}
+
 		n, err := GetNode(env)
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
@@ -313,9 +340,20 @@ You can now check what blocks have been created by:
 			}
 
 			// copy intermediary nodes from editor to our actual dagservice
-			_, err := fileAdder.Finalize()
+			node, err := fileAdder.Finalize()
 			if err != nil {
 				return err
+			}
+
+			if node.Cid().String() != check {
+
+				// remove the content
+				err = corerepo.Remove(n, req.Context, []*cid.Cid{node.Cid()}, true, false)
+				if err != nil {
+					return errors.Wrap(err, "unpin the content failed")
+				}
+
+				return errors.New("the content to add not match the content hash.")
 			}
 
 			if hash {

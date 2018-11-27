@@ -41,6 +41,8 @@ import (
 
 	"syscall"
 
+	"gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
+
 	"github.com/ipfs/go-ipfs/core/corerepo"
 )
 
@@ -75,6 +77,8 @@ Push do the same thing like command add first (but with default not pin). Then d
 		cmdkit.BoolOption(fstoreCacheOptionName, "Check the filestore for pre-existing blocks. (experimental)"),
 		cmdkit.IntOption(cidVersionOptionName, "CID version. Defaults to 0 unless an option that depends on CIDv1 is passed. (experimental)"),
 		cmdkit.StringOption(hashOptionName, "Hash function to use. Implies CIDv1 if not sha2-256. (experimental)").WithDefault("sha2-256"),
+		cmdkit.StringOption(accountOptionName, "Account of user to check"),
+		cmdkit.StringOption(checkOptionName, "The hash value for check"),
 	},
 	PreRun: func(req *cmds.Request, env cmds.Environment) error {
 		quiet, _ := req.Options[quietOptionName].(bool)
@@ -96,6 +100,27 @@ Push do the same thing like command add first (but with default not pin). Then d
 		return nil
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) {
+
+		acc := req.Options[accountOptionName]
+		if acc == nil {
+			res.SetError("must set option account.", cmdkit.ErrNormal)
+			return
+		}
+		account := acc.(string)
+
+		h := req.Options[checkOptionName]
+		if h == nil {
+			res.SetError("must set option check.", cmdkit.ErrNormal)
+			return
+		}
+		check := h.(string)
+
+		err := ValidOnUOS(account, check)
+		if err != nil {
+			res.SetError(errors.Wrap(err, "valid failed"), cmdkit.ErrNormal)
+			return
+		}
+
 		n, err := GetNode(env)
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
@@ -276,9 +301,20 @@ Push do the same thing like command add first (but with default not pin). Then d
 			}
 
 			// copy intermediary nodes from editor to our actual dagservice
-			_, err := fileAdder.Finalize()
+			node, err := fileAdder.Finalize()
 			if err != nil {
 				return err
+			}
+
+			if node.Cid().String() != check {
+
+				// remove the content
+				err = corerepo.Remove(n, req.Context, []*cid.Cid{node.Cid()}, true, false)
+				if err != nil {
+					return errors.Wrap(err, "unpin the content failed")
+				}
+
+				return errors.New("the content to add not match the content hash.")
 			}
 
 			if hash {
@@ -325,7 +361,7 @@ Push do the same thing like command add first (but with default not pin). Then d
 			}
 
 			// do backup
-			backupOutput, err := backupFunc(n, c)
+			backupOutput, err := backupFunc(n, c, req.Options[accountOptionName].(string))
 
 			if err != nil {
 				err = errors.Wrap(err, "backup failed:")
