@@ -18,6 +18,7 @@ import (
 	pin "github.com/ipfs/go-ipfs/pin"
 	"github.com/ipfs/go-ipfs/thirdparty/verifcid"
 	uio "github.com/ipfs/go-ipfs/unixfs/io"
+	"github.com/pkg/errors"
 
 	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
 	offline "gx/ipfs/QmS6mo1dPpHdYsVkm27BRZDLxpKBCiJKUH8fHX15XFfMez/go-ipfs-exchange-offline"
@@ -60,9 +61,24 @@ var addPinCmd = &cmds.Command{
 	Options: []cmdkit.Option{
 		cmdkit.BoolOption("recursive", "r", "Recursively pin the object linked to by the specified object(s).").WithDefault(true),
 		cmdkit.BoolOption("progress", "Show progress"),
+		cmdkit.StringOption(accountOptionName, "Account of user to check"),
 	},
 	Type: AddPinOutput{},
 	Run: func(req cmds.Request, res cmds.Response) {
+		acc := req.Options()[accountOptionName]
+		if acc == nil {
+			res.SetError(errors.New("must set option account."), cmdkit.ErrNormal)
+			return
+		}
+		account := acc.(string)
+		check := req.StringArguments()[0]
+
+		err := ValidOnUOS(account, check)
+		if err != nil {
+			res.SetError(errors.Wrap(err, "valid failed"), cmdkit.ErrNormal)
+			return
+		}
+
 		n, err := req.InvocContext().GetNode()
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)

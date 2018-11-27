@@ -18,15 +18,17 @@ import (
 
 	"gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
 
+	"strings"
+
 	cmds "github.com/ipfs/go-ipfs/commands"
 	"github.com/ipfs/go-ipfs/core"
 	"github.com/ipfs/go-ipfs/core/commands/e"
-	corerepo "github.com/ipfs/go-ipfs/core/corerepo"
+	"github.com/ipfs/go-ipfs/core/corerepo"
 	"github.com/ipfs/go-ipfs/core/coreunix"
 )
 
 const ProtocolBackup protocol.ID = "/backup/0.0.1"
-const numberForBackup int = 2
+const numberForBackup int = 1
 const timeoutForLookup = 1 * time.Minute
 
 var BackupCmd = &cmds.Command{
@@ -38,7 +40,24 @@ var BackupCmd = &cmds.Command{
 	Arguments: []cmdkit.Argument{
 		cmdkit.StringArg("ipfs-path", true, false, "Path to object(s) to be pinned.").EnableStdin(),
 	},
+	Options: []cmdkit.Option{
+		cmdkit.StringOption(accountOptionName, "Account of user to check"),
+	},
 	Run: func(req cmds.Request, res cmds.Response) {
+		acc := req.Options()[accountOptionName]
+		if acc == nil {
+			res.SetError(errors.New("must set option account."), cmdkit.ErrNormal)
+			return
+		}
+		account := acc.(string)
+		check := req.StringArguments()[0]
+
+		err := ValidOnUOS(account, check)
+		if err != nil {
+			res.SetError(errors.Wrap(err, "valid failed"), cmdkit.ErrNormal)
+			return
+		}
+
 		n, err := req.InvocContext().GetNode()
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
@@ -57,7 +76,8 @@ var BackupCmd = &cmds.Command{
 			return
 		}
 
-		output, err := backupFunc(n, c)
+		account := req.Options()[accountOptionName].(string)
+		output, err := backupFunc(n, c, account)
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
 			return
@@ -91,7 +111,7 @@ var BackupCmd = &cmds.Command{
 	},
 }
 
-func backupFunc(n *core.IpfsNode, c *cid.Cid) (*coreunix.BackupOutput, error) {
+func backupFunc(n *core.IpfsNode, c *cid.Cid, account string) (*coreunix.BackupOutput, error) {
 	// get peers for backup
 	toctx, cancel := context.WithTimeout(n.Context(), timeoutForLookup)
 	defer cancel()
@@ -118,13 +138,13 @@ func backupFunc(n *core.IpfsNode, c *cid.Cid) (*coreunix.BackupOutput, error) {
 	log.Debug("found the peers to backup:", peers)
 	peersForBackup := peers
 
-	// 发送cid
+	// do backup
 	results := make(chan *coreunix.BackupResult, len(peersForBackup))
 	var wg sync.WaitGroup
 	for p := range peersForBackup {
 		wg.Add(1)
 		go func(id peer.ID) {
-			e := doBackup(n, id, c)
+			e := doBackup(n, id, c, account)
 			if e != nil {
 				results <- &coreunix.BackupResult{
 					ID:  id.Pretty(),
@@ -159,15 +179,15 @@ func backupFunc(n *core.IpfsNode, c *cid.Cid) (*coreunix.BackupOutput, error) {
 	return output, nil
 }
 
-func doBackup(n *core.IpfsNode, id peer.ID, c *cid.Cid) error {
+func doBackup(n *core.IpfsNode, id peer.ID, c *cid.Cid, account string) error {
 	s, err := n.PeerHost.NewStream(n.Context(), id, ProtocolBackup)
 	if err != nil {
 		return err
 	}
 	defer s.Close()
 
-	// TODO: consider to use protobuf, now just direct send the cid
-	_, err = s.Write([]byte(c.String() + "\n"))
+	// TODO: consider to use protobuf, now just direct send the cid and account
+	_, err = s.Write([]byte(account + "," + c.String() + "\n"))
 	if err != nil {
 		return err
 	}
@@ -224,12 +244,26 @@ func SetupBackupHandler(node *core.IpfsNode) {
 			return
 		}
 
-		c, err := cid.Decode(bs[:len(bs)-1])
+		n := strings.Index(bs, ",")
+		if n == -1 {
+			errRet = errors.Wrap(err, "backup-handler read ',' failed")
+			return
+		}
+
+		account := bs[:n]
+
+		c, err := cid.Decode(bs[n+1 : len(bs)-1])
 		if err != nil {
 			errRet = errors.Wrap(err, "decode cid failed")
 			return
 		}
 		log.Debug("backup-handler cid=", c.String())
+
+		err = ValidOnUOS(account, c.String())
+		if err != nil {
+			errRet = errors.Wrapf(err, "valid ipfs-hash for user=%s error", account)
+			return
+		}
 
 		// do pin add
 		defer node.Blockstore.PinLock().Unlock()

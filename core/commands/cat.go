@@ -8,6 +8,7 @@ import (
 
 	core "github.com/ipfs/go-ipfs/core"
 	coreunix "github.com/ipfs/go-ipfs/core/coreunix"
+	"github.com/pkg/errors"
 
 	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
@@ -28,8 +29,24 @@ var CatCmd = &cmds.Command{
 	Options: []cmdkit.Option{
 		cmdkit.IntOption("offset", "o", "Byte offset to begin reading from."),
 		cmdkit.IntOption("length", "l", "Maximum number of bytes to read."),
+		cmdkit.StringOption(accountOptionName, "Account of user to check"),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) {
+		acc := req.Options[accountOptionName]
+		if acc == nil {
+			res.SetError("must set option account.", cmdkit.ErrNormal)
+			return
+		}
+		account := acc.(string)
+
+		check := req.Arguments[0]
+
+		err := ValidOnUOS(account, check)
+		if err != nil {
+			res.SetError(errors.Wrap(err, "valid failed"), cmdkit.ErrNormal)
+			return
+		}
+
 		node, err := GetNode(env)
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
