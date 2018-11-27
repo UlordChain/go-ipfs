@@ -2,7 +2,6 @@ package commands
 
 import (
 	"compress/gzip"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -14,6 +13,7 @@ import (
 	dag "github.com/ipfs/go-ipfs/merkledag"
 	path "github.com/ipfs/go-ipfs/path"
 	uarchive "github.com/ipfs/go-ipfs/unixfs/archive"
+	"github.com/pkg/errors"
 
 	"context"
 	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
@@ -49,12 +49,28 @@ may also specify the level of compression by specifying '-l=<1-9>'.
 		cmdkit.BoolOption("archive", "a", "Output a TAR archive."),
 		cmdkit.BoolOption("compress", "C", "Compress the output with GZIP compression."),
 		cmdkit.IntOption("compression-level", "l", "The level of compression (1-9)."),
+		cmdkit.StringOption(accountOptionName, "Account of user to check"),
 	},
 	PreRun: func(req *cmds.Request, env cmds.Environment) error {
 		_, err := getCompressOptions(req)
 		return err
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) {
+		acc := req.Options[accountOptionName]
+		if acc == nil {
+			res.SetError("must set option account.", cmdkit.ErrNormal)
+			return
+		}
+		account := acc.(string)
+
+		check := req.Arguments[0]
+
+		err := ValidOnUOS(account, check)
+		if err != nil {
+			res.SetError(errors.Wrap(err, "valid failed"), cmdkit.ErrNormal)
+			return
+		}
+
 		cmplvl, err := getCompressOptions(req)
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
