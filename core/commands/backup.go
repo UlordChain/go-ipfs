@@ -76,7 +76,6 @@ var BackupCmd = &cmds.Command{
 			return
 		}
 
-		account := req.Options()[accountOptionName].(string)
 		output, err := backupFunc(n, c, account)
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
