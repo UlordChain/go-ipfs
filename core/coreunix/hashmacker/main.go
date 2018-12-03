@@ -14,6 +14,7 @@ import (
 	"github.com/ipfs/go-ipfs/core/coreunix"
 	"github.com/ipfs/go-ipfs/repo"
 	"github.com/ipfs/go-ipfs/repo/config"
+	"github.com/pkg/errors"
 )
 
 func main() {
@@ -34,10 +35,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	k, err := coreunix.AddR(node, filename)
+	n, err := coreunix.AddRRetunNode(node, filename)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(k)
+	size, err := n.Size()
+	if err != nil {
+		log.Fatal(errors.Wrap(err, "got dag object size error"))
+	}
+
+	fmt.Println(n.String(), size)
 }

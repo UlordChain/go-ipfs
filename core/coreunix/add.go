@@ -317,6 +317,34 @@ func AddWithContext(ctx context.Context, n *core.IpfsNode, r io.Reader) (string,
 	return node.Cid().String(), nil
 }
 
+// AddRRetunNode recursively adds files in |path| and return the DAG node.
+func AddRRetunNode(n *core.IpfsNode, root string) (node ipld.Node, err error) {
+	defer n.Blockstore.PinLock().Unlock()
+
+	stat, err := os.Lstat(root)
+	if err != nil {
+		return nil, err
+	}
+
+	f, err := files.NewSerialFile(filepath.Base(root), root, false, stat)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	fileAdder, err := NewAdder(n.Context(), n.Pinning, n.Blockstore, n.DAG)
+	if err != nil {
+		return nil, err
+	}
+
+	err = fileAdder.addFile(f)
+	if err != nil {
+		return nil, err
+	}
+
+	return fileAdder.Finalize()
+}
+
 // AddR recursively adds files in |path|.
 func AddR(n *core.IpfsNode, root string) (key string, err error) {
 	defer n.Blockstore.PinLock().Unlock()
