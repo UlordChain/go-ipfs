@@ -162,7 +162,7 @@ You can now check what blocks have been created by:
 		}
 		check := h.(string)
 
-		err := ValidOnUOS(account, check)
+		size, err := ValidOnUOS(account, check)
 		if err != nil {
 			res.SetError(errors.Wrap(err, "valid failed"), cmdkit.ErrNormal)
 			return
@@ -345,6 +345,19 @@ You can now check what blocks have been created by:
 				return err
 			}
 
+			// check size
+			validSize, _ := node.Size()
+			if size*1024 < validSize {
+				// remove the content
+				err = corerepo.Remove(n, req.Context, []*cid.Cid{node.Cid()}, true, false)
+				if err != nil {
+					return errors.Wrap(err, "unpin the content failed")
+				}
+
+				return errors.New("the content size not matched on uos")
+			}
+
+			// check hash
 			if node.Cid().String() != check {
 
 				// remove the content
@@ -353,7 +366,7 @@ You can now check what blocks have been created by:
 					return errors.Wrap(err, "unpin the content failed")
 				}
 
-				return errors.New("the content to add not match the content hash.")
+				return errors.New("the content hash not matched on uos")
 			}
 
 			if hash {

@@ -52,7 +52,7 @@ var BackupCmd = &cmds.Command{
 		account := acc.(string)
 		check := req.StringArguments()[0]
 
-		err := ValidOnUOS(account, check)
+		_, err := ValidOnUOS(account, check)
 		if err != nil {
 			res.SetError(errors.Wrap(err, "valid failed"), cmdkit.ErrNormal)
 			return
@@ -258,7 +258,7 @@ func SetupBackupHandler(node *core.IpfsNode) {
 		}
 		log.Debug("backup-handler cid=", c.String())
 
-		err = ValidOnUOS(account, c.String())
+		_, err = ValidOnUOS(account, c.String())
 		if err != nil {
 			errRet = errors.Wrapf(err, "valid ipfs-hash for user=%s error", account)
 			return

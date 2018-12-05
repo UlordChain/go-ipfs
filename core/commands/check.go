@@ -33,15 +33,15 @@ var CheckCmd = &cmds.Command{
 	Options: []cmdkit.Option{},
 	Run: func(req cmds.Request, res cmds.Response) {
 		account := req.StringArguments()[0]
-		hashes := req.StringArguments()[1:]
+		hash := req.StringArguments()[1]
 
-		err := ValidOnUOS(account, hashes...)
+		_, err := ValidOnUOS(account, hash)
 		if err != nil {
 			res.SetError(errors.Wrap(err, "valid failed"), cmdkit.ErrNormal)
 			return
 		}
 
-		if len(hashes) > 0 {
+		if len(hash) > 0 {
 			res.SetOutput("all valid")
 		} else {
 			res.SetOutput("valid")
@@ -64,7 +64,7 @@ type requestGetTableRows struct {
 
 type tableRow struct {
 	InnerID    string `json:"inner_id"`
-	Size       int32  `json:"size"`
+	Size       uint64 `json:"size"`
 	Hash       string `json:"hash"`
 	Folder     string `json:"folder"`
 	StringName string `json:"string_name"`
@@ -73,7 +73,7 @@ type responseGetTableRows struct {
 	Rows []*tableRow `json:"rows"`
 }
 
-func ValidOnUOS(account string, hashes ...string) error {
+func ValidOnUOS(account string, hash string) (uint64, error) {
 	rgtr := requestGetTableRows{
 		Scope: account,
 		Code:  uosCode,
@@ -82,49 +82,46 @@ func ValidOnUOS(account string, hashes ...string) error {
 	}
 	data, err := json.Marshal(rgtr)
 	if err != nil {
-		return errors.Wrap(err, "marshal getTableRowsBody error")
+		return 0, errors.Wrap(err, "marshal getTableRowsBody error")
 	}
 
 	resp, err := http.Post(uosUrlGetTableRows, "application/json", bytes.NewReader(data))
 	if err != nil {
-		return errors.Wrap(err, "post failed")
+		return 0, errors.Wrap(err, "post failed")
 	}
 
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return errors.Wrap(err, "read body from response error")
+		return 0, errors.Wrap(err, "read body from response error")
 	}
 
 	respTable := &responseGetTableRows{}
 	err = json.Unmarshal(body, respTable)
 	if err != nil {
-		return errors.Wrap(err, "unmarshal body from response error")
+		return 0, errors.Wrap(err, "unmarshal body from response error")
 	}
 
 	count := len(respTable.Rows)
 	if count == 0 {
-		return errors.New("the user does`t have any content on the uos.")
+		return 0, errors.New("the user does`t have any content on the uos.")
 	}
 
-	for _, hash := range hashes {
-		if inRows(respTable.Rows, hash) {
-			continue
-		}
-
-		return errors.Errorf("can`t find hash=%s", hash)
+	size, b := inRows(respTable.Rows, hash)
+	if b {
+		return size, nil
 	}
 
-	return nil
+	return 0, errors.Errorf("can`t find hash=%s on uos", hash)
 }
 
-func inRows(rows []*tableRow, hash string) bool {
+func inRows(rows []*tableRow, hash string) (uint64, bool) {
 	for _, row := range rows {
 		if row.Hash == hash {
-			return true
+			return row.Size, true
 		}
 	}
 
-	return false
+	return 0, false
 }

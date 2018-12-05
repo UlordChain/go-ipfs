@@ -65,7 +65,7 @@ may also specify the level of compression by specifying '-l=<1-9>'.
 
 		check := req.Arguments[0]
 
-		err := ValidOnUOS(account, check)
+		_, err := ValidOnUOS(account, check)
 		if err != nil {
 			res.SetError(errors.Wrap(err, "valid failed"), cmdkit.ErrNormal)
 			return
