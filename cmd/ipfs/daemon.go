@@ -9,6 +9,7 @@ import (
 	"os"
 	"sort"
 	"sync"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -29,7 +30,10 @@ import (
 	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
 	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 
+	"context"
 	"gx/ipfs/QmY51bqSM5XgxQZqsBrQcRkKTnCb8EKpJpR9K6Qax7Njco/go-libp2p/p2p/protocol/verify"
+
+	"github.com/ipfs/go-ipfs/exchange/bitswap"
 )
 
 const (
@@ -467,6 +471,8 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 			return
 		}
 		fmt.Println("run blacklist refresh service success")
+
+		go reportWorker(node, req.Context)
 	}
 
 	fmt.Printf("Daemon is ready\n")
@@ -730,4 +736,60 @@ func YesNoPrompt(prompt string) bool {
 	}
 
 	return false
+}
+
+const (
+	reportDurationSecondMin = 10
+	reportDurationSecondMax = 15
+	reportTimeout           = 30 * time.Second
+)
+
+func reportWorker(node *core.IpfsNode, ctx context.Context) {
+	// rand.Seed(time.Now().UnixNano())
+	tm := time.NewTimer(5 * time.Second)
+	defer tm.Stop()
+
+	// cli := &http.Client{
+	// 	Timeout: reportTimeout,
+	// }
+
+	bs, ok := node.Exchange.(*bitswap.Bitswap)
+	if !ok {
+		log.Error("exchange is not a bitswap object!")
+		return
+	}
+
+	repo := node.Repo
+	cfg, err := repo.Config()
+	if err != nil {
+		log.Error("get repo config failed:", err.Error())
+		return
+	}
+
+	for {
+		select {
+		case <-tm.C:
+			tm.Reset(5 * time.Second)
+
+			if cfg.Verify.License == "" {
+				continue
+			}
+
+			fmt.Printf("%#v\n", cfg.Verify)
+
+			usage, err := repo.GetStorageUsage()
+			if err != nil {
+				log.Error("got repo stroage usage failed:", err.Error())
+				continue
+			}
+
+			usage = usage / 1024 / 1024
+
+			diffs := bs.AllLedgerAccountDiff()
+			fmt.Println(diffs)
+
+		case <-ctx.Done():
+			return
+		}
+	}
 }
