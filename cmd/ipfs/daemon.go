@@ -16,14 +16,16 @@ import (
 	utilmain "github.com/ipfs/go-ipfs/cmd/ipfs/util"
 	oldcmds "github.com/ipfs/go-ipfs/commands"
 	"github.com/ipfs/go-ipfs/core"
-	commands "github.com/ipfs/go-ipfs/core/commands"
-	corehttp "github.com/ipfs/go-ipfs/core/corehttp"
-	corerepo "github.com/ipfs/go-ipfs/core/corerepo"
+	"github.com/ipfs/go-ipfs/core/commands"
+	"github.com/ipfs/go-ipfs/core/corehttp"
+	"github.com/ipfs/go-ipfs/core/corerepo"
 	nodeMount "github.com/ipfs/go-ipfs/fuse/node"
-	fsrepo "github.com/ipfs/go-ipfs/repo/fsrepo"
+	"github.com/ipfs/go-ipfs/repo"
+	"github.com/ipfs/go-ipfs/repo/fsrepo"
 	migrate "github.com/ipfs/go-ipfs/repo/fsrepo/migrations"
+	"github.com/ipfs/go-ipfs/udfs/ca"
 
-	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
+	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
 	mprome "gx/ipfs/QmUDtdqVcetYfRUnfhzrRQzPSgW1gf57MsMQSiLZpNkjbg/go-metrics-prometheus"
 	"gx/ipfs/QmV6FjemM1K8oXjrvuq3wuVWWoU2TLDPmNnKrxHzY3v6Ai/go-multiaddr-net"
 	"gx/ipfs/QmYYv3QFnfQbiwmi1tpkgKF8o4xFnZoBrvpupTiGJwL9nH/client_golang/prometheus"
@@ -32,6 +34,10 @@ import (
 
 	"context"
 	"gx/ipfs/QmY51bqSM5XgxQZqsBrQcRkKTnCb8EKpJpR9K6Qax7Njco/go-libp2p/p2p/protocol/verify"
+
+	"math/rand"
+
+	"encoding/json"
 
 	"github.com/ipfs/go-ipfs/exchange/bitswap"
 )
@@ -738,27 +744,66 @@ func YesNoPrompt(prompt string) bool {
 	return false
 }
 
+// ============================================================== report
+
 const (
 	reportDurationSecondMin = 10
 	reportDurationSecondMax = 15
 	reportTimeout           = 30 * time.Second
 )
 
+/*
+{
+    "sign": "",
+    "txid": "",
+    "pubkey": "",
+    "voutid": 1,
+    "licperiod": 1234,
+    "licversion": 1,
+    "data": {
+        "sign": "fkldjslkfjlasfjldj",
+        "id": "",
+        "ts": 12345,
+        "in": 12,
+        "out": 34,
+        "storage": 431234,
+        "list": [
+            {
+                "id": "",
+                "in": 2,
+                "out": 1
+            }
+        ]
+    }
+}
+*/
+type dataMetaListObject struct {
+	ID  string `json:"id"`
+	In  int32  `json:"in"`
+	Out int32  `json:"out"`
+}
+
+type reportData struct {
+	Sign    string                `json:"sign,omitempty"`
+	ID      string                `json:"id"`
+	Ts      int64                 `json:"ts"`
+	In      int32                 `json:"in"`
+	Out     int32                 `json:"out"`
+	Storage int32                 `json:"storage"`
+	List    []*dataMetaListObject `json:"list,omitempty"`
+}
+
+type reportRequestBody struct {
+	Sign       string      `json:"sign"`
+	Txid       string      `json:"txid"`
+	Pubkey     string      `json:"pubkey"`
+	Voutid     int32       `json:"voutid"`
+	Licperiod  int64       `json:"licperiod"`
+	Licversion int32       `json:"licversion"`
+	Data       *reportData `json:"data"`
+}
+
 func reportWorker(node *core.IpfsNode, ctx context.Context) {
-	// rand.Seed(time.Now().UnixNano())
-	tm := time.NewTimer(5 * time.Second)
-	defer tm.Stop()
-
-	// cli := &http.Client{
-	// 	Timeout: reportTimeout,
-	// }
-
-	bs, ok := node.Exchange.(*bitswap.Bitswap)
-	if !ok {
-		log.Error("exchange is not a bitswap object!")
-		return
-	}
-
 	repo := node.Repo
 	cfg, err := repo.Config()
 	if err != nil {
@@ -766,10 +811,57 @@ func reportWorker(node *core.IpfsNode, ctx context.Context) {
 		return
 	}
 
+	pubkey, err := ca.PublicKeyFromPrivateAddr(cfg.Verify.Secret)
+	if err != nil {
+		log.Error("got verify public key failed: ", err)
+		return
+	}
+
+	for cfg.Verify.License == "" {
+		time.Sleep(5 * time.Second)
+		continue
+	}
+
+	rand.Seed(time.Now().UnixNano())
+
+	reportDurationDiff := reportDurationSecondMax - reportDurationSecondMin
+	if reportDurationDiff < 0 {
+		log.Error("report duration max value should not less then min value")
+		return
+	}
+
+	dur := time.Duration(reportDurationSecondMin+rand.Intn(reportDurationDiff)) * time.Second
+	log.Debug("report duration = ", dur)
+	fmt.Println("report duration = ", dur)
+	tm := time.NewTimer(dur)
+	defer tm.Stop()
+
+	// cli := &http.Client{
+	// 	Timeout: reportTimeout,
+	// }
+
+	rrb := reportRequestBody{
+		Sign:       cfg.Verify.License,
+		Txid:       cfg.Verify.Txid,
+		Voutid:     cfg.Verify.Voutid,
+		Pubkey:     pubkey,
+		Licperiod:  cfg.Verify.Period,
+		Licversion: cfg.Verify.Licversion,
+	}
+
+	bs, ok := node.Exchange.(*bitswap.Bitswap)
+	if !ok {
+		log.Error("exchange is not a bitswap object!")
+		return
+	}
+
 	for {
 		select {
 		case <-tm.C:
-			tm.Reset(5 * time.Second)
+			dur := time.Duration(reportDurationSecondMin+rand.Intn(reportDurationDiff)) * time.Second
+			log.Debug("report duration = ", dur)
+			fmt.Println("report duration = ", dur)
+			tm.Reset(dur)
 
 			if cfg.Verify.License == "" {
 				continue
@@ -777,19 +869,67 @@ func reportWorker(node *core.IpfsNode, ctx context.Context) {
 
 			fmt.Printf("%#v\n", cfg.Verify)
 
-			usage, err := repo.GetStorageUsage()
+			data, err := buildReportData(bs, repo)
 			if err != nil {
-				log.Error("got repo stroage usage failed:", err.Error())
+				log.Error("build report data failed:", err)
+				continue
+			}
+			rrb.Data = data
+
+			b, err := json.Marshal(rrb)
+			if err != nil {
+				log.Error("marshal report request body failed: ", err)
 				continue
 			}
 
-			usage = usage / 1024 / 1024
-
-			diffs := bs.AllLedgerAccountDiff()
-			fmt.Println(diffs)
+			fmt.Println(string(b))
 
 		case <-ctx.Done():
 			return
 		}
 	}
+}
+
+func buildReportData(bs *bitswap.Bitswap, repo repo.Repo) (*reportData, error) {
+
+	usage, err := repo.GetStorageUsage()
+	if err != nil {
+		return nil, errors.Wrap(err, "got repo storage usage error")
+	}
+
+	usage = usage / 1024 / 1024
+
+	diffs := bs.AllLedgerAccountDiff()
+	fmt.Println(diffs)
+
+	cfg, _ := repo.Config()
+
+	data := &reportData{
+		ID:      cfg.Identity.PeerID,
+		Storage: int32(usage),
+		Ts:      time.Now().Unix(),
+	}
+
+	for _, diff := range diffs {
+		data.List = append(data.List, &dataMetaListObject{
+			ID:  diff.ID,
+			In:  int32(diff.RecvDiff),
+			Out: int32(diff.SentDiff),
+		})
+	}
+
+	b, err := json.Marshal(data)
+	if err != nil {
+		return nil, errors.Wrap(err, "marshal report data error")
+	}
+
+	uint256 := ca.NewSha2Hash(b)
+	sign, err := ca.Sign(uint256.String(), cfg.Verify.Secret)
+	if err != nil {
+		return nil, errors.Wrap(err, "sign report data error")
+	}
+	data.Sign = sign
+
+	return data, nil
+
 }
