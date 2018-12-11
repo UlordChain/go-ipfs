@@ -88,13 +88,14 @@ func Init(out io.Writer, nBitsForKeypair int) (*Config, error) {
 		Master: false,
 		Blacklist: Blacklist{
 			DirAddress: global.BlacklistDirAddress,
-			Interval:   "300s",
-			Period:     "168h",
+			Interval:   Duration{300 * time.Second},
+			Period:     Duration{168 * time.Hour},
 		},
 		UCenter: UCenterInfo{
 			ServerAddress: global.UCenterServerAddress,
 			ServerPubkeys: []*VersionPubkey{},
 		},
+		Report: defaultReportInfo,
 	}
 
 	return conf, nil

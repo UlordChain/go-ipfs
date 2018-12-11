@@ -33,6 +33,7 @@ type Config struct {
 	Blacklist Blacklist
 	Verify    VerifyInfo
 	UCenter   UCenterInfo
+	Report    ReportInfo
 }
 
 const (
