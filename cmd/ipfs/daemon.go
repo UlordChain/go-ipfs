@@ -820,14 +820,14 @@ func reportWorker(node *core.IpfsNode, ctx context.Context) {
 	max := int(cfg.Report.DurationMax.Seconds())
 
 	if max <= min {
-		log.Error("report duration max value must more then min value")
+		log.Errorf("report duration max value must more then min value: min=%d max=%d\n", min, max)
 		return
 	}
 
 	rand.Seed(time.Now().UnixNano())
 	reportDurationDiff := max - min
 
-	dur := time.Duration(min + rand.Intn(reportDurationDiff))
+	dur := time.Duration(min+rand.Intn(reportDurationDiff)) * time.Second
 	log.Debug("report duration = ", dur)
 	fmt.Println("report duration = ", dur)
 	tm := time.NewTimer(dur)
@@ -855,7 +855,7 @@ func reportWorker(node *core.IpfsNode, ctx context.Context) {
 	for {
 		select {
 		case <-tm.C:
-			dur := time.Duration(min + rand.Intn(reportDurationDiff))
+			dur := time.Duration(min+rand.Intn(reportDurationDiff)) * time.Second
 			log.Debug("report duration = ", dur)
 			fmt.Println("report duration = ", dur)
 			tm.Reset(dur)
