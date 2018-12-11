@@ -746,12 +746,6 @@ func YesNoPrompt(prompt string) bool {
 
 // ============================================================== report
 
-const (
-	reportDurationSecondMin = 10
-	reportDurationSecondMax = 15
-	reportTimeout           = 30 * time.Second
-)
-
 /*
 {
     "sign": "",
@@ -822,15 +816,18 @@ func reportWorker(node *core.IpfsNode, ctx context.Context) {
 		continue
 	}
 
-	rand.Seed(time.Now().UnixNano())
+	min := int(cfg.Report.DurationMin.Seconds())
+	max := int(cfg.Report.DurationMax.Seconds())
 
-	reportDurationDiff := reportDurationSecondMax - reportDurationSecondMin
-	if reportDurationDiff < 0 {
-		log.Error("report duration max value should not less then min value")
+	if max <= min {
+		log.Error("report duration max value must more then min value")
 		return
 	}
 
-	dur := time.Duration(reportDurationSecondMin+rand.Intn(reportDurationDiff)) * time.Second
+	rand.Seed(time.Now().UnixNano())
+	reportDurationDiff := max - min
+
+	dur := time.Duration(min + rand.Intn(reportDurationDiff))
 	log.Debug("report duration = ", dur)
 	fmt.Println("report duration = ", dur)
 	tm := time.NewTimer(dur)
@@ -858,7 +855,7 @@ func reportWorker(node *core.IpfsNode, ctx context.Context) {
 	for {
 		select {
 		case <-tm.C:
-			dur := time.Duration(reportDurationSecondMin+rand.Intn(reportDurationDiff)) * time.Second
+			dur := time.Duration(min + rand.Intn(reportDurationDiff))
 			log.Debug("report duration = ", dur)
 			fmt.Println("report duration = ", dur)
 			tm.Reset(dur)
