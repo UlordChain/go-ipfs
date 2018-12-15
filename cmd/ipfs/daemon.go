@@ -39,6 +39,12 @@ import (
 
 	"encoding/json"
 
+	"net/url"
+
+	"bytes"
+
+	"io/ioutil"
+
 	"github.com/ipfs/go-ipfs/exchange/bitswap"
 )
 
@@ -772,9 +778,10 @@ func YesNoPrompt(prompt string) bool {
 }
 */
 type dataMetaListObject struct {
-	ID  string `json:"id"`
-	In  int32  `json:"in"`
-	Out int32  `json:"out"`
+	Src string `json:"nodeId"`
+	ID  string `json:"desNodeId"`
+	In  int32  `json:"inflow"`
+	Out int32  `json:"outflow"`
 }
 
 type reportData struct {
@@ -797,11 +804,23 @@ type reportRequestBody struct {
 	Data       *reportData `json:"data"`
 }
 
+type reportResonseBody struct {
+	ErrorCode string `json:"errorCode"`
+	Success   bool   `json:"success"`
+	ErrorMsg  string `json:"errorMsg"`
+}
+
 func reportWorker(node *core.IpfsNode, ctx context.Context) {
 	repo := node.Repo
 	cfg, err := repo.Config()
 	if err != nil {
 		log.Error("get repo config failed:", err.Error())
+		return
+	}
+
+	_, err = url.Parse(cfg.Report.Address)
+	if err != nil {
+		log.Error("parse config.Report.Address as a URL failed: ", err.Error())
 		return
 	}
 
@@ -829,13 +848,12 @@ func reportWorker(node *core.IpfsNode, ctx context.Context) {
 
 	dur := time.Duration(min+rand.Intn(reportDurationDiff)) * time.Second
 	log.Debug("report duration = ", dur)
-	fmt.Println("report duration = ", dur)
 	tm := time.NewTimer(dur)
 	defer tm.Stop()
 
-	// cli := &http.Client{
-	// 	Timeout: reportTimeout,
-	// }
+	cli := &http.Client{
+		Timeout: cfg.Report.RequestTimeout.Duration,
+	}
 
 	rrb := reportRequestBody{
 		Sign:       cfg.Verify.License,
@@ -857,16 +875,13 @@ func reportWorker(node *core.IpfsNode, ctx context.Context) {
 		case <-tm.C:
 			dur := time.Duration(min+rand.Intn(reportDurationDiff)) * time.Second
 			log.Debug("report duration = ", dur)
-			fmt.Println("report duration = ", dur)
 			tm.Reset(dur)
 
 			if cfg.Verify.License == "" {
 				continue
 			}
 
-			fmt.Printf("%#v\n", cfg.Verify)
-
-			data, err := buildReportData(bs, repo)
+			data, err := buildReportData(node.Identity.Pretty(), bs, repo)
 			if err != nil {
 				log.Error("build report data failed:", err)
 				continue
@@ -879,7 +894,19 @@ func reportWorker(node *core.IpfsNode, ctx context.Context) {
 				continue
 			}
 
-			fmt.Println(string(b))
+			log.Debug("report request body: ", string(b))
+
+			resp, err := cli.Post(cfg.Report.Address, "application/json", bytes.NewReader(b))
+			if err != nil {
+				log.Error("report error:", err.Error())
+				continue
+			}
+
+			err = handleReportResponse(resp)
+			if err != nil {
+				log.Error("report failed:", err.Error())
+				continue
+			}
 
 		case <-ctx.Done():
 			return
@@ -887,7 +914,7 @@ func reportWorker(node *core.IpfsNode, ctx context.Context) {
 	}
 }
 
-func buildReportData(bs *bitswap.Bitswap, repo repo.Repo) (*reportData, error) {
+func buildReportData(src string, bs *bitswap.Bitswap, repo repo.Repo) (*reportData, error) {
 
 	usage, err := repo.GetStorageUsage()
 	if err != nil {
@@ -897,7 +924,6 @@ func buildReportData(bs *bitswap.Bitswap, repo repo.Repo) (*reportData, error) {
 	usage = usage / 1024 / 1024
 
 	diffs := bs.AllLedgerAccountDiff()
-	fmt.Println(diffs)
 
 	cfg, _ := repo.Config()
 
@@ -909,6 +935,7 @@ func buildReportData(bs *bitswap.Bitswap, repo repo.Repo) (*reportData, error) {
 
 	for _, diff := range diffs {
 		data.List = append(data.List, &dataMetaListObject{
+			Src: src,
 			ID:  diff.ID,
 			In:  int32(diff.RecvDiff),
 			Out: int32(diff.SentDiff),
@@ -929,4 +956,27 @@ func buildReportData(bs *bitswap.Bitswap, repo repo.Repo) (*reportData, error) {
 
 	return data, nil
 
+}
+
+func handleReportResponse(resp *http.Response) error {
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return errors.Errorf("report response code not 200: %d", resp.StatusCode)
+	}
+
+	bs, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return errors.Wrap(err, "read report response body error")
+	}
+
+	rrb := &reportResonseBody{}
+	err = json.Unmarshal(bs, rrb)
+	if err != nil {
+		return errors.Wrapf(err, "unmarshal report response [body=%s]error", string(bs))
+	}
+
+	if rrb.ErrorCode != "OK" {
+		return errors.Errorf("report failed: ", string(bs))
+	}
+	return nil
 }
