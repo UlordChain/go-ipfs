@@ -123,6 +123,10 @@ func (l *ledger) AccountDiff() *AccountDiff {
 
 	l.lk.Unlock()
 
+	if sentDiff == 0 && recvDiff == 0 {
+		return nil
+	}
+
 	return &AccountDiff{
 		ID:       l.Partner.Pretty(),
 		SentDiff: sentDiff,
