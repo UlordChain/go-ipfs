@@ -18,7 +18,7 @@ bin/gx
 bin/gx*
 bin/tmp
 
-
+.DS_Store
 vendor
 .tarball
 go-ipfs-source.tar.gz

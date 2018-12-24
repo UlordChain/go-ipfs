@@ -4,13 +4,12 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/ipfs/go-ipfs/udfs/global"
 	"io"
 	"time"
 
 	peer "gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 	ci "gx/ipfs/Qme1knMqwt1hKZbc1BmQFmnm9f36nyQGwXxPGVpVJ9rMK5/go-libp2p-crypto"
-
-	"github.com/UlordChain/go-udfs/udfs/global"
 )
 
 func Init(out io.Writer, nBitsForKeypair int) (*Config, error) {
