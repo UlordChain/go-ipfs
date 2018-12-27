@@ -20,6 +20,7 @@ func (d Duration) MarshalJSON() (b []byte, err error) {
 }
 
 type ReportInfo struct {
+	Account string
 	Address        string
 	DurationMin    Duration
 	DurationMax    Duration
@@ -27,6 +28,7 @@ type ReportInfo struct {
 }
 
 var defaultReportInfo = ReportInfo{
+	Account:"",
 	Address:        "http://1.1.2.3/abc",
 	DurationMin:    Duration{4 * time.Minute},
 	DurationMax:    Duration{5 * time.Minute},
