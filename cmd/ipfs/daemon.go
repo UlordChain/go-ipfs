@@ -73,6 +73,7 @@ const (
 	verifyTxid                = "txid"
 	verifyVoutid              = "voutid"
 	verifySecret              = "secret"
+	reportUosAccount = "account"
 
 	// apiAddrKwd    = "address-api"
 	// swarmAddrKwd  = "address-swarm"
@@ -169,7 +170,6 @@ in a future version, along with this notice. Please move to setting the HTTP
 Headers.
 `,
 	},
-
 	Options: []cmdkit.Option{
 		cmdkit.BoolOption(initOptionKwd, "Initialize ipfs with default settings if not already initialized"),
 		cmdkit.StringOption(initProfileOptionKwd, "Configuration profiles to apply for --init. See ipfs init --help for more"),
@@ -191,6 +191,7 @@ Headers.
 		cmdkit.StringOption(verifyTxid, "Set the verify txid, NOTE: it will save to config."),
 		cmdkit.StringOption(verifySecret, "Set the verify sercret, NOTE: it will save to config."),
 		cmdkit.IntOption(verifyVoutid, "Set the verify voutid, NOTE: it will save to config.").WithDefault(-1),
+		cmdkit.StringOption(reportUosAccount, "Set the uos account, it will be used to got reward. NOTE: it will save to config."),
 
 		// TODO: add way to override addresses. tricky part: updating the config if also --init.
 		// cmdkit.StringOption(apiAddrKwd, "Address for the daemon rpc API (overrides config)"),
@@ -315,6 +316,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	txid, _ := req.Options[verifyTxid].(string)
 	secret, _ := req.Options[verifySecret].(string)
 	voutid, _ := req.Options[verifyVoutid].(int)
+	account, _ := req.Options[reportUosAccount].(string)
 
 	rcfg, err := repo.Config()
 	if err != nil {
@@ -335,6 +337,11 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 		rcfg.Verify.Secret = secret
 		needSave = true
 	}
+	if account != "" {
+		rcfg.Report.Account = account
+		needSave = true
+	}
+
 	if needSave {
 		err = repo.SetConfig(rcfg)
 		if err != nil {
@@ -354,6 +361,11 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 		err = verify.CheckUCenterInfo(&rcfg.UCenter)
 		if err != nil {
 			re.SetError(errors.Wrap(err, "check ucenter info failed"), cmdkit.ErrNormal)
+			return
+		}
+
+		if rcfg.Report.Account == "" {
+			re.SetError(errors.New("must provide uos account from config or option of command daemon"), cmdkit.ErrNormal)
 			return
 		}
 	}
@@ -786,6 +798,7 @@ type dataMetaListObject struct {
 
 type reportData struct {
 	Sign    string                `json:"sign,omitempty"`
+	Account string `json:"account"`
 	ID      string                `json:"id"`
 	Ts      int64                 `json:"ts"`
 	In      int32                 `json:"in"`
@@ -928,6 +941,7 @@ func buildReportData(src string, bs *bitswap.Bitswap, repo repo.Repo) (*reportDa
 	cfg, _ := repo.Config()
 
 	data := &reportData{
+		Account: cfg.Report.Account,
 		ID:      cfg.Identity.PeerID,
 		Storage: int32(usage),
 		Ts:      time.Now().Unix(),
@@ -976,7 +990,7 @@ func handleReportResponse(resp *http.Response) error {
 	}
 
 	if rrb.ErrorCode != "OK" {
-		return errors.Errorf("report failed: ", string(bs))
+		return errors.New(string(bs))
 	}
 	return nil
 }
