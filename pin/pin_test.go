@@ -5,20 +5,20 @@ import (
 	"testing"
 	"time"
 
-	mdag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
-	bs "gx/ipfs/QmbSB9Uh3wVgmiCb1fAb8zuC3qAE6un4kd1jvatUurfAmB/go-blockservice"
+	mdag "gx/ipfs/QmTQdH4848iTVCJmKXYyRiK72HufWTLYQQ8iN3JaQ8K1Hq/go-merkledag"
+	bs "gx/ipfs/QmYPZzd9VqmJDwxUnThfeSbV1Y5o53aVPDijTB7j7rS9Ep/go-blockservice"
 
-	util "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
-	ds "gx/ipfs/QmVG5gxteQNEMhrS8prJSmU2C9rebtFuTd3SYZ5kE3YZ5k/go-datastore"
-	dssync "gx/ipfs/QmVG5gxteQNEMhrS8prJSmU2C9rebtFuTd3SYZ5kE3YZ5k/go-datastore/sync"
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
-	offline "gx/ipfs/QmZxjqR9Qgompju73kakSoUj3rbVndAzky3oCDiBNCxPs1/go-ipfs-exchange-offline"
-	blockstore "gx/ipfs/QmcmpX42gtDv1fz24kau4wjS9hfwWj5VexWBKgGnWzsyag/go-ipfs-blockstore"
+	util "gx/ipfs/QmNohiVssaPw3KVLZik59DBVGTSm2dGvYT9eoXt5DQ36Yz/go-ipfs-util"
+	cid "gx/ipfs/QmR8BauakNcBa3RbE4nbQu76PDiJgoQgz8AJdhJuiU4TAw/go-cid"
+	blockstore "gx/ipfs/QmS2aqUZLJp8kF1ihE5rvDGE5LvmKDPnx32w9Z1BW9xLV5/go-ipfs-blockstore"
+	offline "gx/ipfs/QmYZwey1thDTynSrvd6qQkX24UpTka6TFhQ2v569UpoqxD/go-ipfs-exchange-offline"
+	ds "gx/ipfs/Qmf4xQhNomPNhrtZc67qSnfJSjxjXs9LWvknJtSXwimPrM/go-datastore"
+	dssync "gx/ipfs/Qmf4xQhNomPNhrtZc67qSnfJSjxjXs9LWvknJtSXwimPrM/go-datastore/sync"
 )
 
 var rand = util.NewTimeSeededRand()
 
-func randNode() (*mdag.ProtoNode, *cid.Cid) {
+func randNode() (*mdag.ProtoNode, cid.Cid) {
 	nd := new(mdag.ProtoNode)
 	nd.SetData(make([]byte, 32))
 	rand.Read(nd.Data())
@@ -26,7 +26,7 @@ func randNode() (*mdag.ProtoNode, *cid.Cid) {
 	return nd, k
 }
 
-func assertPinned(t *testing.T, p Pinner, c *cid.Cid, failmsg string) {
+func assertPinned(t *testing.T, p Pinner, c cid.Cid, failmsg string) {
 	_, pinned, err := p.IsPinned(c)
 	if err != nil {
 		t.Fatal(err)
@@ -37,7 +37,7 @@ func assertPinned(t *testing.T, p Pinner, c *cid.Cid, failmsg string) {
 	}
 }
 
-func assertUnpinned(t *testing.T, p Pinner, c *cid.Cid, failmsg string) {
+func assertUnpinned(t *testing.T, p Pinner, c cid.Cid, failmsg string) {
 	_, pinned, err := p.IsPinned(c)
 	if err != nil {
 		t.Fatal(err)
@@ -187,7 +187,7 @@ func TestIsPinnedLookup(t *testing.T) {
 	p := NewPinner(dstore, dserv, dserv)
 
 	aNodes := make([]*mdag.ProtoNode, aBranchLen)
-	aKeys := make([]*cid.Cid, aBranchLen)
+	aKeys := make([]cid.Cid, aBranchLen)
 	for i := 0; i < aBranchLen; i++ {
 		a, _ := randNode()
 		if i >= 1 {

@@ -1,10 +1,10 @@
 package verifbs
 
 import (
-	"gx/ipfs/QmVUhfewLZpSaAiBYCpw2krYMaiVmFuhr2iurQLuRoU6sD/go-verifcid"
-	blocks "gx/ipfs/QmWAzSEoqZ6xU6pu8yL8e5WaMb7wtbfbhhN4p1DknUPtr3/go-block-format"
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
-	bstore "gx/ipfs/QmcmpX42gtDv1fz24kau4wjS9hfwWj5VexWBKgGnWzsyag/go-ipfs-blockstore"
+	cid "gx/ipfs/QmR8BauakNcBa3RbE4nbQu76PDiJgoQgz8AJdhJuiU4TAw/go-cid"
+	bstore "gx/ipfs/QmS2aqUZLJp8kF1ihE5rvDGE5LvmKDPnx32w9Z1BW9xLV5/go-ipfs-blockstore"
+	blocks "gx/ipfs/QmWoXtvgC8inqFkAATB7cp2Dax7XBi9VDvSg9RCCZufmRk/go-block-format"
+	"gx/ipfs/QmYMQuypUbgsdNHmuCBSUJV6wdQVsBHRivNAp3efHJwZJD/go-verifcid"
 )
 
 type VerifBSGC struct {
@@ -27,7 +27,7 @@ func (bs *VerifBSGC) PutMany(blks []blocks.Block) error {
 	return bs.GCBlockstore.PutMany(blks)
 }
 
-func (bs *VerifBSGC) Get(c *cid.Cid) (blocks.Block, error) {
+func (bs *VerifBSGC) Get(c cid.Cid) (blocks.Block, error) {
 	if err := verifcid.ValidateCid(c); err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (bs *VerifBS) PutMany(blks []blocks.Block) error {
 	return bs.Blockstore.PutMany(blks)
 }
 
-func (bs *VerifBS) Get(c *cid.Cid) (blocks.Block, error) {
+func (bs *VerifBS) Get(c cid.Cid) (blocks.Block, error) {
 	if err := verifcid.ValidateCid(c); err != nil {
 		return nil, err
 	}

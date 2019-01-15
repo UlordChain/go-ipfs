@@ -1,4 +1,4 @@
-package fsrepo
+package fsrepo_test
 
 import (
 	"encoding/json"
@@ -7,7 +7,10 @@ import (
 	"reflect"
 	"testing"
 
-	config "gx/ipfs/QmTyiSs9VgdVb4pnzdjtKhcfdTkHFEaNn6xnCbZq4DTFRt/go-ipfs-config"
+	"github.com/ipfs/go-ipfs/plugin/loader"
+	"github.com/ipfs/go-ipfs/repo/fsrepo"
+
+	"gx/ipfs/QmcRKBUqc2p3L1ZraoJjbXfs9E6xzvEuyK9iypb5RGwfsr/go-ipfs-config"
 )
 
 // note: to test sorting of the mountpoints in the disk spec they are
@@ -72,6 +75,20 @@ var measureConfig = []byte(`{
 }`)
 
 func TestDefaultDatastoreConfig(t *testing.T) {
+	loader, err := loader.NewPluginLoader("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = loader.Initialize()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = loader.Run()
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	dir, err := ioutil.TempDir("", "ipfs-datastore-config-test")
 	if err != nil {
 		t.Fatal(err)
@@ -84,7 +101,7 @@ func TestDefaultDatastoreConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	dsc, err := AnyDatastoreConfig(config.Spec)
+	dsc, err := fsrepo.AnyDatastoreConfig(config.Spec)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -122,7 +139,7 @@ func TestLevelDbConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	dsc, err := AnyDatastoreConfig(spec)
+	dsc, err := fsrepo.AnyDatastoreConfig(spec)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -160,7 +177,7 @@ func TestFlatfsConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	dsc, err := AnyDatastoreConfig(spec)
+	dsc, err := fsrepo.AnyDatastoreConfig(spec)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -198,7 +215,7 @@ func TestMeasureConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	dsc, err := AnyDatastoreConfig(spec)
+	dsc, err := fsrepo.AnyDatastoreConfig(spec)
 	if err != nil {
 		t.Fatal(err)
 	}

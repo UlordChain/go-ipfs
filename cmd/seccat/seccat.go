@@ -19,11 +19,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	ci "gx/ipfs/QmPvyPwuCgJ7pDmrKDxRtsScJgBaM5h4EpRL2qQJsmXf4n/go-libp2p-crypto"
-	peer "gx/ipfs/QmQsErDt8Qgw1XrsXf2BpEzDgGWtB1YLsTAARBup5b6B9W/go-libp2p-peer"
-	logging "gx/ipfs/QmRREK2CAZ5Re2Bd9zZFG6FeYDppUWt5cMgsoUEp3ktgSr/go-log"
-	secio "gx/ipfs/QmWKKkNLFRcznF5vDqt2eeRsnQqQhwbjVf8zJ9KC2RXrzN/go-libp2p-secio"
-	pstore "gx/ipfs/QmeKD8YT7887Xu6Z86iZmpYNxrLogJexqxEugSmaf14k64/go-libp2p-peerstore"
+	ci "gx/ipfs/QmNiJiXwWE3kRhZrC5ej3kSjWHm337pYfhjLGSCDNKJP2s/go-libp2p-crypto"
+	pstore "gx/ipfs/QmPiemjiKBC9VA7vZF82m4x1oygtg2c2YVqag8PX7dN1BD/go-libp2p-peerstore"
+	pstoremem "gx/ipfs/QmPiemjiKBC9VA7vZF82m4x1oygtg2c2YVqag8PX7dN1BD/go-libp2p-peerstore/pstoremem"
+	secio "gx/ipfs/QmQoDgEDBPJ6RfKDgdoMpPwoK4WEZHUosHoUs6YVDGoen3/go-libp2p-secio"
+	peer "gx/ipfs/QmY5Grm8pJdiSSVsYxx4uNRgweY72EmYwuSDbRnbFok3iY/go-libp2p-peer"
+	logging "gx/ipfs/QmcuXC5cxs79ro2cUuHs4HQ2bkDLJUYokwL8aivcX6HW3C/go-log"
 )
 
 var verbose = false
@@ -127,7 +128,7 @@ func setupPeer(a args) (peer.ID, pstore.Peerstore, error) {
 		return "", nil, err
 	}
 
-	ps := pstore.NewPeerstore()
+	ps := pstoremem.NewPeerstore()
 	ps.AddPrivKey(p, sk)
 	ps.AddPubKey(p, pk)
 

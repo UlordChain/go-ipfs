@@ -5,19 +5,24 @@ import (
 	"io"
 	"net/http"
 
+	cmdenv "github.com/ipfs/go-ipfs/core/commands/cmdenv"
 	filestore "github.com/ipfs/go-ipfs/filestore"
-	balanced "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/importer/balanced"
-	ihelper "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/importer/helpers"
-	trickle "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/importer/trickle"
+	pin "github.com/ipfs/go-ipfs/pin"
 
-	cmds "gx/ipfs/QmPTfgFTo9PFr1PvPKyKoeMgBvYPh6cX3aDP7DHKVbnCbi/go-ipfs-cmds"
-	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	cmdkit "gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
-	chunk "gx/ipfs/QmXzBbJo2sLf3uwjNTeoWYiJV7CjAhkiA4twtLvwJSSNdK/go-ipfs-chunker"
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
+	balanced "gx/ipfs/QmQXze9tG878pa4Euya4rrDpyTNX3kQe4dhCaBzBozGgpe/go-unixfs/importer/balanced"
+	ihelper "gx/ipfs/QmQXze9tG878pa4Euya4rrDpyTNX3kQe4dhCaBzBozGgpe/go-unixfs/importer/helpers"
+	trickle "gx/ipfs/QmQXze9tG878pa4Euya4rrDpyTNX3kQe4dhCaBzBozGgpe/go-unixfs/importer/trickle"
+	chunk "gx/ipfs/QmR4QQVkBZsZENRjYFVi8dEtPL3daZRNKk24m4r6WKJHNm/go-ipfs-chunker"
+	cid "gx/ipfs/QmR8BauakNcBa3RbE4nbQu76PDiJgoQgz8AJdhJuiU4TAw/go-cid"
+	cmds "gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
+	cmdkit "gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
+	mh "gx/ipfs/QmerPMzPk1mJVowm8KgmoknWa4yCYvvugMPsgWmDNUvDLW/go-multihash"
 )
 
 var urlStoreCmd = &cmds.Command{
+	Helptext: cmdkit.HelpText{
+		Tagline: "Interact with urlstore.",
+	},
 	Subcommands: map[string]*cmds.Command{
 		"add": urlAdd,
 	},
@@ -35,9 +40,6 @@ control.
 The file is added using raw-leaves but otherwise using the default
 settings for 'ipfs add'.
 
-The file is not pinned, so this command should be followed by an 'ipfs
-pin add'.
-
 This command is considered temporary until a better solution can be
 found.  It may disappear or the semantics can change at any
 time.
@@ -45,52 +47,52 @@ time.
 	},
 	Options: []cmdkit.Option{
 		cmdkit.BoolOption(trickleOptionName, "t", "Use trickle-dag format for dag generation."),
+		cmdkit.BoolOption(pinOptionName, "Pin this object when adding.").WithDefault(true),
 	},
 	Arguments: []cmdkit.Argument{
 		cmdkit.StringArg("url", true, false, "URL to add to IPFS"),
 	},
-	Type: BlockStat{},
+	Type: &BlockStat{},
 
-	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) {
+	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		url := req.Arguments[0]
-		n, err := GetNode(env)
+		n, err := cmdenv.GetNode(env)
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 
 		if !filestore.IsURL(url) {
-			res.SetError(fmt.Errorf("unsupported url syntax: %s", url), cmdkit.ErrNormal)
-			return
+			return fmt.Errorf("unsupported url syntax: %s", url)
 		}
 
 		cfg, err := n.Repo.Config()
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 
 		if !cfg.Experimental.UrlstoreEnabled {
-			res.SetError(filestore.ErrUrlstoreNotEnabled, cmdkit.ErrNormal)
-			return
+			return filestore.ErrUrlstoreNotEnabled
 		}
 
 		useTrickledag, _ := req.Options[trickleOptionName].(bool)
+		dopin, _ := req.Options[pinOptionName].(bool)
 
 		hreq, err := http.NewRequest("GET", url, nil)
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 
 		hres, err := http.DefaultClient.Do(hreq)
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 		if hres.StatusCode != http.StatusOK {
-			res.SetError(fmt.Errorf("expected code 200, got: %d", hres.StatusCode), cmdkit.ErrNormal)
-			return
+			return fmt.Errorf("expected code 200, got: %d", hres.StatusCode)
+		}
+
+		if dopin {
+			// Take the pinlock
+			defer n.Blockstore.PinLock().Unlock()
 		}
 
 		chk := chunk.NewSizeSplitter(hres.Body, chunk.DefaultBlockSize)
@@ -108,14 +110,22 @@ time.
 		if useTrickledag {
 			layout = trickle.Layout
 		}
+
 		root, err := layout(dbp.New(chk))
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 
-		cmds.EmitOnce(res, BlockStat{
-			Key:  root.Cid().String(),
+		c := root.Cid()
+		if dopin {
+			n.Pinning.PinWithMode(c, pin.Recursive)
+			if err := n.Pinning.Flush(); err != nil {
+				return err
+			}
+		}
+
+		return cmds.EmitOnce(res, &BlockStat{
+			Key:  c.String(),
 			Size: int(hres.ContentLength),
 		})
 	},

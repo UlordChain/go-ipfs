@@ -11,17 +11,16 @@ import (
 	"syscall"
 
 	core "github.com/ipfs/go-ipfs/core"
-	uio "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/io"
-	ftpb "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/pb"
-	mdag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
-	path "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
+	path "gx/ipfs/QmNYPETsdAu2uQ1k9q9S1jYEGURaLHV6cbYRSVFVRftpF8/go-path"
+	ft "gx/ipfs/QmQXze9tG878pa4Euya4rrDpyTNX3kQe4dhCaBzBozGgpe/go-unixfs"
+	uio "gx/ipfs/QmQXze9tG878pa4Euya4rrDpyTNX3kQe4dhCaBzBozGgpe/go-unixfs/io"
+	mdag "gx/ipfs/QmTQdH4848iTVCJmKXYyRiK72HufWTLYQQ8iN3JaQ8K1Hq/go-merkledag"
 
-	logging "gx/ipfs/QmRREK2CAZ5Re2Bd9zZFG6FeYDppUWt5cMgsoUEp3ktgSr/go-log"
 	fuse "gx/ipfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse"
 	fs "gx/ipfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse/fs"
-	ipld "gx/ipfs/QmX5CsuHyVZeTLxgRSYkgLSDQKb9UjE8xnhQzCEJWWWFsC/go-ipld-format"
-	lgbl "gx/ipfs/QmZ4zF1mBrt8C2mSCM4ZYE4aAnv78f7GvrzufJC4G5tecK/go-libp2p-loggables"
-	proto "gx/ipfs/QmdxUuburamoF6zF9qjeQC4WYcWGbWuRmdLacMEsW8ioD8/gogo-protobuf/proto"
+	lgbl "gx/ipfs/QmWZnkipEJbsdUDhgTGBnKAN1iHM2WDMNqsXHyAuaAiCgo/go-libp2p-loggables"
+	ipld "gx/ipfs/QmcKKBwfz6FyQdHR2jsXrrF6XeSBXYL86anmWNewpFpoF5/go-ipld-format"
+	logging "gx/ipfs/QmcuXC5cxs79ro2cUuHs4HQ2bkDLJUYokwL8aivcX6HW3C/go-log"
 )
 
 var log = logging.Logger("fuse/ipfs")
@@ -93,13 +92,16 @@ func (*Root) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 type Node struct {
 	Ipfs   *core.IpfsNode
 	Nd     ipld.Node
-	cached *ftpb.Data
+	cached *ft.FSNode
 }
 
 func (s *Node) loadData() error {
 	if pbnd, ok := s.Nd.(*mdag.ProtoNode); ok {
-		s.cached = new(ftpb.Data)
-		return proto.Unmarshal(pbnd.Data(), s.cached)
+		fsn, err := ft.FSNodeFromBytes(pbnd.Data())
+		if err != nil {
+			return err
+		}
+		s.cached = fsn
 	}
 	return nil
 }
@@ -119,23 +121,23 @@ func (s *Node) Attr(ctx context.Context, a *fuse.Attr) error {
 			return fmt.Errorf("readonly: loadData() failed: %s", err)
 		}
 	}
-	switch s.cached.GetType() {
-	case ftpb.Data_Directory, ftpb.Data_HAMTShard:
+	switch s.cached.Type() {
+	case ft.TDirectory, ft.THAMTShard:
 		a.Mode = os.ModeDir | 0555
-	case ftpb.Data_File:
-		size := s.cached.GetFilesize()
+	case ft.TFile:
+		size := s.cached.FileSize()
 		a.Mode = 0444
 		a.Size = uint64(size)
 		a.Blocks = uint64(len(s.Nd.Links()))
-	case ftpb.Data_Raw:
+	case ft.TRaw:
 		a.Mode = 0444
-		a.Size = uint64(len(s.cached.GetData()))
+		a.Size = uint64(len(s.cached.Data()))
 		a.Blocks = uint64(len(s.Nd.Links()))
-	case ftpb.Data_Symlink:
+	case ft.TSymlink:
 		a.Mode = 0777 | os.ModeSymlink
-		a.Size = uint64(len(s.cached.GetData()))
+		a.Size = uint64(len(s.cached.Data()))
 	default:
-		return fmt.Errorf("invalid data type - %s", s.cached.GetType())
+		return fmt.Errorf("invalid data type - %s", s.cached.Type())
 	}
 	return nil
 }
@@ -192,21 +194,20 @@ func (s *Node) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 		case *mdag.RawNode:
 			t = fuse.DT_File
 		case *mdag.ProtoNode:
-			var data ftpb.Data
-			if err := proto.Unmarshal(nd.Data(), &data); err != nil {
+			if fsn, err := ft.FSNodeFromBytes(nd.Data()); err != nil {
 				log.Warning("failed to unmarshal protonode data field:", err)
 			} else {
-				switch data.GetType() {
-				case ftpb.Data_Directory, ftpb.Data_HAMTShard:
+				switch fsn.Type() {
+				case ft.TDirectory, ft.THAMTShard:
 					t = fuse.DT_Dir
-				case ftpb.Data_File, ftpb.Data_Raw:
+				case ft.TFile, ft.TRaw:
 					t = fuse.DT_File
-				case ftpb.Data_Symlink:
+				case ft.TSymlink:
 					t = fuse.DT_Link
-				case ftpb.Data_Metadata:
+				case ft.TMetadata:
 					log.Error("metadata object in fuse should contain its wrapped type")
 				default:
-					log.Error("unrecognized protonode data type: ", data.GetType())
+					log.Error("unrecognized protonode data type: ", fsn.Type())
 				}
 			}
 		}
@@ -230,10 +231,10 @@ func (s *Node) Getxattr(ctx context.Context, req *fuse.GetxattrRequest, resp *fu
 }
 
 func (s *Node) Readlink(ctx context.Context, req *fuse.ReadlinkRequest) (string, error) {
-	if s.cached == nil || s.cached.GetType() != ftpb.Data_Symlink {
+	if s.cached == nil || s.cached.Type() != ft.TSymlink {
 		return "", fuse.Errno(syscall.EINVAL)
 	}
-	return string(s.cached.GetData()), nil
+	return string(s.cached.Data()), nil
 }
 
 func (s *Node) Read(ctx context.Context, req *fuse.ReadRequest, resp *fuse.ReadResponse) error {

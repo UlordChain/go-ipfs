@@ -1,18 +1,17 @@
 package commands
 
 import (
+	"fmt"
 	"io"
-	"strings"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
-	core "github.com/ipfs/go-ipfs/core"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	"github.com/ipfs/go-ipfs/core/coreunix"
+	"github.com/ipfs/go-ipfs/core"
+	"github.com/ipfs/go-ipfs/core/commands/cmdenv"
 	tar "github.com/ipfs/go-ipfs/tar"
-	dag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
-	path "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
 
-	"gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
+	"gx/ipfs/QmNYPETsdAu2uQ1k9q9S1jYEGURaLHV6cbYRSVFVRftpF8/go-path"
+	dag "gx/ipfs/QmTQdH4848iTVCJmKXYyRiK72HufWTLYQQ8iN3JaQ8K1Hq/go-merkledag"
+	"gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
+	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
 )
 
 var TarCmd = &cmds.Command{
@@ -38,47 +37,36 @@ represent it.
 	Arguments: []cmdkit.Argument{
 		cmdkit.FileArg("file", true, false, "Tar file to add.").EnableStdin(),
 	},
-	Run: func(req cmds.Request, res cmds.Response) {
-		nd, err := req.InvocContext().GetNode()
+	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
+		nd, err := cmdenv.GetNode(env)
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 
-		fi, err := req.Files().NextFile()
+		it := req.Files.Entries()
+		file, err := cmdenv.GetFileArg(it)
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 
-		node, err := tar.ImportTar(req.Context(), fi, nd.DAG)
+		node, err := tar.ImportTar(req.Context, file, nd.DAG)
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 
 		c := node.Cid()
 
-		fi.FileName()
-		res.SetOutput(&coreunix.AddedObject{
-			Name: fi.FileName(),
+		return cmds.EmitOnce(res, &AddEvent{
+			Name: it.Name(),
 			Hash: c.String(),
 		})
 	},
-	Type: coreunix.AddedObject{},
-	Marshalers: cmds.MarshalerMap{
-		cmds.Text: func(res cmds.Response) (io.Reader, error) {
-			v, err := unwrapOutput(res.Output())
-			if err != nil {
-				return nil, err
-			}
-
-			o, ok := v.(*coreunix.AddedObject)
-			if !ok {
-				return nil, e.TypeErr(o, v)
-			}
-			return strings.NewReader(o.Hash + "\n"), nil
-		},
+	Type: AddEvent{},
+	Encoders: cmds.EncoderMap{
+		cmds.Text: cmds.MakeTypedEncoder(func(req *cmds.Request, w io.Writer, out *AddEvent) error {
+			fmt.Fprintln(w, out.Hash)
+			return nil
+		}),
 	},
 }
 
@@ -93,37 +81,32 @@ var tarCatCmd = &cmds.Command{
 	Arguments: []cmdkit.Argument{
 		cmdkit.StringArg("path", true, false, "ipfs path of archive to export.").EnableStdin(),
 	},
-	Run: func(req cmds.Request, res cmds.Response) {
-		nd, err := req.InvocContext().GetNode()
+	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
+		nd, err := cmdenv.GetNode(env)
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 
-		p, err := path.ParsePath(req.Arguments()[0])
+		p, err := path.ParsePath(req.Arguments[0])
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 
-		root, err := core.Resolve(req.Context(), nd.Namesys, nd.Resolver, p)
+		root, err := core.Resolve(req.Context, nd.Namesys, nd.Resolver, p)
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 
 		rootpb, ok := root.(*dag.ProtoNode)
 		if !ok {
-			res.SetError(dag.ErrNotProtobuf, cmdkit.ErrNormal)
-			return
+			return dag.ErrNotProtobuf
 		}
 
-		r, err := tar.ExportTar(req.Context(), rootpb, nd.DAG)
+		r, err := tar.ExportTar(req.Context, rootpb, nd.DAG)
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 
-		res.SetOutput(r)
+		return res.Emit(r)
 	},
 }

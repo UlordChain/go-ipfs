@@ -18,13 +18,13 @@ import (
 	nsopts "github.com/ipfs/go-ipfs/namesys/opts"
 	repo "github.com/ipfs/go-ipfs/repo"
 
-	ci "gx/ipfs/QmPvyPwuCgJ7pDmrKDxRtsScJgBaM5h4EpRL2qQJsmXf4n/go-libp2p-crypto"
-	id "gx/ipfs/QmQiaskfWpdRJ4x2spEQjPFTUkEB87KDYu91qnNYBqvvcX/go-libp2p/p2p/protocol/identify"
-	dag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
-	config "gx/ipfs/QmTyiSs9VgdVb4pnzdjtKhcfdTkHFEaNn6xnCbZq4DTFRt/go-ipfs-config"
-	datastore "gx/ipfs/QmVG5gxteQNEMhrS8prJSmU2C9rebtFuTd3SYZ5kE3YZ5k/go-datastore"
-	syncds "gx/ipfs/QmVG5gxteQNEMhrS8prJSmU2C9rebtFuTd3SYZ5kE3YZ5k/go-datastore/sync"
-	path "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
+	path "gx/ipfs/QmNYPETsdAu2uQ1k9q9S1jYEGURaLHV6cbYRSVFVRftpF8/go-path"
+	ci "gx/ipfs/QmNiJiXwWE3kRhZrC5ej3kSjWHm337pYfhjLGSCDNKJP2s/go-libp2p-crypto"
+	dag "gx/ipfs/QmTQdH4848iTVCJmKXYyRiK72HufWTLYQQ8iN3JaQ8K1Hq/go-merkledag"
+	id "gx/ipfs/QmYxivS34F2M2n44WQQnRHGAKS8aoRUxwGpi9wk4Cdn4Jf/go-libp2p/p2p/protocol/identify"
+	config "gx/ipfs/QmcRKBUqc2p3L1ZraoJjbXfs9E6xzvEuyK9iypb5RGwfsr/go-ipfs-config"
+	datastore "gx/ipfs/Qmf4xQhNomPNhrtZc67qSnfJSjxjXs9LWvknJtSXwimPrM/go-datastore"
+	syncds "gx/ipfs/Qmf4xQhNomPNhrtZc67qSnfJSjxjXs9LWvknJtSXwimPrM/go-datastore/sync"
 )
 
 // `ipfs object new unixfs-dir`
@@ -35,7 +35,7 @@ type mockNamesys map[string]path.Path
 func (m mockNamesys) Resolve(ctx context.Context, name string, opts ...nsopts.ResolveOpt) (value path.Path, err error) {
 	cfg := nsopts.DefaultResolveOpts()
 	for _, o := range opts {
-		o(cfg)
+		o(&cfg)
 	}
 	depth := cfg.Depth
 	if depth == nsopts.UnlimitedDepth {
@@ -55,6 +55,14 @@ func (m mockNamesys) Resolve(ctx context.Context, name string, opts ...nsopts.Re
 		name = value.String()
 	}
 	return value, nil
+}
+
+func (m mockNamesys) ResolveAsync(ctx context.Context, name string, opts ...nsopts.ResolveOpt) <-chan namesys.Result {
+	out := make(chan namesys.Result, 1)
+	v, err := m.Resolve(ctx, name, opts...)
+	out <- namesys.Result{Path: v, Err: err}
+	close(out)
+	return out
 }
 
 func (m mockNamesys) Publish(ctx context.Context, name ci.PrivKey, value path.Path) error {
@@ -128,9 +136,9 @@ func newTestServerAndNode(t *testing.T, ns mockNamesys) (*httptest.Server, *core
 
 	dh.Handler, err = makeHandler(n,
 		ts.Listener,
-		VersionOption(),
 		IPNSHostnameOption(),
 		GatewayOption(false, "/ipfs", "/ipns"),
+		VersionOption(),
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -153,6 +161,14 @@ func TestGatewayGet(t *testing.T) {
 	ns["/ipns/double.example.com"] = path.FromString("/ipns/working.example.com")
 	ns["/ipns/triple.example.com"] = path.FromString("/ipns/double.example.com")
 	ns["/ipns/broken.example.com"] = path.FromString("/ipns/" + k)
+	// We picked .man because:
+	// 1. It's a valid TLD.
+	// 2. Go treats it as the file extension for "man" files (even though
+	//    nobody actually *uses* this extension, AFAIK).
+	//
+	// Unfortunately, this may not work on all platforms as file type
+	// detection is platform dependent.
+	ns["/ipns/example.man"] = path.FromString("/ipfs/" + k)
 
 	t.Log(ts.URL)
 	for _, test := range []struct {
@@ -172,9 +188,11 @@ func TestGatewayGet(t *testing.T) {
 		{"working.example.com", "/", http.StatusOK, "fnord"},
 		{"double.example.com", "/", http.StatusOK, "fnord"},
 		{"triple.example.com", "/", http.StatusOK, "fnord"},
-		{"working.example.com", "/ipfs/" + k, http.StatusNotFound, "ipfs resolve -r /ipns/working.example.com/ipfs/" + k + ": no link by that name\n"},
+		{"working.example.com", "/ipfs/" + k, http.StatusNotFound, "ipfs resolve -r /ipns/working.example.com/ipfs/" + k + ": no link named \"ipfs\" under " + k + "\n"},
 		{"broken.example.com", "/", http.StatusNotFound, "ipfs resolve -r /ipns/broken.example.com/: " + namesys.ErrResolveFailed.Error() + "\n"},
 		{"broken.example.com", "/ipfs/" + k, http.StatusNotFound, "ipfs resolve -r /ipns/broken.example.com/ipfs/" + k + ": " + namesys.ErrResolveFailed.Error() + "\n"},
+		// This test case ensures we don't treat the TLD as a file extension.
+		{"example.man", "/", http.StatusOK, "fnord"},
 	} {
 		var c http.Client
 		r, err := http.NewRequest("GET", ts.URL+test.path, nil)
@@ -190,6 +208,10 @@ func TestGatewayGet(t *testing.T) {
 			continue
 		}
 		defer resp.Body.Close()
+		contentType := resp.Header.Get("Content-Type")
+		if contentType != "text/plain; charset=utf-8" {
+			t.Errorf("expected content type to be text/plain, got %s", contentType)
+		}
 		if resp.StatusCode != test.status {
 			t.Errorf("got %d, expected %d from %s", resp.StatusCode, test.status, urlstr)
 			continue
@@ -290,6 +312,23 @@ func TestIPNSHostnameRedirect(t *testing.T) {
 	} else if hdr[0] != "/good-prefix/foo/" {
 		t.Errorf("location header is %v, expected /good-prefix/foo/", hdr[0])
 	}
+
+	// make sure /version isn't exposed
+	req, err = http.NewRequest("GET", ts.URL+"/version", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Host = "example.net"
+	req.Header.Set("X-Ipfs-Gateway-Prefix", "/good-prefix")
+
+	res, err = doWithoutRedirect(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if res.StatusCode != 404 {
+		t.Fatalf("expected a 404 error, got: %s", res.Status)
+	}
 }
 
 func TestIPNSHostnameBacklinks(t *testing.T) {
@@ -366,6 +405,9 @@ func TestIPNSHostnameBacklinks(t *testing.T) {
 	if !strings.Contains(s, "<a href=\"/foo%3F%20%23%3C%27/file.txt\">") {
 		t.Fatalf("expected file in directory listing")
 	}
+	if !strings.Contains(s, dagn2.Cid().String()) {
+		t.Fatalf("expected hash in directory listing")
+	}
 
 	// make request to directory listing at root
 	req, err = http.NewRequest("GET", ts.URL, nil)
@@ -395,6 +437,9 @@ func TestIPNSHostnameBacklinks(t *testing.T) {
 	}
 	if !strings.Contains(s, "<a href=\"/file.txt\">") {
 		t.Fatalf("expected file in directory listing")
+	}
+	if !strings.Contains(s, dagn1.Cid().String()) {
+		t.Fatalf("expected hash in directory listing")
 	}
 
 	// make request to directory listing
@@ -426,6 +471,9 @@ func TestIPNSHostnameBacklinks(t *testing.T) {
 	if !strings.Contains(s, "<a href=\"/foo%3F%20%23%3C%27/bar/file.txt\">") {
 		t.Fatalf("expected file in directory listing")
 	}
+	if !strings.Contains(s, dagn3.Cid().String()) {
+		t.Fatalf("expected hash in directory listing")
+	}
 
 	// make request to directory listing with prefix
 	req, err = http.NewRequest("GET", ts.URL, nil)
@@ -456,6 +504,9 @@ func TestIPNSHostnameBacklinks(t *testing.T) {
 	}
 	if !strings.Contains(s, "<a href=\"/good-prefix/file.txt\">") {
 		t.Fatalf("expected file in directory listing")
+	}
+	if !strings.Contains(s, dagn1.Cid().String()) {
+		t.Fatalf("expected hash in directory listing")
 	}
 
 	// make request to directory listing with illegal prefix
@@ -495,6 +546,9 @@ func TestIPNSHostnameBacklinks(t *testing.T) {
 	}
 	if !strings.Contains(s, "<a href=\"/file.txt\">") {
 		t.Fatalf("expected file in directory listing")
+	}
+	if !strings.Contains(s, dagn1.Cid().String()) {
+		t.Fatalf("expected hash in directory listing")
 	}
 }
 

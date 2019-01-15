@@ -16,9 +16,10 @@ import (
 	namesys "github.com/ipfs/go-ipfs/namesys"
 	fsrepo "github.com/ipfs/go-ipfs/repo/fsrepo"
 
-	"gx/ipfs/QmPTfgFTo9PFr1PvPKyKoeMgBvYPh6cX3aDP7DHKVbnCbi/go-ipfs-cmds"
-	"gx/ipfs/QmSP88ryZkHSRn1fnngAaV2Vcn63WUJzAavnRM9CVdU1Ky/go-ipfs-cmdkit"
-	"gx/ipfs/QmTyiSs9VgdVb4pnzdjtKhcfdTkHFEaNn6xnCbZq4DTFRt/go-ipfs-config"
+	"gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
+	"gx/ipfs/QmXWZCd8jfaHmt4UDSnjKmGcrQMw95bDGWqEeVLVJjoANX/go-ipfs-files"
+	"gx/ipfs/QmcRKBUqc2p3L1ZraoJjbXfs9E6xzvEuyK9iypb5RGwfsr/go-ipfs-config"
+	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
 )
 
 const (
@@ -72,11 +73,10 @@ environment variable:
 
 		return nil
 	},
-	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) {
+	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		cctx := env.(*oldcmds.Context)
 		if cctx.Online {
-			res.SetError(errors.New("init must be run offline only"), cmdkit.ErrNormal)
-			return
+			return cmdkit.Error{Message: "init must be run offline only"}
 		}
 
 		empty, _ := req.Options["empty-repo"].(bool)
@@ -86,16 +86,21 @@ environment variable:
 
 		f := req.Files
 		if f != nil {
-			confFile, err := f.NextFile()
-			if err != nil {
-				res.SetError(err, cmdkit.ErrNormal)
-				return
+			it := req.Files.Entries()
+			if !it.Next() {
+				if it.Err() != nil {
+					return it.Err()
+				}
+				return fmt.Errorf("file argument was nil")
+			}
+			file := files.FileFromEntry(it)
+			if file == nil {
+				return fmt.Errorf("expected a regular file")
 			}
 
 			conf = &config.Config{}
-			if err := json.NewDecoder(confFile).Decode(conf); err != nil {
-				res.SetError(err, cmdkit.ErrNormal)
-				return
+			if err := json.NewDecoder(file).Decode(conf); err != nil {
+				return err
 			}
 		}
 
@@ -106,10 +111,7 @@ environment variable:
 			profiles = strings.Split(profile, ",")
 		}
 
-		if err := doInit(os.Stdout, cctx.ConfigRoot, empty, nBitsForKeypair, profiles, conf); err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
-		}
+		return doInit(os.Stdout, cctx.ConfigRoot, empty, nBitsForKeypair, profiles, conf)
 	},
 }
 
@@ -242,11 +244,6 @@ func initializeIpnsKeyspace(repoRoot string) error {
 		return err
 	}
 	defer nd.Close()
-
-	err = nd.SetupOfflineRouting()
-	if err != nil {
-		return err
-	}
 
 	return namesys.InitializeKeyspace(ctx, nd.Namesys, nd.Pinning, nd.PrivateKey)
 }

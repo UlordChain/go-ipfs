@@ -18,16 +18,15 @@ import (
 	mfsr "github.com/ipfs/go-ipfs/repo/fsrepo/migrations"
 	dir "github.com/ipfs/go-ipfs/thirdparty/dir"
 
-	"github.com/ipfs/go-ipfs/Godeps/_workspace/src/github.com/mitchellh/go-homedir"
-
-	util "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
-	logging "gx/ipfs/QmRREK2CAZ5Re2Bd9zZFG6FeYDppUWt5cMgsoUEp3ktgSr/go-log"
-	measure "gx/ipfs/QmRa2HJZNKkkkbNVPkZu9VCzst4B3JmxoaR97EUFhWcK6m/go-ds-measure"
-	config "gx/ipfs/QmTyiSs9VgdVb4pnzdjtKhcfdTkHFEaNn6xnCbZq4DTFRt/go-ipfs-config"
-	serialize "gx/ipfs/QmTyiSs9VgdVb4pnzdjtKhcfdTkHFEaNn6xnCbZq4DTFRt/go-ipfs-config/serialize"
-	ds "gx/ipfs/QmVG5gxteQNEMhrS8prJSmU2C9rebtFuTd3SYZ5kE3YZ5k/go-datastore"
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	lockfile "gx/ipfs/QmZzgxSj8QpR58KmdeNj97eD66X6xeDAFNjpP2xTY9oKeQ/go-fs-lock"
+	ma "gx/ipfs/QmNTCey11oxhb1AxDnQBRHtdhap6Ctud872NjAYPYYXPuc/go-multiaddr"
+	util "gx/ipfs/QmNohiVssaPw3KVLZik59DBVGTSm2dGvYT9eoXt5DQ36Yz/go-ipfs-util"
+	config "gx/ipfs/QmcRKBUqc2p3L1ZraoJjbXfs9E6xzvEuyK9iypb5RGwfsr/go-ipfs-config"
+	serialize "gx/ipfs/QmcRKBUqc2p3L1ZraoJjbXfs9E6xzvEuyK9iypb5RGwfsr/go-ipfs-config/serialize"
+	lockfile "gx/ipfs/QmcWjZkQxyPMkgZRpda4hqWwaD6E1yqCvcxZfxbt98CEAK/go-fs-lock"
+	logging "gx/ipfs/QmcuXC5cxs79ro2cUuHs4HQ2bkDLJUYokwL8aivcX6HW3C/go-log"
+	measure "gx/ipfs/QmdCQgMgoMjur6D15ZB3z1LodiSP3L6EBHMyVx4ekqzRWA/go-ds-measure"
+	homedir "gx/ipfs/QmdcULN1WCzgoQmcCaUAmEhwcxHYsDrbZ2LvRJKCL8dMrK/go-homedir"
+	ds "gx/ipfs/Qmf4xQhNomPNhrtZc67qSnfJSjxjXs9LWvknJtSXwimPrM/go-datastore"
 )
 
 // LockFile is the filename of the repo lock, relative to config dir
@@ -477,9 +476,11 @@ func (r *FSRepo) Close() error {
 	return r.lockfile.Close()
 }
 
+// Config the current config. This function DOES NOT copy the config. The caller
+// MUST NOT modify it without first calling `Clone`.
+//
 // Result when not Open is undefined. The method may panic if it pleases.
 func (r *FSRepo) Config() (*config.Config, error) {
-
 	// It is not necessary to hold the package lock since the repo is in an
 	// opened state. The package lock is _not_ meant to ensure that the repo is
 	// thread-safe. The package lock is only meant to guard against removal and
@@ -547,11 +548,14 @@ func (r *FSRepo) setConfigUnsynced(updated *config.Config) error {
 	if err := serialize.WriteConfigFile(configFilename, mapconf); err != nil {
 		return err
 	}
-	*r.config = *updated // copy so caller cannot modify this private config
+	// Do not use `*r.config = ...`. This will modify the *shared* config
+	// returned by `r.Config`.
+	r.config = updated
 	return nil
 }
 
-// SetConfig updates the FSRepo's config.
+// SetConfig updates the FSRepo's config. The user must not modify the config
+// object after calling this method.
 func (r *FSRepo) SetConfig(updated *config.Config) error {
 
 	// packageLock is held to provide thread-safety.

@@ -14,10 +14,10 @@ import (
 	"github.com/ipfs/go-ipfs/core"
 	corecommands "github.com/ipfs/go-ipfs/core/commands"
 
-	cmds "gx/ipfs/QmPTfgFTo9PFr1PvPKyKoeMgBvYPh6cX3aDP7DHKVbnCbi/go-ipfs-cmds"
-	cmdsHttp "gx/ipfs/QmPTfgFTo9PFr1PvPKyKoeMgBvYPh6cX3aDP7DHKVbnCbi/go-ipfs-cmds/http"
-	config "gx/ipfs/QmTyiSs9VgdVb4pnzdjtKhcfdTkHFEaNn6xnCbZq4DTFRt/go-ipfs-config"
-	path "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
+	path "gx/ipfs/QmNYPETsdAu2uQ1k9q9S1jYEGURaLHV6cbYRSVFVRftpF8/go-path"
+	cmds "gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
+	cmdsHttp "gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds/http"
+	config "gx/ipfs/QmcRKBUqc2p3L1ZraoJjbXfs9E6xzvEuyK9iypb5RGwfsr/go-ipfs-config"
 )
 
 var (
@@ -30,12 +30,8 @@ This functionality is deprecated, and will be removed in future versions.
 Instead, try either adding headers to the config, or passing them via
 cli arguments:
 
-	ipfs config API.HTTPHeaders 'Access-Control-Allow-Origin' '*'
+	ipfs config API.HTTPHeaders --json '{"Access-Control-Allow-Origin": ["*"]}'
 	ipfs daemon
-
-or
-
-	ipfs daemon --api-http-header 'Access-Control-Allow-Origin: *'
 `
 
 // APIPath is the path at which the API is mounted.
@@ -71,12 +67,18 @@ func addHeadersFromConfig(c *cmdsHttp.ServerConfig, nc *config.Config) {
 		}
 	}
 
-	c.Headers = make(map[string][]string, len(nc.API.HTTPHeaders))
+	c.Headers = make(map[string][]string, len(nc.API.HTTPHeaders)+1)
 
 	// Copy these because the config is shared and this function is called
 	// in multiple places concurrently. Updating these in-place *is* racy.
 	for h, v := range nc.API.HTTPHeaders {
-		c.Headers[h] = v
+		h = http.CanonicalHeaderKey(h)
+		switch h {
+		case cmdsHttp.ACAOrigin, cmdsHttp.ACAMethods, cmdsHttp.ACACredentials:
+			// these are handled by the CORs library.
+		default:
+			c.Headers[h] = v
+		}
 	}
 	c.Headers["Server"] = []string{"go-ipfs/" + version.CurrentVersionNumber}
 }

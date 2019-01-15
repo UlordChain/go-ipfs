@@ -7,28 +7,27 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	gopath "path"
 	"runtime/debug"
 	"strings"
 	"time"
 
-	core "github.com/ipfs/go-ipfs/core"
+	"github.com/ipfs/go-ipfs/core"
 	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
 	"github.com/ipfs/go-ipfs/dagutils"
-	ft "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs"
-	"gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/importer"
-	uio "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/io"
-	dag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
-	path "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
-	resolver "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path/resolver"
 
-	humanize "gx/ipfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
-	routing "gx/ipfs/QmS4niovD1U6pRjUBXivr1zvvLBqiTKbERjFo994JU7oQS/go-libp2p-routing"
-	multibase "gx/ipfs/QmSbvata2WqNkqGtZNg8MR3SKwnB8iQ7vTPJgWqB8bC5kR/go-multibase"
-	ipld "gx/ipfs/QmX5CsuHyVZeTLxgRSYkgLSDQKb9UjE8xnhQzCEJWWWFsC/go-ipld-format"
-	chunker "gx/ipfs/QmXzBbJo2sLf3uwjNTeoWYiJV7CjAhkiA4twtLvwJSSNdK/go-ipfs-chunker"
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
+	"gx/ipfs/QmNYPETsdAu2uQ1k9q9S1jYEGURaLHV6cbYRSVFVRftpF8/go-path"
+	"gx/ipfs/QmNYPETsdAu2uQ1k9q9S1jYEGURaLHV6cbYRSVFVRftpF8/go-path/resolver"
+	"gx/ipfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
+	ft "gx/ipfs/QmQXze9tG878pa4Euya4rrDpyTNX3kQe4dhCaBzBozGgpe/go-unixfs"
+	"gx/ipfs/QmQXze9tG878pa4Euya4rrDpyTNX3kQe4dhCaBzBozGgpe/go-unixfs/importer"
+	chunker "gx/ipfs/QmR4QQVkBZsZENRjYFVi8dEtPL3daZRNKk24m4r6WKJHNm/go-ipfs-chunker"
+	"gx/ipfs/QmR8BauakNcBa3RbE4nbQu76PDiJgoQgz8AJdhJuiU4TAw/go-cid"
+	dag "gx/ipfs/QmTQdH4848iTVCJmKXYyRiK72HufWTLYQQ8iN3JaQ8K1Hq/go-merkledag"
+	"gx/ipfs/QmTiRqrF5zkdZyrdsL5qndG1UbeWi8k8N2pYxCtXWrahR2/go-libp2p-routing"
+	"gx/ipfs/QmXWZCd8jfaHmt4UDSnjKmGcrQMw95bDGWqEeVLVJjoANX/go-ipfs-files"
+	ipld "gx/ipfs/QmcKKBwfz6FyQdHR2jsXrrF6XeSBXYL86anmWNewpFpoF5/go-ipld-format"
+	"gx/ipfs/QmekxXDhCxCJRNuzmHreuaT3BsuJcsjcXWNrtV9C8DRHtd/go-multibase"
 )
 
 const (
@@ -62,22 +61,10 @@ func (i *gatewayHandler) newDagFromReader(r io.Reader) (ipld.Node, error) {
 		chunker.DefaultSplitter(r))
 }
 
-// TODO(btc): break this apart into separate handlers using a more expressive muxer
 func (i *gatewayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(i.node.Context(), time.Hour)
 	// the hour is a hard fallback, we don't expect it to happen, but just in case
+	ctx, cancel := context.WithTimeout(r.Context(), time.Hour)
 	defer cancel()
-
-	if cn, ok := w.(http.CloseNotifier); ok {
-		clientGone := cn.CloseNotify()
-		go func() {
-			select {
-			case <-clientGone:
-			case <-ctx.Done():
-			}
-			cancel()
-		}()
-	}
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -176,18 +163,13 @@ func (i *gatewayHandler) getOrHeadHandler(ctx context.Context, w http.ResponseWr
 		return
 	}
 
-	dr, err := i.api.Unixfs().Cat(ctx, resolvedPath)
-	dir := false
-	switch err {
-	case nil:
-		// Cat() worked
-		defer dr.Close()
-	case coreiface.ErrIsDir:
-		dir = true
-	default:
+	dr, err := i.api.Unixfs().Get(ctx, resolvedPath)
+	if err != nil {
 		webError(w, "ipfs cat "+escapedURLPath, err, http.StatusNotFound)
 		return
 	}
+
+	defer dr.Close()
 
 	// Check etag send back to us
 	etag := "\"" + resolvedPath.Cid().String() + "\""
@@ -199,19 +181,6 @@ func (i *gatewayHandler) getOrHeadHandler(ctx context.Context, w http.ResponseWr
 	i.addUserHeaders(w) // ok, _now_ write user's headers.
 	w.Header().Set("X-IPFS-Path", urlPath)
 	w.Header().Set("Etag", etag)
-
-	// set 'allowed' headers
-	// & expose those headers
-	var allowedHeadersArr = []string{
-		"Content-Range",
-		"X-Chunked-Output",
-		"X-Stream-Output",
-	}
-
-	var allowedHeaders = strings.Join(allowedHeadersArr, ", ")
-
-	w.Header().Set("Access-Control-Allow-Headers", allowedHeaders)
-	w.Header().Set("Access-Control-Expose-Headers", allowedHeaders)
 
 	// Suborigin header, sandboxes apps from each other in the browser (even
 	// though they are served from the same gateway domain).
@@ -252,41 +221,34 @@ func (i *gatewayHandler) getOrHeadHandler(ctx context.Context, w http.ResponseWr
 	// TODO: break this out when we split /ipfs /ipns routes.
 	modtime := time.Now()
 
-	if strings.HasPrefix(urlPath, ipfsPathPrefix) && !dir {
-		w.Header().Set("Cache-Control", "public, max-age=29030400, immutable")
+	if f, ok := dr.(files.File); ok {
+		if strings.HasPrefix(urlPath, ipfsPathPrefix) {
+			w.Header().Set("Cache-Control", "public, max-age=29030400, immutable")
 
-		// set modtime to a really long time ago, since files are immutable and should stay cached
-		modtime = time.Unix(1, 0)
-	}
+			// set modtime to a really long time ago, since files are immutable and should stay cached
+			modtime = time.Unix(1, 0)
+		}
 
-	if !dir {
 		urlFilename := r.URL.Query().Get("filename")
 		var name string
 		if urlFilename != "" {
 			w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename*=UTF-8''%s", url.PathEscape(urlFilename)))
 			name = urlFilename
 		} else {
-			name = gopath.Base(urlPath)
+			name = getFilename(urlPath)
 		}
-		i.serveFile(w, r, name, modtime, dr)
+		i.serveFile(w, r, name, modtime, f)
+		return
+	}
+	dir, ok := dr.(files.Directory)
+	if !ok {
+		internalWebError(w, fmt.Errorf("unsupported file type"))
 		return
 	}
 
-	nd, err := i.api.ResolveNode(ctx, resolvedPath)
-	if err != nil {
-		internalWebError(w, err)
-		return
-	}
-
-	dirr, err := uio.NewDirectoryFromNode(i.node.DAG, nd)
-	if err != nil {
-		internalWebError(w, err)
-		return
-	}
-
-	ixnd, err := dirr.Find(ctx, "index.html")
-	switch {
-	case err == nil:
+	idx, err := i.api.Unixfs().Get(ctx, coreiface.Join(resolvedPath, "index.html"))
+	switch err.(type) {
+	case nil:
 		dirwithoutslash := urlPath[len(urlPath)-1] != '/'
 		goget := r.URL.Query().Get("go-get") == "1"
 		if dirwithoutslash && !goget {
@@ -295,20 +257,20 @@ func (i *gatewayHandler) getOrHeadHandler(ctx context.Context, w http.ResponseWr
 			return
 		}
 
-		dr, err := i.api.Unixfs().Cat(ctx, coreiface.IpfsPath(ixnd.Cid()))
-		if err != nil {
-			internalWebError(w, err)
+		f, ok := idx.(files.File)
+		if !ok {
+			internalWebError(w, files.ErrNotReader)
 			return
 		}
-		defer dr.Close()
 
 		// write to request
-		http.ServeContent(w, r, "index.html", modtime, dr)
+		http.ServeContent(w, r, "index.html", modtime, f)
 		return
+	case resolver.ErrNoLink:
+		// no index.html; noop
 	default:
 		internalWebError(w, err)
 		return
-	case os.IsNotExist(err):
 	}
 
 	if r.Method == "HEAD" {
@@ -317,12 +279,22 @@ func (i *gatewayHandler) getOrHeadHandler(ctx context.Context, w http.ResponseWr
 
 	// storage for directory listing
 	var dirListing []directoryItem
-	dirr.ForEachLink(ctx, func(link *ipld.Link) error {
+	dirit := dir.Entries()
+	for dirit.Next() {
 		// See comment above where originalUrlPath is declared.
-		di := directoryItem{humanize.Bytes(link.Size), link.Name, gopath.Join(originalUrlPath, link.Name)}
+		s, err := dirit.Node().Size()
+		if err != nil {
+			internalWebError(w, err)
+			return
+		}
+
+		di := directoryItem{humanize.Bytes(uint64(s)), dirit.Name(), gopath.Join(originalUrlPath, dirit.Name())}
 		dirListing = append(dirListing, di)
-		return nil
-	})
+	}
+	if dirit.Err() != nil {
+		internalWebError(w, dirit.Err())
+		return
+	}
 
 	// construct the correct back link
 	// https://github.com/ipfs/go-ipfs/issues/1365
@@ -356,11 +328,17 @@ func (i *gatewayHandler) getOrHeadHandler(ctx context.Context, w http.ResponseWr
 		}
 	}
 
+	var hash string
+	if !strings.HasPrefix(originalUrlPath, ipfsPathPrefix) {
+		hash = resolvedPath.Cid().String()
+	}
+
 	// See comment above where originalUrlPath is declared.
 	tplData := listingTemplateData{
 		Listing:  dirListing,
 		Path:     originalUrlPath,
 		BackLink: backLink,
+		Hash:     hash,
 	}
 	err = listingTemplate.Execute(w, tplData)
 	if err != nil {
@@ -370,7 +348,7 @@ func (i *gatewayHandler) getOrHeadHandler(ctx context.Context, w http.ResponseWr
 }
 
 type sizeReadSeeker interface {
-	Size() uint64
+	Size() (int64, error)
 
 	io.ReadSeeker
 }
@@ -381,7 +359,7 @@ type sizeSeeker struct {
 
 func (s *sizeSeeker) Seek(offset int64, whence int) (int64, error) {
 	if whence == io.SeekEnd && offset == 0 {
-		return int64(s.Size()), nil
+		return s.Size()
 	}
 
 	return s.sizeReadSeeker.Seek(offset, whence)
@@ -398,7 +376,7 @@ func (i *gatewayHandler) serveFile(w http.ResponseWriter, req *http.Request, nam
 }
 
 func (i *gatewayHandler) postHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-	p, err := i.api.Unixfs().Add(ctx, r.Body)
+	p, err := i.api.Unixfs().Add(ctx, files.NewReaderFile(r.Body))
 	if err != nil {
 		internalWebError(w, err)
 		return
@@ -443,7 +421,7 @@ func (i *gatewayHandler) putHandler(w http.ResponseWriter, r *http.Request) {
 		newPath = path.Join(rsegs[2:])
 	}
 
-	var newcid *cid.Cid
+	var newcid cid.Cid
 	rnode, err := core.Resolve(ctx, i.node.Namesys, i.node.Resolver, rootPath)
 	switch ev := err.(type) {
 	case resolver.ErrNoLink:
@@ -623,4 +601,12 @@ func webErrorWithCode(w http.ResponseWriter, message string, err error, code int
 // return a 500 error and log
 func internalWebError(w http.ResponseWriter, err error) {
 	webErrorWithCode(w, "internalWebError", err, http.StatusInternalServerError)
+}
+
+func getFilename(s string) string {
+	if (strings.HasPrefix(s, ipfsPathPrefix) || strings.HasPrefix(s, ipnsPathPrefix)) && strings.Count(gopath.Clean(s), "/") <= 2 {
+		// Don't want to treat ipfs.io in /ipns/ipfs.io as a filename.
+		return ""
+	}
+	return gopath.Base(s)
 }

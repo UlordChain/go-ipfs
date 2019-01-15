@@ -62,7 +62,7 @@ test_expect_success "GET IPFS non existent file returns code expected (404)" '
 '
 
 test_expect_failure "GET IPNS path succeeds" '
-  ipfs name publish "$HASH" &&
+  ipfs name publish --allow-offline "$HASH" &&
   PEERID=$(ipfs config Identity.PeerID) &&
   test_check_peerid "$PEERID" &&
   curl -sfo actual "http://127.0.0.1:$port/ipns/$PEERID"
@@ -105,6 +105,21 @@ test_expect_success "output only has one transfer encoding header" '
   echo "1" > tecount_exp &&
   test_cmp tecount_out tecount_exp
 '
+
+curl_pprofmutex() {
+  curl -f -X POST "http://127.0.0.1:$apiport/debug/pprof-mutex/?fraction=$1"
+}
+
+test_expect_success "set mutex fraction for pprof (negative so it doesn't enable)" '
+  curl_pprofmutex -1
+'
+
+test_expect_success "test failure conditions of mutex pprof endpoint" '
+  test_must_fail curl_pprofmutex &&
+    test_must_fail curl_pprofmutex that_is_string &&
+    test_must_fail curl -f -X GET "http://127.0.0.1:$apiport/debug/pprof-mutex/?fraction=-1"
+'
+
 
 test_expect_success "setup index hash" '
   mkdir index &&
@@ -199,5 +214,47 @@ test_expect_success "GET compact blocks succeeds" '
 '
 
 test_kill_ipfs_daemon
+
+
+GWPORT=32563
+
+test_expect_success "set up iptb testbed" '
+  iptb testbed create -type localipfs -count 5 -force -init &&
+  ipfsi 0 config Addresses.Gateway /ip4/127.0.0.1/tcp/$GWPORT &&
+  PEERID_1=$(iptb attr get 1 id)
+'
+
+test_expect_success "set NoFetch to true in config of node 0" '
+  ipfsi 0 config --bool=true Gateway.NoFetch true
+'
+
+test_expect_success "start ipfs nodes" '
+  iptb start -wait &&
+  iptb connect 0 1
+'
+
+test_expect_success "try fetching not present key from node 0" '
+  FOO=$(echo "foo" | ipfsi 1 add -Q) &&
+  test_expect_code 22 curl -f "http://127.0.0.1:$GWPORT/ipfs/$FOO"
+'
+
+test_expect_success "try fetching not present ipns key from node 0" '
+  ipfsi 1 name publish /ipfs/$FOO &&
+  test_expect_code 22 curl -f "http://127.0.0.1:$GWPORT/ipns/$PEERID_1"
+'
+
+test_expect_success "try fetching present key from from node 0" '
+  BAR=$(echo "bar" | ipfsi 0 add -Q) &&
+  curl -f "http://127.0.0.1:$GWPORT/ipfs/$BAR"
+'
+
+test_expect_success "try fetching present ipns key from node 0" '
+  ipfsi 1 name publish /ipfs/$BAR &&
+  curl "http://127.0.0.1:$GWPORT/ipns/$PEERID_1"
+'
+
+test_expect_success "stop testbed" '
+  iptb stop
+'
 
 test_done

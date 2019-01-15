@@ -1,10 +1,10 @@
 package cidv0v1
 
 import (
-	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	blocks "gx/ipfs/QmWAzSEoqZ6xU6pu8yL8e5WaMb7wtbfbhhN4p1DknUPtr3/go-block-format"
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
-	bs "gx/ipfs/QmcmpX42gtDv1fz24kau4wjS9hfwWj5VexWBKgGnWzsyag/go-ipfs-blockstore"
+	cid "gx/ipfs/QmR8BauakNcBa3RbE4nbQu76PDiJgoQgz8AJdhJuiU4TAw/go-cid"
+	bs "gx/ipfs/QmS2aqUZLJp8kF1ihE5rvDGE5LvmKDPnx32w9Z1BW9xLV5/go-ipfs-blockstore"
+	blocks "gx/ipfs/QmWoXtvgC8inqFkAATB7cp2Dax7XBi9VDvSg9RCCZufmRk/go-block-format"
+	mh "gx/ipfs/QmerPMzPk1mJVowm8KgmoknWa4yCYvvugMPsgWmDNUvDLW/go-multihash"
 )
 
 type blockstore struct {
@@ -15,19 +15,19 @@ func NewBlockstore(b bs.Blockstore) bs.Blockstore {
 	return &blockstore{b}
 }
 
-func (b *blockstore) Has(c *cid.Cid) (bool, error) {
+func (b *blockstore) Has(c cid.Cid) (bool, error) {
 	have, err := b.Blockstore.Has(c)
 	if have || err != nil {
 		return have, err
 	}
 	c1 := tryOtherCidVersion(c)
-	if c1 == nil {
+	if !c1.Defined() {
 		return false, nil
 	}
 	return b.Blockstore.Has(c1)
 }
 
-func (b *blockstore) Get(c *cid.Cid) (blocks.Block, error) {
+func (b *blockstore) Get(c cid.Cid) (blocks.Block, error) {
 	block, err := b.Blockstore.Get(c)
 	if err == nil {
 		return block, nil
@@ -36,7 +36,7 @@ func (b *blockstore) Get(c *cid.Cid) (blocks.Block, error) {
 		return nil, err
 	}
 	c1 := tryOtherCidVersion(c)
-	if c1 == nil {
+	if !c1.Defined() {
 		return nil, bs.ErrNotFound
 	}
 	block, err = b.Blockstore.Get(c1)
@@ -57,7 +57,7 @@ func (b *blockstore) Get(c *cid.Cid) (blocks.Block, error) {
 	return block, nil
 }
 
-func (b *blockstore) GetSize(c *cid.Cid) (int, error) {
+func (b *blockstore) GetSize(c cid.Cid) (int, error) {
 	size, err := b.Blockstore.GetSize(c)
 	if err == nil {
 		return size, nil
@@ -66,18 +66,18 @@ func (b *blockstore) GetSize(c *cid.Cid) (int, error) {
 		return -1, err
 	}
 	c1 := tryOtherCidVersion(c)
-	if c1 == nil {
+	if !c1.Defined() {
 		return -1, bs.ErrNotFound
 	}
 	return b.Blockstore.GetSize(c1)
 }
 
-func tryOtherCidVersion(c *cid.Cid) *cid.Cid {
+func tryOtherCidVersion(c cid.Cid) cid.Cid {
 	prefix := c.Prefix()
 	if prefix.Codec != cid.DagProtobuf || prefix.MhType != mh.SHA2_256 || prefix.MhLength != 32 {
-		return nil
+		return cid.Undef
 	}
-	var c1 *cid.Cid
+	var c1 cid.Cid
 	if prefix.Version == 0 {
 		c1 = cid.NewCidV1(cid.DagProtobuf, c.Hash())
 	} else {

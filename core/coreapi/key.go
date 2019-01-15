@@ -3,15 +3,16 @@ package coreapi
 import (
 	"context"
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"sort"
 
 	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
 	caopts "github.com/ipfs/go-ipfs/core/coreapi/interface/options"
-	ipfspath "gx/ipfs/QmdMPBephdLYNESkruDX2hcDTgFYhoCt4LimWhgnomSdV2/go-path"
 
-	crypto "gx/ipfs/QmPvyPwuCgJ7pDmrKDxRtsScJgBaM5h4EpRL2qQJsmXf4n/go-libp2p-crypto"
-	peer "gx/ipfs/QmQsErDt8Qgw1XrsXf2BpEzDgGWtB1YLsTAARBup5b6B9W/go-libp2p-peer"
+	ipfspath "gx/ipfs/QmNYPETsdAu2uQ1k9q9S1jYEGURaLHV6cbYRSVFVRftpF8/go-path"
+	crypto "gx/ipfs/QmNiJiXwWE3kRhZrC5ej3kSjWHm337pYfhjLGSCDNKJP2s/go-libp2p-crypto"
+	peer "gx/ipfs/QmY5Grm8pJdiSSVsYxx4uNRgweY72EmYwuSDbRnbFok3iY/go-libp2p-peer"
 )
 
 type KeyAPI CoreAPI
@@ -53,7 +54,7 @@ func (api *KeyAPI) Generate(ctx context.Context, name string, opts ...caopts.Key
 		return nil, fmt.Errorf("cannot create key with name 'self'")
 	}
 
-	_, err = api.node.Repo.Keystore().Get(name)
+	_, err = api.repo.Keystore().Get(name)
 	if err == nil {
 		return nil, fmt.Errorf("key with name '%s' already exists", name)
 	}
@@ -86,7 +87,7 @@ func (api *KeyAPI) Generate(ctx context.Context, name string, opts ...caopts.Key
 		return nil, fmt.Errorf("unrecognized key type: %s", options.Algorithm)
 	}
 
-	err = api.node.Repo.Keystore().Put(name, sk)
+	err = api.repo.Keystore().Put(name, sk)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +102,7 @@ func (api *KeyAPI) Generate(ctx context.Context, name string, opts ...caopts.Key
 
 // List returns a list keys stored in keystore.
 func (api *KeyAPI) List(ctx context.Context) ([]coreiface.Key, error) {
-	keys, err := api.node.Repo.Keystore().List()
+	keys, err := api.repo.Keystore().List()
 	if err != nil {
 		return nil, err
 	}
@@ -109,10 +110,10 @@ func (api *KeyAPI) List(ctx context.Context) ([]coreiface.Key, error) {
 	sort.Strings(keys)
 
 	out := make([]coreiface.Key, len(keys)+1)
-	out[0] = &key{"self", api.node.Identity}
+	out[0] = &key{"self", api.identity}
 
 	for n, k := range keys {
-		privKey, err := api.node.Repo.Keystore().Get(k)
+		privKey, err := api.repo.Keystore().Get(k)
 		if err != nil {
 			return nil, err
 		}
@@ -137,7 +138,7 @@ func (api *KeyAPI) Rename(ctx context.Context, oldName string, newName string, o
 		return nil, false, err
 	}
 
-	ks := api.node.Repo.Keystore()
+	ks := api.repo.Keystore()
 
 	if oldName == "self" {
 		return nil, false, fmt.Errorf("cannot rename key with name 'self'")
@@ -157,6 +158,12 @@ func (api *KeyAPI) Rename(ctx context.Context, oldName string, newName string, o
 	pid, err := peer.IDFromPublicKey(pubKey)
 	if err != nil {
 		return nil, false, err
+	}
+
+	// This is important, because future code will delete key `oldName`
+	// even if it is the same as newName.
+	if newName == oldName {
+		return &key{oldName, pid}, false, nil
 	}
 
 	overwrite := false
@@ -185,7 +192,7 @@ func (api *KeyAPI) Rename(ctx context.Context, oldName string, newName string, o
 
 // Remove removes keys from keystore. Returns ipns path of the removed key.
 func (api *KeyAPI) Remove(ctx context.Context, name string) (coreiface.Key, error) {
-	ks := api.node.Repo.Keystore()
+	ks := api.repo.Keystore()
 
 	if name == "self" {
 		return nil, fmt.Errorf("cannot remove key with name 'self'")
@@ -209,4 +216,12 @@ func (api *KeyAPI) Remove(ctx context.Context, name string) (coreiface.Key, erro
 	}
 
 	return &key{"", pid}, nil
+}
+
+func (api *KeyAPI) Self(ctx context.Context) (coreiface.Key, error) {
+	if api.identity == "" {
+		return nil, errors.New("identity not loaded")
+	}
+
+	return &key{"self", api.identity}, nil
 }

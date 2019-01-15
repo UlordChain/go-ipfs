@@ -5,17 +5,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"math/rand"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"runtime/pprof"
 	"strings"
-	"sync"
-	"syscall"
 	"time"
 
+	util "github.com/ipfs/go-ipfs/cmd/ipfs/util"
 	oldcmds "github.com/ipfs/go-ipfs/commands"
 	core "github.com/ipfs/go-ipfs/core"
 	corecmds "github.com/ipfs/go-ipfs/core/commands"
@@ -24,16 +21,17 @@ import (
 	repo "github.com/ipfs/go-ipfs/repo"
 	fsrepo "github.com/ipfs/go-ipfs/repo/fsrepo"
 
-	"gx/ipfs/QmPTfgFTo9PFr1PvPKyKoeMgBvYPh6cX3aDP7DHKVbnCbi/go-ipfs-cmds"
-	"gx/ipfs/QmPTfgFTo9PFr1PvPKyKoeMgBvYPh6cX3aDP7DHKVbnCbi/go-ipfs-cmds/cli"
-	"gx/ipfs/QmPTfgFTo9PFr1PvPKyKoeMgBvYPh6cX3aDP7DHKVbnCbi/go-ipfs-cmds/http"
-	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
-	logging "gx/ipfs/QmRREK2CAZ5Re2Bd9zZFG6FeYDppUWt5cMgsoUEp3ktgSr/go-log"
-	"gx/ipfs/QmTyiSs9VgdVb4pnzdjtKhcfdTkHFEaNn6xnCbZq4DTFRt/go-ipfs-config"
-	manet "gx/ipfs/QmV6FjemM1K8oXjrvuq3wuVWWoU2TLDPmNnKrxHzY3v6Ai/go-multiaddr-net"
+	ma "gx/ipfs/QmNTCey11oxhb1AxDnQBRHtdhap6Ctud872NjAYPYYXPuc/go-multiaddr"
+	u "gx/ipfs/QmNohiVssaPw3KVLZik59DBVGTSm2dGvYT9eoXt5DQ36Yz/go-ipfs-util"
+	madns "gx/ipfs/QmQc7jbDUsxUJZyFJzxVrnrWeECCct6fErEpMqtjyWvCX8/go-multiaddr-dns"
+	"gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
+	"gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds/cli"
+	"gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds/http"
+	loggables "gx/ipfs/QmWZnkipEJbsdUDhgTGBnKAN1iHM2WDMNqsXHyAuaAiCgo/go-libp2p-loggables"
 	osh "gx/ipfs/QmXuBJ7DR6k3rmUEKtvVMhwjmXDuJgXXPUt4LQXKBMsU93/go-os-helper"
-	ma "gx/ipfs/QmYmsdtJ3HsodkePE3eU3TsCaP2YvPZJ4LoXnNkDE5Tpt7/go-multiaddr"
-	loggables "gx/ipfs/QmZ4zF1mBrt8C2mSCM4ZYE4aAnv78f7GvrzufJC4G5tecK/go-libp2p-loggables"
+	manet "gx/ipfs/QmZcLBXKaFe8ND5YHPkJRAwmhJGrVsi1JqDZNyJ4nRK5Mj/go-multiaddr-net"
+	"gx/ipfs/QmcRKBUqc2p3L1ZraoJjbXfs9E6xzvEuyK9iypb5RGwfsr/go-ipfs-config"
+	logging "gx/ipfs/QmcuXC5cxs79ro2cUuHs4HQ2bkDLJUYokwL8aivcX6HW3C/go-log"
 )
 
 // log is the command logger
@@ -41,11 +39,41 @@ var log = logging.Logger("cmd/ipfs")
 
 var errRequestCanceled = errors.New("request canceled")
 
+// declared as a var for testing purposes
+var dnsResolver = madns.DefaultResolver
+
 const (
 	EnvEnableProfiling = "IPFS_PROF"
 	cpuProfile         = "ipfs.cpuprof"
 	heapProfile        = "ipfs.memprof"
 )
+
+func loadPlugins(repoPath string) (*loader.PluginLoader, error) {
+	pluginpath := filepath.Join(repoPath, "plugins")
+
+	// check if repo is accessible before loading plugins
+	var plugins *loader.PluginLoader
+	ok, err := checkPermissions(repoPath)
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		pluginpath = ""
+	}
+	plugins, err = loader.NewPluginLoader(pluginpath)
+	if err != nil {
+		log.Error("error loading plugins: ", err)
+	}
+
+	if err := plugins.Initialize(); err != nil {
+		log.Error("error initializing plugins: ", err)
+	}
+
+	if err := plugins.Run(); err != nil {
+		log.Error("error running plugins: ", err)
+	}
+	return plugins, nil
+}
 
 // main roadmap:
 // - parse the commandline to get a cmdInvocation
@@ -75,15 +103,28 @@ func mainRet() int {
 	}
 	defer stopFunc() // to be executed as late as possible
 
-	intrh, ctx := setupInterruptHandler(ctx)
+	intrh, ctx := util.SetupInterruptHandler(ctx)
 	defer intrh.Close()
 
-	// Handle `ipfs help'
-	if len(os.Args) == 2 {
-		if os.Args[1] == "help" {
-			os.Args[1] = "-h"
-		} else if os.Args[1] == "--version" {
+	// Handle `ipfs version` or `ipfs help`
+	if len(os.Args) > 1 {
+		// Handle `ipfs --version'
+		if os.Args[1] == "--version" {
 			os.Args[1] = "version"
+		}
+
+		//Handle `ipfs help` and `ipfs help <sub-command>`
+		if os.Args[1] == "help" {
+			if len(os.Args) > 2 {
+				os.Args = append(os.Args[:1], os.Args[2:]...)
+				// Handle `ipfs help --help`
+				// append `--help`,when the command is not `ipfs help --help`
+				if os.Args[1] != "--help" {
+					os.Args = append(os.Args, "--help")
+				}
+			} else {
+				os.Args[1] = "--help"
+			}
 		}
 	}
 
@@ -99,12 +140,18 @@ func mainRet() int {
 		}
 		log.Debugf("config path is %s", repoPath)
 
+		plugins, err := loadPlugins(repoPath)
+		if err != nil {
+			return nil, err
+		}
+
 		// this sets up the function that will initialize the node
 		// this is so that we can construct the node lazily.
 		return &oldcmds.Context{
 			ConfigRoot: repoPath,
 			LoadConfig: loadConfig,
 			ReqLog:     &oldcmds.ReqLog{},
+			Plugins:    plugins,
 			ConstructNode: func() (n *core.IpfsNode, err error) {
 				if req == nil {
 					return nil, errors.New("constructing node without a request")
@@ -162,20 +209,6 @@ func makeExecutor(req *cmds.Request, env interface{}) (cmds.Executor, error) {
 	if client != nil && !req.Command.External {
 		exctr = client.(cmds.Executor)
 	} else {
-		cctx := env.(*oldcmds.Context)
-		pluginpath := filepath.Join(cctx.ConfigRoot, "plugins")
-
-		// check if repo is accessible before loading plugins
-		ok, err := checkPermissions(cctx.ConfigRoot)
-		if err != nil {
-			return nil, err
-		}
-		if ok {
-			if _, err := loader.LoadPlugins(pluginpath); err != nil {
-				log.Error("error loading plugins: ", err)
-			}
-		}
-
 		exctr = cmds.NewExecutor(req.Root)
 	}
 
@@ -235,7 +268,7 @@ func commandShouldRunOnDaemon(details cmdDetails, req *cmds.Request, cctx *oldcm
 	// did user specify an api to use for this command?
 	apiAddrStr, _ := req.Options[corecmds.ApiOption].(string)
 
-	client, err := getApiClient(cctx.ConfigRoot, apiAddrStr)
+	client, err := getAPIClient(req.Context, cctx.ConfigRoot, apiAddrStr)
 	if err == repo.ErrApiNotRunning {
 		if apiAddrStr != "" && req.Command != daemonCmd {
 			// if user SPECIFIED an api, and this cmd is not daemon
@@ -319,70 +352,6 @@ func writeHeapProfileToFile() error {
 	return pprof.WriteHeapProfile(mprof)
 }
 
-// IntrHandler helps set up an interrupt handler that can
-// be cleanly shut down through the io.Closer interface.
-type IntrHandler struct {
-	sig chan os.Signal
-	wg  sync.WaitGroup
-}
-
-func NewIntrHandler() *IntrHandler {
-	ih := &IntrHandler{}
-	ih.sig = make(chan os.Signal, 1)
-	return ih
-}
-
-func (ih *IntrHandler) Close() error {
-	close(ih.sig)
-	ih.wg.Wait()
-	return nil
-}
-
-// Handle starts handling the given signals, and will call the handler
-// callback function each time a signal is catched. The function is passed
-// the number of times the handler has been triggered in total, as
-// well as the handler itself, so that the handling logic can use the
-// handler's wait group to ensure clean shutdown when Close() is called.
-func (ih *IntrHandler) Handle(handler func(count int, ih *IntrHandler), sigs ...os.Signal) {
-	signal.Notify(ih.sig, sigs...)
-	ih.wg.Add(1)
-	go func() {
-		defer ih.wg.Done()
-		count := 0
-		for range ih.sig {
-			count++
-			handler(count, ih)
-		}
-		signal.Stop(ih.sig)
-	}()
-}
-
-func setupInterruptHandler(ctx context.Context) (io.Closer, context.Context) {
-	intrh := NewIntrHandler()
-	ctx, cancelFunc := context.WithCancel(ctx)
-
-	handlerFunc := func(count int, ih *IntrHandler) {
-		switch count {
-		case 1:
-			fmt.Println() // Prevent un-terminated ^C character in terminal
-
-			ih.wg.Add(1)
-			go func() {
-				defer ih.wg.Done()
-				cancelFunc()
-			}()
-
-		default:
-			fmt.Println("Received another interrupt before graceful shutdown, terminating...")
-			os.Exit(-1)
-		}
-	}
-
-	intrh.Handle(handlerFunc, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM)
-
-	return intrh, ctx
-}
-
 func profileIfEnabled() (func(), error) {
 	// FIXME this is a temporary hack so profiling of asynchronous operations
 	// works as intended.
@@ -403,10 +372,10 @@ If you're sure go-ipfs isn't running, you can just delete it.
 var checkIPFSUnixFmt = "Otherwise check:\n\tps aux | grep ipfs"
 var checkIPFSWinFmt = "Otherwise check:\n\ttasklist | findstr ipfs"
 
-// getApiClient checks the repo, and the given options, checking for
+// getAPIClient checks the repo, and the given options, checking for
 // a running API service. if there is one, it returns a client.
 // otherwise, it returns errApiNotRunning, or another error.
-func getApiClient(repoPath, apiAddrStr string) (http.Client, error) {
+func getAPIClient(ctx context.Context, repoPath, apiAddrStr string) (http.Client, error) {
 	var apiErrorFmt string
 	switch {
 	case osh.IsUnix():
@@ -440,14 +409,35 @@ func getApiClient(repoPath, apiAddrStr string) (http.Client, error) {
 	if len(addr.Protocols()) == 0 {
 		return nil, fmt.Errorf(apiErrorFmt, repoPath, "multiaddr doesn't provide any protocols")
 	}
-	return apiClientForAddr(addr)
+	return apiClientForAddr(ctx, addr)
 }
 
-func apiClientForAddr(addr ma.Multiaddr) (http.Client, error) {
+func apiClientForAddr(ctx context.Context, addr ma.Multiaddr) (http.Client, error) {
+	addr, err := resolveAddr(ctx, addr)
+	if err != nil {
+		return nil, err
+	}
+
 	_, host, err := manet.DialArgs(addr)
 	if err != nil {
 		return nil, err
 	}
 
 	return http.NewClient(host, http.ClientWithAPIPrefix(corehttp.APIPath)), nil
+}
+
+func resolveAddr(ctx context.Context, addr ma.Multiaddr) (ma.Multiaddr, error) {
+	ctx, cancelFunc := context.WithTimeout(ctx, 10*time.Second)
+	defer cancelFunc()
+
+	addrs, err := dnsResolver.Resolve(ctx, addr)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(addrs) == 0 {
+		return nil, errors.New("non-resolvable API endpoint")
+	}
+
+	return addrs[0], nil
 }

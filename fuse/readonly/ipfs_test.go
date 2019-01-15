@@ -14,17 +14,19 @@ import (
 	"testing"
 
 	core "github.com/ipfs/go-ipfs/core"
-	coreunix "github.com/ipfs/go-ipfs/core/coreunix"
+	coreapi "github.com/ipfs/go-ipfs/core/coreapi"
+	iface "github.com/ipfs/go-ipfs/core/coreapi/interface"
 	coremock "github.com/ipfs/go-ipfs/core/mock"
-	importer "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/importer"
-	uio "gx/ipfs/QmQjEpRiwVvtowhq69dAtB4jhioPVFXiCcWZm9Sfgn7eqc/go-unixfs/io"
-	dag "gx/ipfs/QmRiQCJZ91B7VNmLvA6sxzDuBJGSojS3uXHHVuNr3iueNZ/go-merkledag"
 
-	u "gx/ipfs/QmPdKqUcHGFdeSpvjVoaTRPPstGif9GBZb5Q56RVw9o69A/go-ipfs-util"
-	ci "gx/ipfs/QmRNhSdqzMcuRxX9A1egBeQ3BhDTguDV5HPwi8wRykkPU8/go-testutil/ci"
+	u "gx/ipfs/QmNohiVssaPw3KVLZik59DBVGTSm2dGvYT9eoXt5DQ36Yz/go-ipfs-util"
+	ci "gx/ipfs/QmNvHv84aH2qZafDuSdKJCQ1cvPZ1kmQmyD4YtzjUHuk9v/go-testutil/ci"
+	importer "gx/ipfs/QmQXze9tG878pa4Euya4rrDpyTNX3kQe4dhCaBzBozGgpe/go-unixfs/importer"
+	uio "gx/ipfs/QmQXze9tG878pa4Euya4rrDpyTNX3kQe4dhCaBzBozGgpe/go-unixfs/io"
+	chunker "gx/ipfs/QmR4QQVkBZsZENRjYFVi8dEtPL3daZRNKk24m4r6WKJHNm/go-ipfs-chunker"
 	fstest "gx/ipfs/QmSJBsmLP1XMjv8hxYg2rUMdPDB7YUpyBo9idjrJ6Cmq6F/fuse/fs/fstestutil"
-	ipld "gx/ipfs/QmX5CsuHyVZeTLxgRSYkgLSDQKb9UjE8xnhQzCEJWWWFsC/go-ipld-format"
-	chunker "gx/ipfs/QmXzBbJo2sLf3uwjNTeoWYiJV7CjAhkiA4twtLvwJSSNdK/go-ipfs-chunker"
+	dag "gx/ipfs/QmTQdH4848iTVCJmKXYyRiK72HufWTLYQQ8iN3JaQ8K1Hq/go-merkledag"
+	files "gx/ipfs/QmXWZCd8jfaHmt4UDSnjKmGcrQMw95bDGWqEeVLVJjoANX/go-ipfs-files"
+	ipld "gx/ipfs/QmcKKBwfz6FyQdHR2jsXrrF6XeSBXYL86anmWNewpFpoF5/go-ipld-format"
 )
 
 func maybeSkipFuseTests(t *testing.T) {
@@ -116,6 +118,11 @@ func TestIpfsStressRead(t *testing.T) {
 	nd, mnt := setupIpfsTest(t, nil)
 	defer mnt.Close()
 
+	api, err := coreapi.NewCoreAPI(nd)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	var nodes []ipld.Node
 	var paths []string
 
@@ -165,19 +172,19 @@ func TestIpfsStressRead(t *testing.T) {
 			defer wg.Done()
 
 			for i := 0; i < 2000; i++ {
-				item := paths[rand.Intn(len(paths))]
-				fname := path.Join(mnt.Dir, item)
+				item, _ := iface.ParsePath(paths[rand.Intn(len(paths))])
+				fname := path.Join(mnt.Dir, item.String())
 				rbuf, err := ioutil.ReadFile(fname)
 				if err != nil {
 					errs <- err
 				}
 
-				read, err := coreunix.Cat(nd.Context(), nd, item)
+				read, err := api.Unixfs().Get(nd.Context(), item)
 				if err != nil {
 					errs <- err
 				}
 
-				data, err := ioutil.ReadAll(read)
+				data, err := ioutil.ReadAll(read.(files.File))
 				if err != nil {
 					errs <- err
 				}

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 
@@ -12,9 +11,8 @@ import (
 	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
 	caopts "github.com/ipfs/go-ipfs/core/coreapi/interface/options"
 
-	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	blocks "gx/ipfs/QmWAzSEoqZ6xU6pu8yL8e5WaMb7wtbfbhhN4p1DknUPtr3/go-block-format"
-	cid "gx/ipfs/QmZFbDTY9jfSBms2MchvYM9oYRbAF19K7Pby47yDBfpPrb/go-cid"
+	cid "gx/ipfs/QmR8BauakNcBa3RbE4nbQu76PDiJgoQgz8AJdhJuiU4TAw/go-cid"
+	blocks "gx/ipfs/QmWoXtvgC8inqFkAATB7cp2Dax7XBi9VDvSg9RCCZufmRk/go-block-format"
 )
 
 type BlockAPI CoreAPI
@@ -24,8 +22,8 @@ type BlockStat struct {
 	size int
 }
 
-func (api *BlockAPI) Put(ctx context.Context, src io.Reader, opts ...caopts.BlockPutOption) (coreiface.ResolvedPath, error) {
-	settings, err := caopts.BlockPutOptions(opts...)
+func (api *BlockAPI) Put(ctx context.Context, src io.Reader, opts ...caopts.BlockPutOption) (coreiface.BlockStat, error) {
+	_, pref, err := caopts.BlockPutOptions(opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -34,21 +32,6 @@ func (api *BlockAPI) Put(ctx context.Context, src io.Reader, opts ...caopts.Bloc
 	if err != nil {
 		return nil, err
 	}
-
-	var pref cid.Prefix
-	pref.Version = 1
-
-	formatval, ok := cid.Codecs[settings.Codec]
-	if !ok {
-		return nil, fmt.Errorf("unrecognized format: %s", settings.Codec)
-	}
-	if settings.Codec == "v0" && settings.MhType == mh.SHA2_256 {
-		pref.Version = 0
-	}
-	pref.Codec = formatval
-
-	pref.MhType = settings.MhType
-	pref.MhLength = settings.MhLength
 
 	bcid, err := pref.Sum(data)
 	if err != nil {
@@ -60,12 +43,12 @@ func (api *BlockAPI) Put(ctx context.Context, src io.Reader, opts ...caopts.Bloc
 		return nil, err
 	}
 
-	err = api.node.Blocks.AddBlock(b)
+	err = api.blocks.AddBlock(b)
 	if err != nil {
 		return nil, err
 	}
 
-	return coreiface.IpldPath(b.Cid()), nil
+	return &BlockStat{path: coreiface.IpldPath(b.Cid()), size: len(data)}, nil
 }
 
 func (api *BlockAPI) Get(ctx context.Context, p coreiface.Path) (io.Reader, error) {
@@ -74,7 +57,7 @@ func (api *BlockAPI) Get(ctx context.Context, p coreiface.Path) (io.Reader, erro
 		return nil, err
 	}
 
-	b, err := api.node.Blocks.GetBlock(ctx, rp.Cid())
+	b, err := api.blocks.GetBlock(ctx, rp.Cid())
 	if err != nil {
 		return nil, err
 	}
@@ -92,10 +75,10 @@ func (api *BlockAPI) Rm(ctx context.Context, p coreiface.Path, opts ...caopts.Bl
 	if err != nil {
 		return err
 	}
-	cids := []*cid.Cid{rp.Cid()}
+	cids := []cid.Cid{rp.Cid()}
 	o := util.RmBlocksOpts{Force: settings.Force}
 
-	out, err := util.RmBlocks(api.node.Blockstore, api.node.Pinning, cids, o)
+	out, err := util.RmBlocks(api.blockstore, api.pinning, cids, o)
 	if err != nil {
 		return err
 	}
@@ -126,7 +109,7 @@ func (api *BlockAPI) Stat(ctx context.Context, p coreiface.Path) (coreiface.Bloc
 		return nil, err
 	}
 
-	b, err := api.node.Blocks.GetBlock(ctx, rp.Cid())
+	b, err := api.blocks.GetBlock(ctx, rp.Cid())
 	if err != nil {
 		return nil, err
 	}
