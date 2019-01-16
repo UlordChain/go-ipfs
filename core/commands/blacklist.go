@@ -14,8 +14,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/ipfs/go-ipfs/core"
 	"github.com/ipfs/go-ipfs/core/corerepo"
-	"github.com/ipfs/go-ipfs/core/coreunix"
 	"github.com/ipfs/go-ipfs/core/commands/cmdenv"
+	"github.com/ipfs/go-ipfs/core/coreapi/interface"
 
 	"gx/ipfs/QmSXUokcP4TJpFfqozT69AVAYRtzXVMUjzQVkYX41R9Svs/go-ipfs-cmds"
 	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
@@ -70,7 +70,7 @@ var BlacklistCmd = &cmds.Command{
 			}
 		}
 
-		err = refreshBlacklist(req.Context, node, 1)
+		err = refreshBlacklist(req.Context, env, 1)
 		if err != nil {
 			return err
 		}
@@ -118,7 +118,9 @@ func getBlacklistFiles(ctx context.Context, n *core.IpfsNode) ([]*format.Link, e
 	return nil, nil
 }
 
-func refreshBlacklist(ctx context.Context, n *core.IpfsNode, minFailed int) error {
+func refreshBlacklist(ctx context.Context, env cmds.Environment, minFailed int) error {
+	n, _ := cmdenv.GetNode(env)
+
 	links, err := getBlacklistFiles(ctx, n)
 	if err != nil {
 		return errors.Wrap(err, "get blacklist files failed")
@@ -148,7 +150,7 @@ func refreshBlacklist(ctx context.Context, n *core.IpfsNode, minFailed int) erro
 
 	for _, link := range links {
 		log.Debug("handle blacklist file ", link.Name)
-		err = handleBlacklistFile(ctx, n, minFailed, link.Cid)
+		err = handleBlacklistFile(ctx, env, minFailed, link.Cid)
 		if err != nil {
 			return errors.Wrapf(err, "refresh blacklist file %s failed", link.Name)
 		}
@@ -159,14 +161,20 @@ func refreshBlacklist(ctx context.Context, n *core.IpfsNode, minFailed int) erro
 	return nil
 }
 
-func handleBlacklistFile(ctx context.Context, n *core.IpfsNode, minFailed int, c cid.Cid) error {
+func handleBlacklistFile(ctx context.Context, env cmds.Environment, minFailed int, c cid.Cid) error {
+	n, _ := cmdenv.GetNode(env)
+	api, _ := cmdenv.GetApi(env)
 
-	dagReader, err := coreunix.Cat(ctx, n, path.FromCid(c).String())
+	fpath, err := iface.ParsePath(c.String())
 	if err != nil {
-		return errors.Errorf("read blacklist failed: %v\n", err.Error())
+		return err
+	}
+	file, err := api.Unixfs().Get(ctx, fpath)
+	if err != nil {
+		return err
 	}
 
-	csvReader := csv.NewReader(dagReader)
+	csvReader := csv.NewReader(file)
 	failedCount := 0
 	for {
 		record, err := csvReader.Read()
@@ -179,7 +187,7 @@ func handleBlacklistFile(ctx context.Context, n *core.IpfsNode, minFailed int, c
 		}
 		log.Debug("blacklist record:", record)
 
-		err = handleBlacklistRecord(ctx, n, record)
+		err = handleBlacklistRecord(ctx, n, api, record)
 		if err != nil {
 			failedCount++
 			if minFailed > 0 && failedCount >= minFailed {
@@ -192,7 +200,9 @@ func handleBlacklistFile(ctx context.Context, n *core.IpfsNode, minFailed int, c
 
 }
 
-func RunBlacklistRefreshService(ctx context.Context, n *core.IpfsNode) error {
+func RunBlacklistRefreshService(ctx context.Context, env cmds.Environment) error {
+	n, _ := cmdenv.GetNode(env)
+
 	conf, err := n.Repo.Config()
 	if err != nil {
 		return errors.Wrap(err, "got config failed")
@@ -226,7 +236,7 @@ func RunBlacklistRefreshService(ctx context.Context, n *core.IpfsNode) error {
 		for {
 			select {
 			case <-tm.C:
-				refreshBlacklist(ctx, n, -1)
+				refreshBlacklist(ctx, env, -1)
 
 				tm.Reset(dur)
 
@@ -240,7 +250,7 @@ func RunBlacklistRefreshService(ctx context.Context, n *core.IpfsNode) error {
 
 }
 
-func handleBlacklistRecord(ctx context.Context, n *core.IpfsNode, record []string) error {
+func handleBlacklistRecord(ctx context.Context, n *core.IpfsNode, api iface.CoreAPI, record []string) error {
 	c, err := pathToCid(record[0])
 	if err != nil {
 		return errors.Errorf("got blacklist record cid failed from %v: %v\n", record, err.Error())
@@ -261,7 +271,7 @@ func handleBlacklistRecord(ctx context.Context, n *core.IpfsNode, record []strin
 	}
 
 	if pined {
-		_, err := corerepo.Unpin(n, ctx, record[:1], true)
+		_, err := corerepo.Unpin(n, api, ctx, record[:1], true)
 		if err != nil {
 			return errors.Errorf("unpin blacklist record cid %s failed: %v\n", c.String(), err.Error())
 		}
@@ -281,12 +291,12 @@ func handleBlacklistRecord(ctx context.Context, n *core.IpfsNode, record []strin
 func pathToCid(pstr string) (cid.Cid, error) {
 	p, err := path.ParsePath(pstr)
 	if err != nil {
-		return nil, err
+		return cid.Cid{}, err
 	}
 
 	c, _, err := path.SplitAbsPath(p)
 	if err != nil {
-		return nil, err
+		return cid.Cid{}, err
 	}
 
 	return c, nil

@@ -449,12 +449,11 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 		commands.SetupBackupHandler(env)
 		fmt.Println("backup function started")
 
-		// TODO: danny
-		//err = commands.RunBlacklistRefreshService(req.Context, node)
-		//if err != nil {
-		//	return err
-		//}
-		//fmt.Println("run blacklist refresh service success")
+		err = commands.RunBlacklistRefreshService(req.Context, env)
+		if err != nil {
+			return err
+		}
+		fmt.Println("run blacklist refresh service success")
 	}
 
 	fmt.Printf("Daemon is ready\n")

@@ -154,7 +154,7 @@ var rootSubcommands = map[string]*cmds.Command{
 	"backup":    lgc.NewCommand(BackupCmd),
 	"push":      PushCmd,
 	//"localrm":   lgc.NewCommand(LocalrmCmd),
-	//"blacklist": BlacklistCmd,
+	"blacklist": BlacklistCmd,
 }
 
 // RootRO is the readonly version of Root
