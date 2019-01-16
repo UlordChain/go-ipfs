@@ -446,10 +446,10 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	prometheus.MustRegister(&corehttp.IpfsNodeCollector{Node: node})
 
 	if !offline {
-		// TODO: danny
-		//commands.SetupBackupHandler(node)
-		//fmt.Println("backup function started")
+		commands.SetupBackupHandler(env)
+		fmt.Println("backup function started")
 
+		// TODO: danny
 		//err = commands.RunBlacklistRefreshService(req.Context, node)
 		//if err != nil {
 		//	return err

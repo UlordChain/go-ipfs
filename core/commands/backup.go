@@ -5,28 +5,28 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/ipfs/go-ipfs/core/commands/cmdenv"
-	"gx/ipfs/QmPSQnBKM9g7BaUcZCvswUJVscQ1ipjmwxN5PXCjkp9EQ7/go-cid"
-	"gx/ipfs/QmTRhk7cgjUf2gfQ3p2M9KPECNZEW9XUrmHcFCgog4cPgB/go-libp2p-peer"
-	inet "gx/ipfs/QmXuRkCR7BNQa9uqfpTiFWsTQLzmTWYg91Ja1w95gnqb6u/go-libp2p-net"
-	"gx/ipfs/QmZNkThpqfVXs9GNbexPrfBbXSLNYeKrE7jwFM2oqHbyqN/go-libp2p-protocol"
-	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
-	cmds "gx/ipfs/QmSXUokcP4TJpFfqozT69AVAYRtzXVMUjzQVkYX41R9Svs/go-ipfs-cmds"
 	"io"
 	"sync"
 	"time"
 
 	"github.com/pkg/errors"
-
-	commands "github.com/ipfs/go-ipfs/commands"
+	"github.com/ipfs/go-ipfs/commands"
 	"github.com/ipfs/go-ipfs/core"
 	"github.com/ipfs/go-ipfs/core/commands/e"
-	corerepo "github.com/ipfs/go-ipfs/core/corerepo"
-	"github.com/ipfs/go-ipfs/core/coreunix"
+	"github.com/ipfs/go-ipfs/core/corerepo"
+	"github.com/ipfs/go-ipfs/core/commands/cmdenv"
+	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
+
+	"gx/ipfs/QmPSQnBKM9g7BaUcZCvswUJVscQ1ipjmwxN5PXCjkp9EQ7/go-cid"
+	"gx/ipfs/QmSXUokcP4TJpFfqozT69AVAYRtzXVMUjzQVkYX41R9Svs/go-ipfs-cmds"
+	"gx/ipfs/QmTRhk7cgjUf2gfQ3p2M9KPECNZEW9XUrmHcFCgog4cPgB/go-libp2p-peer"
+	inet "gx/ipfs/QmXuRkCR7BNQa9uqfpTiFWsTQLzmTWYg91Ja1w95gnqb6u/go-libp2p-net"
+	"gx/ipfs/QmZNkThpqfVXs9GNbexPrfBbXSLNYeKrE7jwFM2oqHbyqN/go-libp2p-protocol"
+	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
 )
 
 const ProtocolBackup protocol.ID = "/backup/0.0.1"
-const numberForBackup int = 2
+const numberForBackup int = 1
 const timeoutForLookup = 1 * time.Minute
 
 var BackupCmd = &commands.Command{
@@ -65,7 +65,7 @@ var BackupCmd = &commands.Command{
 
 		res.SetOutput(output)
 	},
-	Type: coreunix.BackupOutput{},
+	Type: coreiface.BackupOutput{},
 	Marshalers: commands.MarshalerMap{
 		commands.Text: func(res commands.Response) (io.Reader, error) {
 			v, err := unwrapOutput(res.Output())
@@ -73,7 +73,7 @@ var BackupCmd = &commands.Command{
 				return nil, err
 			}
 
-			out, ok := v.(*coreunix.BackupOutput)
+			out, ok := v.(*coreiface.BackupOutput)
 			if !ok {
 				return nil, e.TypeErr(out, v)
 			}
@@ -91,7 +91,7 @@ var BackupCmd = &commands.Command{
 	},
 }
 
-func backupFunc(n *core.IpfsNode, c cid.Cid) (*coreunix.BackupOutput, error) {
+func backupFunc(n *core.IpfsNode, c cid.Cid) (*coreiface.BackupOutput, error) {
 	// get peers for backup
 	toctx, cancel := context.WithTimeout(n.Context(), timeoutForLookup)
 	defer cancel()
@@ -119,19 +119,19 @@ func backupFunc(n *core.IpfsNode, c cid.Cid) (*coreunix.BackupOutput, error) {
 	peersForBackup := peers
 
 	// 发送cid
-	results := make(chan *coreunix.BackupResult, len(peersForBackup))
+	results := make(chan *coreiface.BackupResult, len(peersForBackup))
 	var wg sync.WaitGroup
 	for p := range peersForBackup {
 		wg.Add(1)
 		go func(id peer.ID) {
 			e := doBackup(n, id, c)
 			if e != nil {
-				results <- &coreunix.BackupResult{
+				results <- &coreiface.BackupResult{
 					ID:  id.Pretty(),
 					Msg: e.Error(),
 				}
 			} else {
-				results <- &coreunix.BackupResult{
+				results <- &coreiface.BackupResult{
 					ID: id.Pretty(),
 				}
 			}
@@ -143,7 +143,7 @@ func backupFunc(n *core.IpfsNode, c cid.Cid) (*coreunix.BackupOutput, error) {
 		close(results)
 	}()
 
-	output := &coreunix.BackupOutput{}
+	output := &coreiface.BackupOutput{}
 	for r := range results {
 		if r.Msg != "" {
 			output.Failed = append(output.Failed, r)

@@ -47,24 +47,6 @@ type Object struct {
 	Size  string
 }
 
-//type BackupResult struct {
-//	ID  string
-//	Msg string `json:",omitempty"`
-//}
-//
-//type BackupOutput struct {
-//	Success []*BackupResult `json:",omitempty"`
-//	Failed  []*BackupResult `json:",omitempty"`
-//}
-//
-//type AddedObject struct {
-//	Name   string
-//	Hash   string        `json:",omitempty"`
-//	Bytes  int64         `json:",omitempty"`
-//	Size   string        `json:",omitempty"`
-//	Extend *BackupOutput `json:",omitempty"`
-//}
-
 // NewAdder Returns a new Adder used for a file add operation.
 func NewAdder(ctx context.Context, p pin.Pinner, bs bstore.GCBlockstore, ds ipld.DAGService) (*Adder, error) {
 	bufferedDS := ipld.NewBufferedDAG(ctx, ds)

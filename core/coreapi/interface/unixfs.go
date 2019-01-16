@@ -10,12 +10,23 @@ import (
 	files "gx/ipfs/QmZMWMvWMVKCbHetJ4RgndbuEF1io2UpUxwQwtNjtYPzSC/go-ipfs-files"
 )
 
+type BackupResult struct {
+	ID  string
+	Msg string `json:",omitempty"`
+}
+
+type BackupOutput struct {
+	Success []*BackupResult `json:",omitempty"`
+	Failed  []*BackupResult `json:",omitempty"`
+}
+
 // TODO: ideas on making this more coreapi-ish without breaking the http API?
 type AddEvent struct {
 	Name  string
 	Hash  string `json:",omitempty"`
 	Bytes int64  `json:",omitempty"`
 	Size  string `json:",omitempty"`
+	Extend *BackupOutput `json:",omitempty"`
 }
 
 type UnixfsFile interface {

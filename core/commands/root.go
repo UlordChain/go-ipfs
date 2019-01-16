@@ -151,8 +151,8 @@ var rootSubcommands = map[string]*cmds.Command{
 	"version":   VersionCmd,
 	"shutdown":  daemonShutdownCmd,
 	"cid":       CidCmd,
-	//"backup":    lgc.NewCommand(BackupCmd),
-	//"push":      PushCmd,
+	"backup":    lgc.NewCommand(BackupCmd),
+	"push":      PushCmd,
 	//"localrm":   lgc.NewCommand(LocalrmCmd),
 	//"blacklist": BlacklistCmd,
 }
