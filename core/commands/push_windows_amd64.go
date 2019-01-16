@@ -93,7 +93,7 @@ Push do the same thing like command add first (but with default not pin). Then d
 		}
 
 		if n.Routing == nil {
-			res.SetError(errNotOnline, cmdkit.ErrNormal)
+			res.SetError(ErrNotOnline, cmdkit.ErrNormal)
 			return
 		}
 

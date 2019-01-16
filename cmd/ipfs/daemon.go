@@ -1,9 +1,9 @@
 package main
 
 import (
-	"errors"
 	_ "expvar"
 	"fmt"
+	"gx/ipfs/QmUDTcnDp2WssbmiDLC6aYurUeyt7QeRakHUQMxA2mZ5iB/go-libp2p/p2p/protocol/verify"
 	"net"
 	"net/http"
 	_ "net/http/pprof"
@@ -304,8 +304,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 
 	rcfg, err := repo.Config()
 	if err != nil {
-		re.SetError(err, cmdkit.ErrNormal)
-		return
+		return err
 	}
 
 	needSave := false
@@ -324,8 +323,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	if needSave {
 		err = repo.SetConfig(rcfg)
 		if err != nil {
-			re.SetError(errors.Wrap(err, "Save verify info to config file failed"), cmdkit.ErrNormal)
-			return
+			return errors.Wrap(err, "Save verify info to config file failed")
 		}
 	}
 
@@ -333,14 +331,12 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 		// check verify config
 		err = verify.CheckVerifyInfo(&rcfg.Verify)
 		if err != nil {
-			re.SetError(errors.Wrap(err, "check verify info failed"), cmdkit.ErrNormal)
-			return
+			return errors.Wrap(err, "check verify info failed")
 		}
 
 		err = verify.CheckUCenterInfo(&rcfg.UCenter)
 		if err != nil {
-			re.SetError(errors.Wrap(err, "check ucenter info failed"), cmdkit.ErrNormal)
-			return
+			return errors.Wrap(err, "check ucenter info failed")
 		}
 	}
 
@@ -450,15 +446,15 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	prometheus.MustRegister(&corehttp.IpfsNodeCollector{Node: node})
 
 	if !offline {
-		commands.SetupBackupHandler(node)
-		fmt.Println("backup function started")
+		// TODO: danny
+		//commands.SetupBackupHandler(node)
+		//fmt.Println("backup function started")
 
-		err = commands.RunBlacklistRefreshService(req.Context, node)
-		if err != nil {
-			re.SetError(err, cmdkit.ErrNormal)
-			return
-		}
-		fmt.Println("run blacklist refresh service success")
+		//err = commands.RunBlacklistRefreshService(req.Context, node)
+		//if err != nil {
+		//	return err
+		//}
+		//fmt.Println("run blacklist refresh service success")
 	}
 
 	fmt.Printf("Daemon is ready\n")

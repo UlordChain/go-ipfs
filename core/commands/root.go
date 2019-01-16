@@ -148,15 +148,13 @@ var rootSubcommands = map[string]*cmds.Command{
 	"file":      lgc.NewCommand(unixfs.UnixFSCmd),
 	"update":    lgc.NewCommand(ExternalBinary()),
 	"urlstore":  urlStoreCmd,
-	"version":   lgc.NewCommand(VersionCmd),
-	"shutdown":  lgc.NewCommand(daemonShutdownCmd),
 	"version":   VersionCmd,
 	"shutdown":  daemonShutdownCmd,
 	"cid":       CidCmd,
-	"backup":    lgc.NewCommand(BackupCmd),
-	"push":      PushCmd,
-	"localrm":   lgc.NewCommand(LocalrmCmd),
-	"blacklist": BlacklistCmd,
+	//"backup":    lgc.NewCommand(BackupCmd),
+	//"push":      PushCmd,
+	//"localrm":   lgc.NewCommand(LocalrmCmd),
+	//"blacklist": BlacklistCmd,
 }
 
 // RootRO is the readonly version of Root

@@ -1,18 +1,12 @@
 package commands
 
 import (
-	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"path"
 	"sort"
 
-	"github.com/pkg/errors"
-
-	cmds "github.com/ipfs/go-ipfs/commands"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	repo "github.com/ipfs/go-ipfs/repo"
-	config "github.com/ipfs/go-ipfs/repo/config"
 	"github.com/ipfs/go-ipfs/commands"
 	"github.com/ipfs/go-ipfs/core/commands/cmdenv"
 	"github.com/ipfs/go-ipfs/core/commands/e"
@@ -80,6 +74,10 @@ var swarmPeersCmd = &cmds.Command{
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		api, err := cmdenv.GetApi(env)
 		if err != nil {
+		}
+
+		n, err := cmdenv.GetNode(env)
+		if err != nil {
 			return err
 		}
 
@@ -95,15 +93,12 @@ var swarmPeersCmd = &cmds.Command{
 
 		var out connInfos
 		for _, c := range conns {
-			pid := c.RemotePeer()
-			addr := c.RemoteMultiaddr()
-
-			master, _ := n.Peerstore.Get(pid, "master")
+			master, _ := n.Peerstore.Get(c.ID(), "master")
 			m, _ := master.(bool)
 
 			ci := connInfo{
-				Addr: c.Address().String(),
-				Peer: c.ID().Pretty(),
+				Addr:   c.Address().String(),
+				Peer:   c.ID().Pretty(),
 				Master: m,
 			}
 
@@ -158,12 +153,11 @@ var swarmPeersCmd = &cmds.Command{
 				if info.Direction != inet.DirUnknown {
 					fmt.Fprintf(w, " %s", directionString(info.Direction))
 				}
-				fmt.Fprintln(w)
 
 				if info.Master {
-					fmt.Fprint(buf, "   ==> <MASTER>")
+					fmt.Fprint(w, "   ==> <MASTER>")
 				}
-				fmt.Fprintln(buf)
+				fmt.Fprintln(w)
 
 				for _, s := range info.Streams {
 					if s.Protocol == "" {
@@ -191,7 +185,7 @@ type connInfo struct {
 	Muxer     string
 	Direction inet.Direction
 	Streams   []streamInfo
-	Master  bool
+	Master    bool
 }
 
 func (ci *connInfo) Less(i, j int) bool {

@@ -4,12 +4,9 @@ package gc
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
 	"strings"
 
-	"github.com/pkg/errors"
-
-	bserv "github.com/ipfs/go-ipfs/blockservice"
-	dag "github.com/ipfs/go-ipfs/merkledag"
 	pin "github.com/ipfs/go-ipfs/pin"
 	dag "gx/ipfs/QmSei8kFMfqdJq7Q68d2LMnHbTWKKg2daA29ezUYFAUNgc/go-merkledag"
 	bserv "gx/ipfs/QmWfhv1D18DRSiSm73r4QGcByspzPtxxRTcmHW3axFXZo8/go-blockservice"
@@ -292,7 +289,7 @@ func (e *CannotDeleteBlockError) Error() string {
 
 // Remove remove all block by param cids, and if recursive param is true,
 // it will remove their descendants too. when checkPined is true, no pined block will be removed.
-func Remove(ctx context.Context, bs bstore.GCBlockstore, dstor dstore.Datastore, pn pin.Pinner, cids []*cid.Cid, recursive bool, checkPined bool) <-chan Result {
+func Remove(ctx context.Context, bs bstore.GCBlockstore, dstor dstore.Datastore, pn pin.Pinner, cids []cid.Cid, recursive bool, checkPined bool) <-chan Result {
 
 	elock := log.EventBegin(ctx, "GC.lockWait")
 	unlocker := bs.GCLock()
@@ -314,7 +311,7 @@ func Remove(ctx context.Context, bs bstore.GCBlockstore, dstor dstore.Datastore,
 		needRemoved := cids
 		if recursive {
 			gcs := cid.NewSet()
-			cidsGetLinks := func(ctx context.Context, cid *cid.Cid) ([]*ipld.Link, error) {
+			cidsGetLinks := func(ctx context.Context, cid cid.Cid) ([]*ipld.Link, error) {
 				links, err := ipld.GetLinks(ctx, ds, cid)
 				if err != nil && err != ipld.ErrNotFound {
 					failed = true

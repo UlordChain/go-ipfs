@@ -827,12 +827,13 @@ Different key types can specify other 'best' rules.
 		}
 
 		if n.Routing == nil {
-			res.SetError(errNotOnline, cmdkit.ErrNormal)
+			res.SetError(ErrNotOnline, cmdkit.ErrNormal)
 			return
 		}
 
 		buf := bytes.NewBuffer(nil)
-		n.DHT.WriteRoutingTable(buf)
+		// TODO: danny
+		//n.DHT.WriteRoutingTable(buf)
 		res.SetOutput(buf)
 	},
 	Type: bytes.Buffer{},

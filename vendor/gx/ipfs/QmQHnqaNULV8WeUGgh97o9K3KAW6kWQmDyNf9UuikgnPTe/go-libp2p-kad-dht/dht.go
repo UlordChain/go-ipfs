@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"sync"
 	"time"
 
@@ -355,7 +356,7 @@ func (dht *IpfsDHT) nearestPeersToQuery(pmes *pb.Message, count int) []peer.ID {
 
 // nearestMasterPeersToQuery returns the routing tables closest peers.
 func (dht *IpfsDHT) nearestMasterPeersToQuery(pmes *pb.Message, count int) []peer.ID {
-	closer := dht.routingTable.NearestMasterPeers(dht.peerstore, kb.ConvertKey(pmes.GetKey()), count)
+	closer := dht.routingTable.NearestMasterPeers(dht.peerstore, kb.ConvertKey(string(pmes.GetKey())), count)
 	return closer
 }
 

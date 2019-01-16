@@ -5,7 +5,8 @@ package dht_pb
 
 import (
 	fmt "fmt"
-	proto "github.com/gogo/protobuf/proto"
+	pb "gx/ipfs/Qma9Eqp16mNHDX1EL73pcxhFfzbyXVcAYtaDd1xdmDRDtL/go-libp2p-record/pb"
+	proto "gx/ipfs/QmdxUuburamoF6zF9qjeQC4WYcWGbWuRmdLacMEsW8ioD8/gogo-protobuf/proto"
 	math "math"
 )
 
@@ -107,7 +108,7 @@ type Message struct {
 	Key []byte `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
 	// Used to return a value
 	// PUT_VALUE, GET_VALUE
-	Record *Record `protobuf:"bytes,3,opt,name=record,proto3" json:"record,omitempty"`
+	Record *pb.Record `protobuf:"bytes,3,opt,name=record,proto3" json:"record,omitempty"`
 	// Used to return peers closer to a key in a query
 	// GET_VALUE, GET_PROVIDERS, FIND_NODE
 	CloserPeers []*Message_Peer `protobuf:"bytes,8,rep,name=closerPeers,proto3" json:"closerPeers,omitempty"`
@@ -164,7 +165,7 @@ func (m *Message) GetKey() []byte {
 	return nil
 }
 
-func (m *Message) GetRecord() *Record {
+func (m *Message) GetRecord() *pb.Record {
 	if m != nil {
 		return m.Record
 	}

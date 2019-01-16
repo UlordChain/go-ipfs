@@ -49,15 +49,15 @@ func peerInfoToPBPeer(p pstore.PeerInfo) *Message_Peer {
 	}
 	pbp.Id = []byte(p.ID)
 	master := p.Master
-	pbp.Master = &master
+	pbp.Master = master
 	return pbp
 }
 
 // PBPeerToPeer turns a *Message_Peer into its pstore.PeerInfo counterpart
 func PBPeerToPeerInfo(pbp *Message_Peer) *pstore.PeerInfo {
 	return &pstore.PeerInfo{
-		ID:    peer.ID(pbp.GetId()),
-		Addrs: pbp.Addresses(),
+		ID:     peer.ID(pbp.GetId()),
+		Addrs:  pbp.Addresses(),
 		Master: pbp.GetMaster(),
 	}
 }

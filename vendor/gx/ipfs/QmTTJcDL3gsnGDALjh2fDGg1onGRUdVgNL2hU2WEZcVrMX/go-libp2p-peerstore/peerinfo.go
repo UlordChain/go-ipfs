@@ -14,8 +14,8 @@ import (
 // a complete view of the system, but rather to model updates to
 // the peerstore. It is used by things like the routing system.
 type PeerInfo struct {
-	ID    peer.ID
-	Addrs []ma.Multiaddr
+	ID     peer.ID
+	Addrs  []ma.Multiaddr
 	Master bool
 }
 

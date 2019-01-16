@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/ipfs/go-ipfs/core/coreapi/interface"
 	"io"
 	"os"
 	"path/filepath"
@@ -12,20 +13,16 @@ import (
 
 	oldcmds "github.com/ipfs/go-ipfs/commands"
 	lgc "github.com/ipfs/go-ipfs/commands/legacy"
-	cmdenv "github.com/ipfs/go-ipfs/core/commands/cmdenv"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-	corerepo "github.com/ipfs/go-ipfs/core/corerepo"
-	fsrepo "github.com/ipfs/go-ipfs/repo/fsrepo"
+	"github.com/ipfs/go-ipfs/core/commands/cmdenv"
+	"github.com/ipfs/go-ipfs/core/commands/e"
+	"github.com/ipfs/go-ipfs/core/corerepo"
+	"github.com/ipfs/go-ipfs/repo/fsrepo"
 
-	config "gx/ipfs/QmPEpj17FDRpc7K1aArKZp3RsHtzRMKykeK9GVgn4WQGPR/go-ipfs-config"
-	cid "gx/ipfs/QmPSQnBKM9g7BaUcZCvswUJVscQ1ipjmwxN5PXCjkp9EQ7/go-cid"
-	cmds "gx/ipfs/QmSXUokcP4TJpFfqozT69AVAYRtzXVMUjzQVkYX41R9Svs/go-ipfs-cmds"
+	"gx/ipfs/QmPEpj17FDRpc7K1aArKZp3RsHtzRMKykeK9GVgn4WQGPR/go-ipfs-config"
+	"gx/ipfs/QmPSQnBKM9g7BaUcZCvswUJVscQ1ipjmwxN5PXCjkp9EQ7/go-cid"
+	"gx/ipfs/QmSXUokcP4TJpFfqozT69AVAYRtzXVMUjzQVkYX41R9Svs/go-ipfs-cmds"
 	bstore "gx/ipfs/QmcDDgAXDbpDUpadCJKLr49KYR4HuL7T8Z1dZTHt6ixsoR/go-ipfs-blockstore"
-	cmdkit "gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
-
-	"github.com/ipfs/go-ipfs/core"
-	//"github.com/ipfs/go-ipfs/path"
-	//"github.com/ipfs/go-ipfs/path/resolver"
+	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
 )
 
 type RepoVersion struct {
@@ -431,6 +428,12 @@ var repoRmCmd = &oldcmds.Command{
 		cmdkit.BoolOption("recursive", "r", "Recursively remove the object linked to by the specified object(s).").WithDefault(true),
 	},
 	Run: func(req oldcmds.Request, res oldcmds.Response) {
+		api, err := req.InvocContext().GetApi()
+		if err != nil {
+			res.SetError(err, cmdkit.ErrNormal)
+			return
+		}
+
 		n, err := req.InvocContext().GetNode()
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
@@ -446,27 +449,22 @@ var repoRmCmd = &oldcmds.Command{
 			return
 		}
 
-		r := &resolver.Resolver{
-			DAG:         n.DAG,
-			ResolveOnce: uio.ResolveUnixfsOnce,
-		}
-
 		args := req.Arguments()
-		cids := make([]*cid.Cid, len(args))
+		cids := make([]cid.Cid, len(args))
 		for i, a := range args {
-			p, err := path.ParsePath(a)
+			p, err := iface.ParsePath(a)
 			if err != nil {
 				res.SetError(err, cmdkit.ErrNormal)
 				return
 			}
 
-			k, err := core.ResolveToCid(req.Context(), n.Namesys, r, p)
+			k, err := api.ResolvePath(req.Context(), p)
 			if err != nil {
 				res.SetError(err, cmdkit.ErrNormal)
 				return
 			}
 
-			cids[i] = k
+			cids[i] = k.Cid()
 		}
 
 		gcOutChan := corerepo.RemoveAsync(n, req.Context(), cids, recursive, true)
@@ -499,7 +497,7 @@ var repoRmCmd = &oldcmds.Command{
 					res.SetError(fmt.Errorf("encountered errors during gc run"), cmdkit.ErrNormal)
 				}
 			} else {
-				err := corerepo.CollectResult(req.Context(), gcOutChan, func(k *cid.Cid) {
+				err := corerepo.CollectResult(req.Context(), gcOutChan, func(k cid.Cid) {
 					select {
 					case outChan <- &GcResult{Key: k}:
 					case <-req.Context().Done():

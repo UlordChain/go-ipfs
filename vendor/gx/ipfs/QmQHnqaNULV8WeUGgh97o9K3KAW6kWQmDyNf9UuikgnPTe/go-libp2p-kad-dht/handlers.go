@@ -384,10 +384,9 @@ func convertToDsKey(s []byte) ds.Key {
 	return ds.NewKey(base32.RawStdEncoding.EncodeToString(s))
 }
 
-
 func (dht *IpfsDHT) handleFindMasterPeer(ctx context.Context, p peer.ID, pmes *pb.Message) (*pb.Message, error) {
 	defer log.EventBegin(ctx, "handleFindMasterPeer", p).Done()
-	resp := pb.NewMessage(pmes.GetType(), "", pmes.GetClusterLevel())
+	resp := pb.NewMessage(pmes.GetType(), nil, pmes.GetClusterLevel())
 	var closest []peer.ID
 
 	// if looking for self... special case where we send it on CloserPeers.

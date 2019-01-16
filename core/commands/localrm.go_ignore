@@ -52,7 +52,7 @@ var LocalrmCmd = &cmds.Command{
 		}
 
 		args := req.Arguments()
-		cids := make([]*cid.Cid, len(args))
+		cids := make([]cid.Cid, len(args))
 		for i, a := range args {
 			p, err := path.ParsePath(a)
 			if err != nil {
