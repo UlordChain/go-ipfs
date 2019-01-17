@@ -104,7 +104,7 @@ Push do the same thing like command add first (but with default not pin). Then d
 
 			options.Unixfs.Chunker(chunker),
 
-			options.Unixfs.Pin(dopin),
+			options.Unixfs.Pin(true),
 			options.Unixfs.HashOnly(hash),
 			options.Unixfs.Local(local),
 			options.Unixfs.FsCache(fscache),
@@ -131,11 +131,8 @@ Push do the same thing like command add first (but with default not pin). Then d
 			opts = append(opts, options.Unixfs.Layout(options.TrickleLayout))
 		}
 
-		// TODO: danny
-		needUnpin := !dopin
-		options.Unixfs.Pin(true)
 		node, _ := cmdenv.GetNode(env)
-
+		needUnpin := !dopin
 		errCh := make(chan error)
 		go func() {
 			var err error
