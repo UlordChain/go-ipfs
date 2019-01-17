@@ -70,11 +70,7 @@ may also specify the level of compression by specifying '-l=<1-9>'.
 		}
 		account := acc.(string)
 
-		h := req.Options[checkOptionName]
-		if h == nil {
-			return errors.New("must set option check.")
-		}
-		check := h.(string)
+		check := req.Arguments[0]
 
 		_, err := ValidOnUOS(account, check)
 		if err != nil {
