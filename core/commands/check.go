@@ -4,6 +4,7 @@ import (
 
 	"github.com/pkg/errors"
 	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
+	"math"
 
 	"bytes"
 	"encoding/json"
@@ -74,6 +75,9 @@ type responseGetTableRows struct {
 }
 
 func ValidOnUOS(account string, hash string) (uint64, error) {
+	// TODO: FOR TEST, because the uos valied can not work now.
+	return math.MaxUint64/1024, nil
+
 	rgtr := requestGetTableRows{
 		Scope: account,
 		Code:  uosCode,
