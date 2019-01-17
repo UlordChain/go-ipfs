@@ -3,18 +3,15 @@ package commands
 import (
 	"bytes"
 	"fmt"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
+	"github.com/ipfs/go-ipfs/core/coreapi/interface"
 	"io"
 
-	"gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-
 	cmds "github.com/ipfs/go-ipfs/commands"
-	core "github.com/ipfs/go-ipfs/core"
-	e "github.com/ipfs/go-ipfs/core/commands/e"
+	"github.com/ipfs/go-ipfs/core/commands/e"
 	"github.com/ipfs/go-ipfs/core/corerepo"
-	"github.com/ipfs/go-ipfs/path"
-	"github.com/ipfs/go-ipfs/path/resolver"
-	uio "github.com/ipfs/go-ipfs/unixfs/io"
+
+	"gx/ipfs/QmPSQnBKM9g7BaUcZCvswUJVscQ1ipjmwxN5PXCjkp9EQ7/go-cid"
+	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
 )
 
 var LocalrmCmd = &cmds.Command{
@@ -39,6 +36,12 @@ var LocalrmCmd = &cmds.Command{
 			return
 		}
 
+		api, err := req.InvocContext().GetApi()
+		if err != nil {
+			res.SetError(err, cmdkit.ErrNormal)
+			return
+		}
+
 		// set recursive flag
 		recursive, _, err := req.Option("recursive").Bool()
 		if err != nil {
@@ -46,30 +49,26 @@ var LocalrmCmd = &cmds.Command{
 			return
 		}
 
-		r := &resolver.Resolver{
-			DAG:         n.DAG,
-			ResolveOnce: uio.ResolveUnixfsOnce,
-		}
 
 		args := req.Arguments()
-		cids := make([]*cid.Cid, len(args))
+		cids := make([]cid.Cid, len(args))
 		for i, a := range args {
-			p, err := path.ParsePath(a)
+			pth, err := iface.ParsePath(a)
 			if err != nil {
 				res.SetError(err, cmdkit.ErrNormal)
 				return
 			}
 
-			k, err := core.ResolveToCid(req.Context(), n.Namesys, r, p)
+			c, err := api.ResolvePath(req.Context(), pth)
 			if err != nil {
 				res.SetError(err, cmdkit.ErrNormal)
 				return
 			}
 
-			cids[i] = k
+			cids[i] = c.Cid()
 		}
 
-		removed, err := corerepo.Unpin(n, req.Context(), req.Arguments(), recursive)
+		removed, err := corerepo.Unpin(n, api, req.Context(), req.Arguments(), recursive)
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
 			return

@@ -3,19 +3,23 @@ package commands
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
 	"io"
 	"os"
-
-	core "github.com/ipfs/go-ipfs/core"
-	coreunix "github.com/ipfs/go-ipfs/core/coreunix"
-	"github.com/pkg/errors"
-
-	cmds "gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
 	"time"
+
+	"github.com/ipfs/go-ipfs/core/commands/cmdenv"
+	"github.com/ipfs/go-ipfs/core/coreapi/interface"
+
+	cmds "gx/ipfs/QmSXUokcP4TJpFfqozT69AVAYRtzXVMUjzQVkYX41R9Svs/go-ipfs-cmds"
+	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
 )
 
-const progressBarMinSize = 1024 * 1024 * 8 // show progress bar for outputs > 8MiB
+const (
+	progressBarMinSize = 1024 * 1024 * 8 // show progress bar for outputs > 8MiB
+	offsetOptionName   = "offset"
+	lengthOptionName   = "length"
+)
 
 var CatCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
@@ -27,53 +31,55 @@ var CatCmd = &cmds.Command{
 		cmdkit.StringArg("ipfs-path", true, true, "The path to the IPFS object(s) to be outputted.").EnableStdin(),
 	},
 	Options: []cmdkit.Option{
-		cmdkit.IntOption("offset", "o", "Byte offset to begin reading from."),
-		cmdkit.IntOption("length", "l", "Maximum number of bytes to read."),
+		cmdkit.Int64Option(offsetOptionName, "o", "Byte offset to begin reading from."),
+		cmdkit.Int64Option(lengthOptionName, "l", "Maximum number of bytes to read."),
 		cmdkit.StringOption(accountOptionName, "Account of user to check"),
 	},
-	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) {
+	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		acc := req.Options[accountOptionName]
 		if acc == nil {
-			res.SetError("must set option account.", cmdkit.ErrNormal)
-			return
+			return errors.New("must set option account.")
 		}
 		account := acc.(string)
 
-		check := req.Arguments[0]
+		h := req.Options[checkOptionName]
+		if h == nil {
+			return errors.New("must set option check.")
+		}
+		check := h.(string)
 
 		_, err := ValidOnUOS(account, check)
 		if err != nil {
-			res.SetError(errors.Wrap(err, "valid failed"), cmdkit.ErrNormal)
-			return
+			return errors.Wrap(err, "valid failed")
 		}
 
-		node, err := GetNode(env)
+		node, err := cmdenv.GetNode(env)
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
+		}
+
+		api, err := cmdenv.GetApi(env)
+		if err != nil {
+			return err
 		}
 
 		if !node.OnlineMode() {
 			if err := node.SetupOfflineRouting(); err != nil {
-				res.SetError(err, cmdkit.ErrNormal)
-				return
+				return err
 			}
 		}
 
-		offset, _ := req.Options["offset"].(int)
+		offset, _ := req.Options[offsetOptionName].(int64)
 		if offset < 0 {
-			res.SetError(fmt.Errorf("cannot specify negative offset"), cmdkit.ErrNormal)
-			return
+			return fmt.Errorf("cannot specify negative offset")
 		}
 
-		max, found := req.Options["length"].(int)
+		max, found := req.Options[lengthOptionName].(int64)
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 		if max < 0 {
-			res.SetError(fmt.Errorf("cannot specify negative length"), cmdkit.ErrNormal)
-			return
+			return fmt.Errorf("cannot specify negative length")
 		}
 		if !found {
 			max = -1
@@ -81,14 +87,12 @@ var CatCmd = &cmds.Command{
 
 		err = req.ParseBodyArgs()
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 
-		readers, length, err := cat(req.Context, node, req.Arguments, int64(offset), int64(max))
+		readers, length, err := cat(req.Context, api, req.Arguments, int64(offset), int64(max))
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 
 		/*
@@ -105,86 +109,95 @@ var CatCmd = &cmds.Command{
 		// returned from io.Copy inside Emit, we need to take Emit errors and send
 		// them to the client. Usually we don't do that because it means the connection
 		// is broken or we supplied an illegal argument etc.
-		err = res.Emit(reader)
-		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-		}
+		return res.Emit(reader)
 	},
 	PostRun: cmds.PostRunMap{
-		cmds.CLI: func(req *cmds.Request, re cmds.ResponseEmitter) cmds.ResponseEmitter {
-			reNext, res := cmds.NewChanResponsePair(req)
+		cmds.CLI: func(res cmds.Response, re cmds.ResponseEmitter) error {
+			if res.Length() > 0 && res.Length() < progressBarMinSize {
+				return cmds.Copy(re, res)
+			}
 
-			go func() {
-				if res.Length() > 0 && res.Length() < progressBarMinSize {
-					if err := cmds.Copy(re, res); err != nil {
-						re.SetError(err, cmdkit.ErrNormal)
+			for {
+				v, err := res.Next()
+				if err != nil {
+					if err == io.EOF {
+						return nil
 					}
-
-					return
+					return err
 				}
 
-				// Copy closes by itself, so we must not do this before
-				defer re.Close()
-				for {
-					v, err := res.Next()
-					if !cmds.HandleError(err, res, re) {
-						break
-					}
+				switch val := v.(type) {
+				case io.Reader:
+					bar, reader := progressBarForReader(os.Stderr, val, int64(res.Length()))
+					bar.Start()
 
-					switch val := v.(type) {
-					case io.Reader:
-						bar, reader := progressBarForReader(os.Stderr, val, int64(res.Length()))
-						bar.Start()
-
-						err = re.Emit(reader)
-						if err != nil {
-							log.Error(err)
-						}
-					default:
-						log.Warningf("cat postrun: received unexpected type %T", val)
+					err = re.Emit(reader)
+					if err != nil {
+						return err
 					}
+				default:
+					log.Warningf("cat postrun: received unexpected type %T", val)
 				}
-			}()
-
-			return reNext
+			}
 		},
 	},
 }
 
-func cat(ctx context.Context, node *core.IpfsNode, paths []string, offset int64, max int64) ([]io.Reader, uint64, error) {
+func cat(ctx context.Context, api iface.CoreAPI, paths []string, offset int64, max int64) ([]io.Reader, uint64, error) {
 	readers := make([]io.Reader, 0, len(paths))
 	length := uint64(0)
 	if max == 0 {
 		return nil, 0, nil
 	}
-	for _, fpath := range paths {
-		tmCtx, _ := context.WithTimeout(ctx, 2*time.Minute)
-		read, err := coreunix.Cat(tmCtx, node, fpath)
+	for _, p := range paths {
+		fpath, err := iface.ParsePath(p)
 		if err != nil {
 			return nil, 0, err
 		}
-		if offset > int64(read.Size()) {
-			offset = offset - int64(read.Size())
+
+		tmCtx, _ := context.WithTimeout(ctx, 2*time.Minute)
+		file, err := api.Unixfs().Get(tmCtx, fpath)
+		if err != nil {
+			return nil, 0, err
+		}
+
+		if file.IsDirectory() {
+			return nil, 0, iface.ErrIsDir
+		}
+
+		fsize, err := file.Size()
+		if err != nil {
+			return nil, 0, err
+		}
+
+		if offset > fsize {
+			offset = offset - fsize
 			continue
 		}
-		count, err := read.Seek(offset, io.SeekStart)
+
+		count, err := file.Seek(offset, io.SeekStart)
 		if err != nil {
 			return nil, 0, err
 		}
 		offset = 0
 
-		size := uint64(read.Size() - uint64(count))
+		fsize, err = file.Size()
+		if err != nil {
+			return nil, 0, err
+		}
+
+		size := uint64(fsize - count)
 		length += size
 		if max > 0 && length >= uint64(max) {
-			var r io.Reader = read
+			var r io.Reader = file
 			if overshoot := int64(length - uint64(max)); overshoot != 0 {
-				r = io.LimitReader(read, int64(size)-overshoot)
+				r = io.LimitReader(file, int64(size)-overshoot)
 				length = uint64(max)
 			}
 			readers = append(readers, r)
 			break
 		}
-		readers = append(readers, read)
+		readers = append(readers, file)
 	}
 	return readers, length, nil
 }

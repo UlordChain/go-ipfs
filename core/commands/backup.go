@@ -5,33 +5,32 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	inet "gx/ipfs/QmPjvxTpVH8qJyQDnxnsxF9kv9jezKD1kozz1hs3fCGsNh/go-libp2p-net"
-	"gx/ipfs/QmZNkThpqfVXs9GNbexPrfBbXSLNYeKrE7jwFM2oqHbyqN/go-libp2p-protocol"
-	"gx/ipfs/QmdVrMn1LhB4ybb8hMVaMLXnA8XRSewMnK6YqXKXoTcRvN/go-libp2p-peer"
 	"io"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/pkg/errors"
-
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
-
-	"gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-
-	"strings"
-
-	cmds "github.com/ipfs/go-ipfs/commands"
+	"github.com/ipfs/go-ipfs/commands"
 	"github.com/ipfs/go-ipfs/core"
 	"github.com/ipfs/go-ipfs/core/commands/e"
 	"github.com/ipfs/go-ipfs/core/corerepo"
-	"github.com/ipfs/go-ipfs/core/coreunix"
+	"github.com/ipfs/go-ipfs/core/commands/cmdenv"
+	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
+
+	"gx/ipfs/QmPSQnBKM9g7BaUcZCvswUJVscQ1ipjmwxN5PXCjkp9EQ7/go-cid"
+	"gx/ipfs/QmSXUokcP4TJpFfqozT69AVAYRtzXVMUjzQVkYX41R9Svs/go-ipfs-cmds"
+	"gx/ipfs/QmTRhk7cgjUf2gfQ3p2M9KPECNZEW9XUrmHcFCgog4cPgB/go-libp2p-peer"
+	inet "gx/ipfs/QmXuRkCR7BNQa9uqfpTiFWsTQLzmTWYg91Ja1w95gnqb6u/go-libp2p-net"
+	"gx/ipfs/QmZNkThpqfVXs9GNbexPrfBbXSLNYeKrE7jwFM2oqHbyqN/go-libp2p-protocol"
+	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
 )
 
 const ProtocolBackup protocol.ID = "/backup/0.0.1"
 const numberForBackup int = 1
 const timeoutForLookup = 1 * time.Minute
 
-var BackupCmd = &cmds.Command{
+var BackupCmd = &commands.Command{
 	Helptext: cmdkit.HelpText{
 		Tagline:          "Backup objects to remote node storage.",
 		ShortDescription: "Stores an IPFS object(s) from a given path locally to remote disk.",
@@ -43,7 +42,7 @@ var BackupCmd = &cmds.Command{
 	Options: []cmdkit.Option{
 		cmdkit.StringOption(accountOptionName, "Account of user to check"),
 	},
-	Run: func(req cmds.Request, res cmds.Response) {
+	Run: func(req commands.Request, res commands.Response) {
 		acc := req.Options()[accountOptionName]
 		if acc == nil {
 			res.SetError(errors.New("must set option account."), cmdkit.ErrNormal)
@@ -65,7 +64,7 @@ var BackupCmd = &cmds.Command{
 		}
 
 		if n.Routing == nil {
-			res.SetError(errNotOnline, cmdkit.ErrNormal)
+			res.SetError(ErrNotOnline, cmdkit.ErrNormal)
 			return
 		}
 
@@ -84,15 +83,15 @@ var BackupCmd = &cmds.Command{
 
 		res.SetOutput(output)
 	},
-	Type: coreunix.BackupOutput{},
-	Marshalers: cmds.MarshalerMap{
-		cmds.Text: func(res cmds.Response) (io.Reader, error) {
+	Type: coreiface.BackupOutput{},
+	Marshalers: commands.MarshalerMap{
+		commands.Text: func(res commands.Response) (io.Reader, error) {
 			v, err := unwrapOutput(res.Output())
 			if err != nil {
 				return nil, err
 			}
 
-			out, ok := v.(*coreunix.BackupOutput)
+			out, ok := v.(*coreiface.BackupOutput)
 			if !ok {
 				return nil, e.TypeErr(out, v)
 			}
@@ -110,7 +109,7 @@ var BackupCmd = &cmds.Command{
 	},
 }
 
-func backupFunc(n *core.IpfsNode, c *cid.Cid, account string) (*coreunix.BackupOutput, error) {
+func backupFunc(n *core.IpfsNode, c cid.Cid, account string) (*coreiface.BackupOutput, error) {
 	// get peers for backup
 	toctx, cancel := context.WithTimeout(n.Context(), timeoutForLookup)
 	defer cancel()
@@ -137,20 +136,20 @@ func backupFunc(n *core.IpfsNode, c *cid.Cid, account string) (*coreunix.BackupO
 	log.Debug("found the peers to backup:", peers)
 	peersForBackup := peers
 
-	// do backup
-	results := make(chan *coreunix.BackupResult, len(peersForBackup))
+	// 发送cid
+	results := make(chan *coreiface.BackupResult, len(peersForBackup))
 	var wg sync.WaitGroup
 	for p := range peersForBackup {
 		wg.Add(1)
 		go func(id peer.ID) {
 			e := doBackup(n, id, c, account)
 			if e != nil {
-				results <- &coreunix.BackupResult{
+				results <- &coreiface.BackupResult{
 					ID:  id.Pretty(),
 					Msg: e.Error(),
 				}
 			} else {
-				results <- &coreunix.BackupResult{
+				results <- &coreiface.BackupResult{
 					ID: id.Pretty(),
 				}
 			}
@@ -162,7 +161,7 @@ func backupFunc(n *core.IpfsNode, c *cid.Cid, account string) (*coreunix.BackupO
 		close(results)
 	}()
 
-	output := &coreunix.BackupOutput{}
+	output := &coreiface.BackupOutput{}
 	for r := range results {
 		if r.Msg != "" {
 			output.Failed = append(output.Failed, r)
@@ -178,7 +177,7 @@ func backupFunc(n *core.IpfsNode, c *cid.Cid, account string) (*coreunix.BackupO
 	return output, nil
 }
 
-func doBackup(n *core.IpfsNode, id peer.ID, c *cid.Cid, account string) error {
+func doBackup(n *core.IpfsNode, id peer.ID, c cid.Cid, account string) error {
 	s, err := n.PeerHost.NewStream(n.Context(), id, ProtocolBackup)
 	if err != nil {
 		return err
@@ -206,7 +205,10 @@ func doBackup(n *core.IpfsNode, id peer.ID, c *cid.Cid, account string) error {
 	return errors.New(bs)
 }
 
-func SetupBackupHandler(node *core.IpfsNode) {
+func SetupBackupHandler(env cmds.Environment) {
+	node, _ := cmdenv.GetNode(env)
+	api, _ := cmdenv.GetApi(env)
+
 	node.PeerHost.SetStreamHandler(ProtocolBackup, func(s inet.Stream) {
 		var errRet error
 		defer func() {
@@ -267,7 +269,7 @@ func SetupBackupHandler(node *core.IpfsNode) {
 		// do pin add
 		defer node.Blockstore.PinLock().Unlock()
 
-		_, err = corerepo.Pin(node, node.Context(), []string{c.String()}, true)
+		_, err = corerepo.Pin(node, api, node.Context(), []string{c.String()}, true)
 		if err != nil {
 			errRet = errors.Wrapf(err, "backup-handler run pin command for %s failed", c.String())
 			return

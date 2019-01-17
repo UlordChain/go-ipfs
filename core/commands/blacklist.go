@@ -2,35 +2,27 @@ package commands
 
 import (
 	"encoding/csv"
-
 	"context"
-
 	"io"
-
-	"gx/ipfs/QmYVNvtQkeZ6AKSwDrjQTs432QtL6umrrK41EBq3cu7iSP/go-cid"
-	format "gx/ipfs/QmZtNq8dArGfnpCZfx2pUNY7UcjGhVp5qqwQ4hH6mpTMRQ/go-ipld-format"
-
-	"gx/ipfs/QmNueRyPRQiV7PUEpnP4GgGLuK1rKQLaRW7sfPvUetYig1/go-ipfs-cmds"
-	"gx/ipfs/QmdE4gMduCKCGAcczM2F5ioYDfdeKuPix138wrES1YSr7f/go-ipfs-cmdkit"
-
 	"time"
-
 	"fmt"
-
 	"sort"
-
 	"io/ioutil"
-
 	"os"
-
 	"path/filepath"
 
+	"github.com/pkg/errors"
 	"github.com/ipfs/go-ipfs/core"
 	"github.com/ipfs/go-ipfs/core/corerepo"
-	"github.com/ipfs/go-ipfs/core/coreunix"
-	"github.com/ipfs/go-ipfs/merkledag"
-	"github.com/ipfs/go-ipfs/path"
-	"github.com/pkg/errors"
+	"github.com/ipfs/go-ipfs/core/commands/cmdenv"
+	"github.com/ipfs/go-ipfs/core/coreapi/interface"
+
+	"gx/ipfs/QmSXUokcP4TJpFfqozT69AVAYRtzXVMUjzQVkYX41R9Svs/go-ipfs-cmds"
+	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
+	"gx/ipfs/QmPSQnBKM9g7BaUcZCvswUJVscQ1ipjmwxN5PXCjkp9EQ7/go-cid"
+	"gx/ipfs/QmR7TcHkR9nxkUorfi8XMTAMLUK7GiP64TWWBzY3aacc1o/go-ipld-format"
+	"gx/ipfs/QmSei8kFMfqdJq7Q68d2LMnHbTWKKg2daA29ezUYFAUNgc/go-merkledag"
+	"gx/ipfs/QmT3rzed1ppXefourpmoZ7tyVQfsGPQZ1pHDngLmCvXxd3/go-path"
 )
 
 const (
@@ -65,26 +57,25 @@ var BlacklistCmd = &cmds.Command{
 
 	Arguments: []cmdkit.Argument{},
 	Options:   []cmdkit.Option{},
-	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) {
-		node, err := GetNode(env)
+	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
+		node, err := cmdenv.GetNode(env)
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
+
 
 		if !node.OnlineMode() {
 			if err := node.SetupOfflineRouting(); err != nil {
-				res.SetError(err, cmdkit.ErrNormal)
-				return
+				return err
 			}
 		}
 
-		err = refreshBlacklist(req.Context, node, 1)
+		err = refreshBlacklist(req.Context, env, 1)
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 
+		return nil
 	},
 }
 
@@ -127,7 +118,9 @@ func getBlacklistFiles(ctx context.Context, n *core.IpfsNode) ([]*format.Link, e
 	return nil, nil
 }
 
-func refreshBlacklist(ctx context.Context, n *core.IpfsNode, minFailed int) error {
+func refreshBlacklist(ctx context.Context, env cmds.Environment, minFailed int) error {
+	n, _ := cmdenv.GetNode(env)
+
 	links, err := getBlacklistFiles(ctx, n)
 	if err != nil {
 		return errors.Wrap(err, "get blacklist files failed")
@@ -157,7 +150,7 @@ func refreshBlacklist(ctx context.Context, n *core.IpfsNode, minFailed int) erro
 
 	for _, link := range links {
 		log.Debug("handle blacklist file ", link.Name)
-		err = handleBlacklistFile(ctx, n, minFailed, link.Cid)
+		err = handleBlacklistFile(ctx, env, minFailed, link.Cid)
 		if err != nil {
 			return errors.Wrapf(err, "refresh blacklist file %s failed", link.Name)
 		}
@@ -168,14 +161,20 @@ func refreshBlacklist(ctx context.Context, n *core.IpfsNode, minFailed int) erro
 	return nil
 }
 
-func handleBlacklistFile(ctx context.Context, n *core.IpfsNode, minFailed int, c *cid.Cid) error {
+func handleBlacklistFile(ctx context.Context, env cmds.Environment, minFailed int, c cid.Cid) error {
+	n, _ := cmdenv.GetNode(env)
+	api, _ := cmdenv.GetApi(env)
 
-	dagReader, err := coreunix.Cat(ctx, n, path.FromCid(c).String())
+	fpath, err := iface.ParsePath(c.String())
 	if err != nil {
-		return errors.Errorf("read blacklist failed: %v\n", err.Error())
+		return err
+	}
+	file, err := api.Unixfs().Get(ctx, fpath)
+	if err != nil {
+		return err
 	}
 
-	csvReader := csv.NewReader(dagReader)
+	csvReader := csv.NewReader(file)
 	failedCount := 0
 	for {
 		record, err := csvReader.Read()
@@ -188,7 +187,7 @@ func handleBlacklistFile(ctx context.Context, n *core.IpfsNode, minFailed int, c
 		}
 		log.Debug("blacklist record:", record)
 
-		err = handleBlacklistRecord(ctx, n, record)
+		err = handleBlacklistRecord(ctx, n, api, record)
 		if err != nil {
 			failedCount++
 			if minFailed > 0 && failedCount >= minFailed {
@@ -201,7 +200,9 @@ func handleBlacklistFile(ctx context.Context, n *core.IpfsNode, minFailed int, c
 
 }
 
-func RunBlacklistRefreshService(ctx context.Context, n *core.IpfsNode) error {
+func RunBlacklistRefreshService(ctx context.Context, env cmds.Environment) error {
+	n, _ := cmdenv.GetNode(env)
+
 	conf, err := n.Repo.Config()
 	if err != nil {
 		return errors.Wrap(err, "got config failed")
@@ -221,7 +222,7 @@ func RunBlacklistRefreshService(ctx context.Context, n *core.IpfsNode) error {
 		for {
 			select {
 			case <-tm.C:
-				refreshBlacklist(ctx, n, -1)
+				refreshBlacklist(ctx, env, -1)
 
 				tm.Reset(dur)
 
@@ -235,7 +236,7 @@ func RunBlacklistRefreshService(ctx context.Context, n *core.IpfsNode) error {
 
 }
 
-func handleBlacklistRecord(ctx context.Context, n *core.IpfsNode, record []string) error {
+func handleBlacklistRecord(ctx context.Context, n *core.IpfsNode, api iface.CoreAPI, record []string) error {
 	c, err := pathToCid(record[0])
 	if err != nil {
 		return errors.Errorf("got blacklist record cid failed from %v: %v\n", record, err.Error())
@@ -256,14 +257,14 @@ func handleBlacklistRecord(ctx context.Context, n *core.IpfsNode, record []strin
 	}
 
 	if pined {
-		_, err := corerepo.Unpin(n, ctx, record[:1], true)
+		_, err := corerepo.Unpin(n, api, ctx, record[:1], true)
 		if err != nil {
 			return errors.Errorf("unpin blacklist record cid %s failed: %v\n", c.String(), err.Error())
 		}
 		fmt.Println("unpin ", record[0])
 	}
 
-	err = corerepo.Remove(n, ctx, []*cid.Cid{c}, true, false)
+	err = corerepo.Remove(n, ctx, []cid.Cid{c}, true, false)
 	if err != nil {
 		return errors.Errorf("blacklist record cid %s remove from repo failed: %v\n", c.String(), err.Error())
 	}
@@ -273,15 +274,15 @@ func handleBlacklistRecord(ctx context.Context, n *core.IpfsNode, record []strin
 	return nil
 }
 
-func pathToCid(pstr string) (*cid.Cid, error) {
+func pathToCid(pstr string) (cid.Cid, error) {
 	p, err := path.ParsePath(pstr)
 	if err != nil {
-		return nil, err
+		return cid.Cid{}, err
 	}
 
 	c, _, err := path.SplitAbsPath(p)
 	if err != nil {
-		return nil, err
+		return cid.Cid{}, err
 	}
 
 	return c, nil
