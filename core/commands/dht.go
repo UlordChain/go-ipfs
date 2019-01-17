@@ -832,8 +832,7 @@ Different key types can specify other 'best' rules.
 		}
 
 		buf := bytes.NewBuffer(nil)
-		// TODO: danny
-		//n.DHT.WriteRoutingTable(buf)
+		n.DHT.WriteRoutingTable(buf)
 		res.SetOutput(buf)
 	},
 	Type: bytes.Buffer{},
