@@ -208,22 +208,8 @@ func RunBlacklistRefreshService(ctx context.Context, env cmds.Environment) error
 		return errors.Wrap(err, "got config failed")
 	}
 
-	dur := 10 * time.Second
-	if conf.Blacklist.Interval != "" {
-		d, err := time.ParseDuration(conf.Blacklist.Interval)
-		if err != nil {
-			return errors.Wrap(err, "parse config.Blacklist.Interval failed")
-		}
-		dur = d
-	}
-	if conf.Blacklist.Period != "" {
-		p, err := time.ParseDuration(conf.Blacklist.Period)
-		if err != nil {
-			return errors.Wrap(err, "parse config.Blacklist.Period failed")
-		}
-
-		period = p
-	}
+	dur := conf.Blacklist.Interval.Duration
+	period = conf.Blacklist.Period.Duration
 
 	log.Debug("current blacklist file handle interval = ", dur)
 	log.Debug("current blacklist file invalid period = ", period)
@@ -247,6 +233,7 @@ func RunBlacklistRefreshService(ctx context.Context, env cmds.Environment) error
 	}()
 
 	return nil
+
 
 }
 
