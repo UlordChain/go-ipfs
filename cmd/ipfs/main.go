@@ -156,6 +156,9 @@ func checkDebug(req *cmds.Request) {
 	if u.GetenvBool("DEBUG") {
 		u.Debug = true
 	}
+
+	// change the log format, see oldlog.go
+	os.Setenv("IPFS_LOGGING_FMT", "nocolor")
 }
 
 func makeExecutor(req *cmds.Request, env interface{}) (cmds.Executor, error) {
