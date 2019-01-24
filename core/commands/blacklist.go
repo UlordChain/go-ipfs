@@ -63,11 +63,9 @@ var BlacklistCmd = &cmds.Command{
 			return err
 		}
 
-
+		// Must be online!
 		if !node.OnlineMode() {
-			if err := node.SetupOfflineRouting(); err != nil {
-				return err
-			}
+			return cmdkit.Errorf(cmdkit.ErrClient, ErrNotOnline.Error())
 		}
 
 		err = refreshBlacklist(req.Context, env, 1)

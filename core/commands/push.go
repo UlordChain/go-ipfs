@@ -66,6 +66,16 @@ Push do the same thing like command add first (but with default not pin). Then d
 		cmdkit.IntOption(inlineLimitOptionName, "Maximum block size to inline. (experimental)").WithDefault(32),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
+		node, err := cmdenv.GetNode(env)
+		if err != nil {
+			return err
+		}
+
+		// Must be online!
+		if !node.OnlineMode() {
+			return cmdkit.Errorf(cmdkit.ErrClient, ErrNotOnline.Error())
+		}
+
 		api, err := cmdenv.GetApi(env)
 		if err != nil {
 			return err
@@ -131,7 +141,6 @@ Push do the same thing like command add first (but with default not pin). Then d
 			opts = append(opts, options.Unixfs.Layout(options.TrickleLayout))
 		}
 
-		node, _ := cmdenv.GetNode(env)
 		needUnpin := !dopin
 		errCh := make(chan error)
 		go func() {
