@@ -4,8 +4,13 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"text/tabwriter"
 	"time"
 
+	"github.com/ipfs/go-ipfs/core/commands/e"
+	"github.com/ipfs/go-ipfs/repo/fsrepo"
+	"github.com/pkg/errors"
+	"github.com/shirou/gopsutil/disk"
 	cmdenv "github.com/ipfs/go-ipfs/core/commands/cmdenv"
 
 	humanize "gx/ipfs/QmPSBJL4momYnE7DcUyk2DVhD6rH488ZmHBGLbxNdhU44K/go-humanize"
@@ -30,6 +35,7 @@ for your IPFS node.`,
 		"bw":      statBwCmd,
 		"repo":    repoStatCmd,
 		"bitswap": bitswapStatCmd,
+		"storage": storageStatCmd,
 	},
 }
 
@@ -191,4 +197,81 @@ func printStats(out io.Writer, bs *metrics.Stats) {
 	fmt.Fprintf(out, "TotalOut: %s\n", humanize.Bytes(uint64(bs.TotalOut)))
 	fmt.Fprintf(out, "RateIn: %s/s\n", humanize.Bytes(uint64(bs.RateIn)))
 	fmt.Fprintf(out, "RateOut: %s/s\n", humanize.Bytes(uint64(bs.RateOut)))
+}
+
+
+type StorageStat struct{
+	Usage uint64 `json:"usage"`
+	Free uint64 `json:"free"`
+}
+
+var storageStatCmd = &cmds.Command{
+	Helptext: cmdkit.HelpText{
+		Tagline: "Get stats for the currently used storage.",
+		ShortDescription: `
+'ipfs storage stat' provides information about the local information of
+repo storage. It outputs:
+
+Usage        int Size in bytes that the repo is currently taking.
+Free         int Size in bytes that the repo free.
+`,
+	},
+	Options: []cmdkit.Option{
+		cmdkit.BoolOption(repoHumanOptionName, "Output sizes in MiB."),
+	},
+	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
+		n, err := cmdenv.GetNode(env)
+		if err != nil {
+			return err
+		}
+
+		usage, err := n.Repo.GetStorageUsage()
+		if err != nil {
+			return errors.Wrap(err, "got repo storage usage failed")
+		}
+
+		// got free
+		path, err := fsrepo.BestKnownPath()
+		if err != nil {
+			return errors.Wrap(err, "got repo path failed")
+		}
+
+		us, err := disk.Usage(path)
+		if err != nil {
+			return errors.Wrapf(err, "got usage of %s failed", path)
+		}
+
+		return cmds.EmitOnce(res, &StorageStat{
+			Usage: usage,
+			Free: us.Free,
+		})
+	},
+	Type: &StorageStat{},
+	Encoders: cmds.EncoderMap{
+		cmds.Text: cmds.MakeEncoder(func(req *cmds.Request, w io.Writer, v interface{}) error {
+			stat, ok := v.(*StorageStat)
+			if !ok {
+				return e.TypeErr(stat, v)
+			}
+
+			wtr := tabwriter.NewWriter(w, 0, 0, 1, ' ', 0)
+			defer wtr.Flush()
+
+			human, _ := req.Options[repoHumanOptionName].(bool)
+
+			printSize := func(name string, size uint64) {
+				sizeInMiB := size / (1024 * 1024)
+				if human && sizeInMiB > 0 {
+					fmt.Fprintf(wtr, "%s (MiB):\t%d\n", name, sizeInMiB)
+				} else {
+					fmt.Fprintf(wtr, "%s:\t%d\n", name, size)
+				}
+			}
+
+			printSize("Usage", stat.Usage)
+			printSize("Free", stat.Free)
+
+			return nil
+		}),
+	},
 }
