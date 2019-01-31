@@ -90,7 +90,7 @@ func Init(out io.Writer, nBitsForKeypair int) (*Config, error) {
 			Period:     Duration{168*time.Hour},
 		},
 		UCenter: UCenterInfo{
-			ServerAddress: "ucenter.ulord.one:5009",
+			ServerAddress: UCenterServerAddress,
 			ServerPubkeys: []*VersionPubkey{},
 		},
 		Report: defaultReportInfo,

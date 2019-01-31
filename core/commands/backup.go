@@ -26,7 +26,7 @@ import (
 )
 
 const ProtocolBackup protocol.ID = "/backup/0.0.1"
-const numberForBackup int = 1
+const numberForBackup int = 2
 const timeoutForLookup = 1 * time.Minute
 
 var BackupCmd = &commands.Command{

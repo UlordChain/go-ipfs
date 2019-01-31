@@ -1,5 +1,6 @@
 package config
 
+var UCenterServerAddress = "ucenter.ulord.one:5009"
 type VersionPubkey struct {
 	Licversion int32
 	Pubkey     string
