@@ -6,28 +6,28 @@ package commands
 
 import (
 	"context"
-	"fmt"
-	"io"
-	"os"
-	"strings"
-	"path/filepath"
 	"encoding/csv"
-	"strconv"
-	"sync"
-	"os/exec"
-	"syscall"
-
+	"fmt"
 	"github.com/ipfs/go-ipfs/core/commands/cmdenv"
+	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
 	"github.com/ipfs/go-ipfs/core/coreapi/interface/options"
 	"github.com/ipfs/go-ipfs/core/corerepo"
+	"gx/ipfs/QmPSQnBKM9g7BaUcZCvswUJVscQ1ipjmwxN5PXCjkp9EQ7/go-cid"
+	"io"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"sync"
+	"syscall"
 	"github.com/pkg/errors"
-	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
 
+	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
+	"gx/ipfs/QmPtj12fdwuAqj9sBSTNUxBNu8kCGNp8b3o8yUzMm5GHpq/pb"
 	"gx/ipfs/QmSXUokcP4TJpFfqozT69AVAYRtzXVMUjzQVkYX41R9Svs/go-ipfs-cmds"
 	"gx/ipfs/QmZMWMvWMVKCbHetJ4RgndbuEF1io2UpUxwQwtNjtYPzSC/go-ipfs-files"
 	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
-	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	"gx/ipfs/QmPtj12fdwuAqj9sBSTNUxBNu8kCGNp8b3o8yUzMm5GHpq/pb"
 )
 
 var PushCmd = &cmds.Command{
@@ -126,7 +126,7 @@ Push do the same thing like command add first (but with default not pin). Then d
 
 			options.Unixfs.Progress(progress),
 			options.Unixfs.Silent(silent),
-			options.Unixfs.Events(events),
+			//options.Unixfs.Events(events),
 		}
 
 		if cidVerSet {
@@ -147,40 +147,71 @@ Push do the same thing like command add first (but with default not pin). Then d
 			var err error
 			defer func() { errCh <- err }()
 			defer close(events)
-			rp, err := api.Unixfs().Add(req.Context, req.Files, opts...)
 
-			log.Debug(("add success, ready to push"))
 
-			// got root hash
-			c := rp.Root()
+			wg := sync.WaitGroup{}
+			tempEvents := make(chan interface{}, adderOutChanSize)
+			opts = append(opts, options.Unixfs.Events(tempEvents))
 
-			if needUnpin {
-				PushRecorder.Write(c.String(), "1")
-				defer func() {
-					_, e := corerepo.Unpin(node, api, req.Context, []string{c.String()}, true)
-					if e != nil {
-						if err != nil {
-							err = errors.New(err.Error() + "(unpin failed" + e.Error() + ")")
-						} else {
-							err = errors.Wrap(e, "unpin failed")
-						}
-					} else {
-						PushRecorder.Write(c.String(), "-1")
+			var backupErr error
+			go func(){
+				wg.Add(1)
+				defer wg.Done()
+
+				for e := range tempEvents{
+					if addevent, ok := e.(*coreiface.AddEvent); !ok {
+						events <- e
+					}else if backupErr == nil {
+
+						wg.Add(1)
+						go func(ar *coreiface.AddEvent){
+							defer wg.Done()
+
+							if needUnpin {
+								PushRecorder.Write(ar.Hash, "1")
+								defer func() {
+									_, e := corerepo.Unpin(node, api, req.Context, []string{ar.Hash}, true)
+									if e != nil {
+										if err != nil {
+											log.Warning(err.Error() + "(unpin failed" + e.Error() + ")")
+										} else {
+											log.Warning("unpin failed: "+ e.Error())
+										}
+									} else {
+										PushRecorder.Write(ar.Hash, "-1")
+									}
+								}()
+							}
+
+							// do backup
+							c, err := cid.Parse(ar.Hash)
+							if err != nil {
+								backupErr = errors.Wrap(err, "backup failed")
+								return
+							}
+							backupOutput, err := backupFunc(node, c)
+
+							if err != nil {
+								backupErr = errors.Wrap(err, "backup failed")
+								return
+							}
+
+							ar.Extend = backupOutput
+							events <- ar
+
+						}(addevent)
 					}
-				}()
-			}
+				}
+			}()
 
-			// do backup
-			backupOutput, err := backupFunc(node, c)
-
+			_, err = api.Unixfs().Add(req.Context, req.Files, opts...)
 			if err != nil {
-				err = errors.Wrap(err, "backup failed:")
 				return
 			}
+			close(tempEvents)
 
-			events <- &coreiface.AddEvent{
-				Extend: backupOutput,
-			}
+			wg.Wait()
+			err = backupErr
 		}()
 
 		err = res.Emit(events)
