@@ -46,6 +46,7 @@ Push do the same thing like command add first (but with default not pin). Then d
 	Arguments: []cmdkit.Argument{
 		cmdkit.FileArg("path", true, true, "The path to a file to be added to ipfs.").EnableRecursive().EnableStdin(),
 	},
+
 	Options: []cmdkit.Option{
 		cmds.OptionRecursivePath, // a builtin option that allows recursive paths (-r, --recursive)
 		cmdkit.BoolOption(quietOptionName, "q", "Write minimal output."),

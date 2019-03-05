@@ -75,7 +75,7 @@ var BackupCmd = &commands.Command{
 			return
 		}
 
-		output, err := backupFunc(n, c, account)
+		output, err := backupFunc(n, c)
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
 			return
@@ -109,7 +109,7 @@ var BackupCmd = &commands.Command{
 	},
 }
 
-func backupFunc(n *core.IpfsNode, c cid.Cid, account string) (*coreiface.BackupOutput, error) {
+func backupFunc(n *core.IpfsNode, c cid.Cid) (*coreiface.BackupOutput, error) {
 	// get peers for backup
 	toctx, cancel := context.WithTimeout(n.Context(), timeoutForLookup)
 	defer cancel()
@@ -142,7 +142,7 @@ func backupFunc(n *core.IpfsNode, c cid.Cid, account string) (*coreiface.BackupO
 	for p := range peersForBackup {
 		wg.Add(1)
 		go func(id peer.ID) {
-			e := doBackup(n, id, c, account)
+			e := doBackup(n, id, c)
 			if e != nil {
 				results <- &coreiface.BackupResult{
 					ID:  id.Pretty(),
@@ -177,7 +177,7 @@ func backupFunc(n *core.IpfsNode, c cid.Cid, account string) (*coreiface.BackupO
 	return output, nil
 }
 
-func doBackup(n *core.IpfsNode, id peer.ID, c cid.Cid, account string) error {
+func doBackup(n *core.IpfsNode, id peer.ID, c cid.Cid) error {
 	s, err := n.PeerHost.NewStream(n.Context(), id, ProtocolBackup)
 	if err != nil {
 		return err
@@ -185,7 +185,7 @@ func doBackup(n *core.IpfsNode, id peer.ID, c cid.Cid, account string) error {
 	defer s.Close()
 
 	// TODO: consider to use protobuf, now just direct send the cid and account
-	_, err = s.Write([]byte(account + "," + c.String() + "\n"))
+	_, err = s.Write([]byte(c.String() + "\n"))
 	if err != nil {
 		return err
 	}
