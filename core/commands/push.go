@@ -297,14 +297,14 @@ Push do the same thing like command add first (but with default not pin). Then d
 								fmt.Fprintf(os.Stdout, "added %s %s\n", output.Hash, output.Name)
 							}
 
-						} else if output.Extend != nil {
-							for _, s := range output.Extend.Success {
-								fmt.Fprintf(os.Stdout, "backup success to %s\n", s.ID)
+							if output.Extend != nil {
+								for _, s := range output.Extend.Success {
+									fmt.Fprintf(os.Stdout, "backup success to %s\n", s.ID)
+								}
+								for _, f := range output.Extend.Failed {
+									fmt.Fprintf(os.Stdout, "backup failed to %s : %s\n", f.ID, f.Msg)
+								}
 							}
-							for _, f := range output.Extend.Failed {
-								fmt.Fprintf(os.Stdout, "backup failed to %s : %s\n", f.ID, f.Msg)
-							}
-							continue
 						} else {
 							if !progress {
 								continue
