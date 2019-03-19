@@ -43,14 +43,6 @@ var BackupCmd = &commands.Command{
 		cmdkit.StringOption(accountOptionName, "Account of user to check"),
 	},
 	Run: func(req commands.Request, res commands.Response) {
-		acc := req.Options()[accountOptionName]
-		if acc == nil {
-			res.SetError(errors.New("must set option account."), cmdkit.ErrNormal)
-			return
-		}
-		account := acc.(string)
-		check := req.StringArguments()[0]
-
 		n, err := req.InvocContext().GetNode()
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
@@ -58,14 +50,25 @@ var BackupCmd = &commands.Command{
 		}
 
 		cfg, _ := n.Repo.Config()
-		if !cfg.UOSCheck.Disable {
+		var(
+			account string
+			check string
+		)
+		if cfg.UOSCheck.Enable {
+			acc := req.Options()[accountOptionName]
+			if acc == nil {
+				res.SetError(errors.New("must set option account."), cmdkit.ErrNormal)
+				return
+			}
+			account = acc.(string)
+			check = req.StringArguments()[0]
+
 			_, err = ValidOnUOS(&cfg.UOSCheck, account, check)
 			if err != nil {
 				res.SetError(errors.Wrap(err, "valid failed"), cmdkit.ErrNormal)
 				return
 			}
 		}
-
 
 		if n.Routing == nil {
 			res.SetError(ErrNotOnline, cmdkit.ErrNormal)
@@ -265,7 +268,7 @@ func SetupBackupHandler(env cmds.Environment) {
 		log.Debug("backup-handler cid=", c.String())
 
 		cfg, _ := node.Repo.Config()
-		if !cfg.UOSCheck.Disable {
+		if cfg.UOSCheck.Enable {
 			_, err = ValidOnUOS(&cfg.UOSCheck, account, c.String())
 			if err != nil {
 				errRet = errors.Wrapf(err, "valid ipfs-hash for user=%s error", account)

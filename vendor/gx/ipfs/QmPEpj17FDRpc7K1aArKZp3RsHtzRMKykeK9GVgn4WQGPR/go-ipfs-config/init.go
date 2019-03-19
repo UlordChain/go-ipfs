@@ -95,7 +95,7 @@ func Init(out io.Writer, nBitsForKeypair int) (*Config, error) {
 		},
 		Report: defaultReportInfo,
 		UOSCheck: UOSCheck{
-			Disable:true,
+			Enable:false,
 		},
 	}
 

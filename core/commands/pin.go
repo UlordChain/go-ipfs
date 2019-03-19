@@ -68,14 +68,6 @@ var addPinCmd = &cmds.Command{
 	},
 	Type: AddPinOutput{},
 	Run: func(req cmds.Request, res cmds.Response) {
-		acc := req.Options()[accountOptionName]
-		if acc == nil {
-			res.SetError(errors.New("must set option account."), cmdkit.ErrNormal)
-			return
-		}
-		account := acc.(string)
-		check := req.StringArguments()[0]
-
 		n, err := req.InvocContext().GetNode()
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
@@ -83,7 +75,19 @@ var addPinCmd = &cmds.Command{
 		}
 
 		cfg, _ := n.Repo.Config()
-		if !cfg.UOSCheck.Disable {
+		var(
+			account string
+			check string
+		)
+		if cfg.UOSCheck.Enable {
+			acc := req.Options()[accountOptionName]
+			if acc == nil {
+				res.SetError(errors.New("must set option account."), cmdkit.ErrNormal)
+				return
+			}
+			account = acc.(string)
+			check = req.StringArguments()[0]
+
 			_, err = ValidOnUOS(&cfg.UOSCheck, account, check)
 			if err != nil {
 				res.SetError(errors.Wrap(err, "valid failed"), cmdkit.ErrNormal)

@@ -41,7 +41,7 @@ var CheckCmd = &cmds.Command{
 		}
 
 		cfg, _ := node.Repo.Config()
-		if cfg.UOSCheck.Disable {
+		if !cfg.UOSCheck.Enable {
 			return errors.New("disabled")
 		}
 

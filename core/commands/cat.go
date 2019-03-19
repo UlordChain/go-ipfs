@@ -36,21 +36,29 @@ var CatCmd = &cmds.Command{
 		cmdkit.StringOption(accountOptionName, "Account of user to check"),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
-		acc := req.Options[accountOptionName]
-		if acc == nil {
-			return errors.New("must set option account.")
-		}
-		account := acc.(string)
-
-		check := req.Arguments[0]
-
 		node, err := cmdenv.GetNode(env)
 		if err != nil {
 			return err
 		}
 
 		cfg, _ := node.Repo.Config()
-		if !cfg.UOSCheck.Disable {
+		var(
+			account string
+			check string
+		)
+		if cfg.UOSCheck.Enable {
+			acc := req.Options[accountOptionName]
+			if acc == nil {
+				return errors.New("must set option account.")
+			}
+			account = acc.(string)
+
+			h := req.Options[checkOptionName]
+			if h == nil {
+				return errors.New("must set option check.")
+			}
+			check = h.(string)
+
 			_, err = ValidOnUOS(&cfg.UOSCheck, account, check)
 			if err != nil {
 				return errors.Wrap(err, "valid failed")

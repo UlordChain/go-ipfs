@@ -68,26 +68,30 @@ Push do the same thing like command add first (but with default not pin). Then d
 		cmdkit.StringOption(checkOptionName, "The hash value for check"),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
-		acc := req.Options[accountOptionName]
-		if acc == nil {
-			return errors.New("must set option account.")
-		}
-		account := acc.(string)
-
-		h := req.Options[checkOptionName]
-		if h == nil {
-			return errors.New("must set option check.")
-		}
-		check := h.(string)
-
 		node, err := cmdenv.GetNode(env)
 		if err != nil {
 			return err
 		}
 
 		cfg, _ := node.Repo.Config()
-		var size uint64
-		if !cfg.UOSCheck.Disable {
+		var(
+			account string
+			check string
+			size uint64
+		)
+		if cfg.UOSCheck.Enable {
+			acc := req.Options[accountOptionName]
+			if acc == nil {
+				return errors.New("must set option account.")
+			}
+			account = acc.(string)
+
+			h := req.Options[checkOptionName]
+			if h == nil {
+				return errors.New("must set option check.")
+			}
+			check = h.(string)
+
 			size, err = ValidOnUOS(&cfg.UOSCheck, account, check)
 			if err != nil {
 				return errors.Wrap(err, "valid failed")
@@ -212,7 +216,7 @@ Push do the same thing like command add first (but with default not pin). Then d
 								return
 							}
 
-							if !cfg.UOSCheck.Disable {
+							if cfg.UOSCheck.Enable {
 								// check size
 
 								s, _ := strconv.ParseUint(ar.Size, 10, 64)
