@@ -464,3 +464,7 @@ func (bs *Bitswap) GetWantlist() []cid.Cid {
 func (bs *Bitswap) IsOnline() bool {
 	return true
 }
+
+func (bs *Bitswap) AllLedgerAccountDiff() []*decision.AccountDiff {
+	return bs.engine.AllLedgerAccountDiff()
+}

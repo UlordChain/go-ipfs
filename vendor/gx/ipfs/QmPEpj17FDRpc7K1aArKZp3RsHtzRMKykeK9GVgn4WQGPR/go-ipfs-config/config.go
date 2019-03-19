@@ -35,6 +35,7 @@ type Config struct {
 	Verify    VerifyInfo
 	UCenter   UCenterInfo
 	Report    ReportInfo
+	UOSCheck UOSCheck
 }
 
 const (

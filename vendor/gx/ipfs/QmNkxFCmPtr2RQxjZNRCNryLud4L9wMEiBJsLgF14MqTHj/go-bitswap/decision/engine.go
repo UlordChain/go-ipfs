@@ -380,3 +380,20 @@ func (e *Engine) signalNewWork() {
 	default:
 	}
 }
+
+func (e *Engine) AllLedgerAccountDiff() []*AccountDiff {
+	e.lock.Lock()
+	defer e.lock.Unlock()
+
+	response := make([]*AccountDiff, 0, len(e.ledgerMap))
+
+	for _, ledger := range e.ledgerMap {
+		diff := ledger.AccountDiff()
+		if diff == nil {
+			continue
+		}
+
+		response = append(response, diff)
+	}
+	return response
+}

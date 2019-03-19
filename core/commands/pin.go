@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
 	"io"
 	"time"
 
@@ -63,13 +64,31 @@ var addPinCmd = &cmds.Command{
 	Options: []cmdkit.Option{
 		cmdkit.BoolOption(pinRecursiveOptionName, "r", "Recursively pin the object linked to by the specified object(s).").WithDefault(true),
 		cmdkit.BoolOption(pinProgressOptionName, "Show progress"),
+		cmdkit.StringOption(accountOptionName, "Account of user to check"),
 	},
 	Type: AddPinOutput{},
 	Run: func(req cmds.Request, res cmds.Response) {
+		acc := req.Options()[accountOptionName]
+		if acc == nil {
+			res.SetError(errors.New("must set option account."), cmdkit.ErrNormal)
+			return
+		}
+		account := acc.(string)
+		check := req.StringArguments()[0]
+
 		n, err := req.InvocContext().GetNode()
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
 			return
+		}
+
+		cfg, _ := n.Repo.Config()
+		if !cfg.UOSCheck.Disable {
+			_, err = ValidOnUOS(&cfg.UOSCheck, account, check)
+			if err != nil {
+				res.SetError(errors.Wrap(err, "valid failed"), cmdkit.ErrNormal)
+				return
+			}
 		}
 
 		api, err := req.InvocContext().GetApi()

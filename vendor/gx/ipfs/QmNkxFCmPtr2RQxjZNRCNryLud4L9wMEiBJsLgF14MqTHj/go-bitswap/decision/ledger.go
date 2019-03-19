@@ -3,6 +3,7 @@ package decision
 import (
 	"sync"
 	"time"
+	"math"
 
 	wl "gx/ipfs/QmNkxFCmPtr2RQxjZNRCNryLud4L9wMEiBJsLgF14MqTHj/go-bitswap/wantlist"
 
@@ -58,6 +59,9 @@ type Receipt struct {
 type debtRatio struct {
 	BytesSent uint64
 	BytesRecv uint64
+
+	lastReportSent uint64
+	lastReportRecv uint64
 }
 
 func (dr *debtRatio) Value() float64 {
@@ -91,4 +95,42 @@ func (l *ledger) WantListContains(k cid.Cid) (*wl.Entry, bool) {
 
 func (l *ledger) ExchangeCount() uint64 {
 	return l.exchangeCount
+}
+
+
+type AccountDiff struct {
+	ID       string
+	SentDiff uint64
+	RecvDiff uint64
+}
+
+func (l *ledger) AccountDiff() *AccountDiff {
+	var sentDiff, recvDiff uint64
+	l.lk.Lock()
+
+	if l.Accounting.BytesSent >= l.Accounting.lastReportSent {
+		sentDiff = l.Accounting.BytesSent - l.Accounting.lastReportSent
+	} else {
+		sentDiff = l.Accounting.BytesSent + (math.MaxUint64 - l.Accounting.lastReportSent)
+	}
+	l.Accounting.lastReportSent = l.Accounting.BytesSent
+
+	if l.Accounting.BytesRecv >= l.Accounting.lastReportRecv {
+		recvDiff = l.Accounting.BytesRecv - l.Accounting.lastReportRecv
+	} else {
+		recvDiff = l.Accounting.BytesRecv + (math.MaxUint64 - l.Accounting.lastReportRecv)
+	}
+	l.Accounting.lastReportRecv = l.Accounting.BytesRecv
+
+	l.lk.Unlock()
+
+	if sentDiff == 0 && recvDiff == 0 {
+		return nil
+	}
+
+	return &AccountDiff{
+		ID:       l.Partner.Pretty(),
+		SentDiff: sentDiff,
+		RecvDiff: recvDiff,
+	}
 }

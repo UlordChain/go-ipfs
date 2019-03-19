@@ -3,17 +3,23 @@ package main
 import (
 	_ "expvar"
 	"fmt"
-	"gx/ipfs/QmUDTcnDp2WssbmiDLC6aYurUeyt7QeRakHUQMxA2mZ5iB/go-libp2p/p2p/protocol/verify"
+	"io/ioutil"
+	"math/rand"
 	"net"
 	"net/http"
 	_ "net/http/pprof"
+	"net/url"
 	"os"
 	"runtime"
 	"sort"
 	"sync"
+	"time"
+	"context"
+	"bytes"
+	"encoding/json"
 
 	"github.com/pkg/errors"
-
+	"github.com/ipfs/go-ipfs/udfs/ca"
 	version "github.com/ipfs/go-ipfs"
 	utilmain "github.com/ipfs/go-ipfs/cmd/ipfs/util"
 	oldcmds "github.com/ipfs/go-ipfs/commands"
@@ -24,6 +30,7 @@ import (
 	nodeMount "github.com/ipfs/go-ipfs/fuse/node"
 	fsrepo "github.com/ipfs/go-ipfs/repo/fsrepo"
 	migrate "github.com/ipfs/go-ipfs/repo/fsrepo/migrations"
+	"github.com/ipfs/go-ipfs/repo"
 
 	mprome "gx/ipfs/QmQXBfkuwgMaPx334WuL9NmyrKnbZ5udaWnHTHEsts2x3T/go-metrics-prometheus"
 	cmds "gx/ipfs/QmSXUokcP4TJpFfqozT69AVAYRtzXVMUjzQVkYX41R9Svs/go-ipfs-cmds"
@@ -31,6 +38,8 @@ import (
 	"gx/ipfs/QmTQuFQWHAWy4wMH6ZyPfGiawA5u9T8rs79FENoV8yXaoS/client_golang/prometheus"
 	"gx/ipfs/Qmaabb1tJZ2CX5cp6MuuiGgns71NYoxdgQP6Xdid1dVceC/go-multiaddr-net"
 	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
+	"gx/ipfs/QmNkxFCmPtr2RQxjZNRCNryLud4L9wMEiBJsLgF14MqTHj/go-bitswap"
+	"gx/ipfs/QmUDTcnDp2WssbmiDLC6aYurUeyt7QeRakHUQMxA2mZ5iB/go-libp2p/p2p/protocol/verify"
 )
 
 const (
@@ -58,6 +67,7 @@ const (
 	verifyTxid                = "txid"
 	verifyVoutid              = "voutid"
 	verifySecret              = "secret"
+	reportUosAccount = "account"
 
 	// apiAddrKwd    = "address-api"
 	// swarmAddrKwd  = "address-swarm"
@@ -176,6 +186,7 @@ Headers.
 		cmdkit.StringOption(verifyTxid, "Set the verify txid, NOTE: it will save to config."),
 		cmdkit.StringOption(verifySecret, "Set the verify sercret, NOTE: it will save to config."),
 		cmdkit.IntOption(verifyVoutid, "Set the verify voutid, NOTE: it will save to config.").WithDefault(-1),
+		cmdkit.StringOption(reportUosAccount, "Set the uos account, it will be used to got reward. NOTE: it will save to config."),
 
 		// TODO: add way to override addresses. tricky part: updating the config if also --init.
 		// cmdkit.StringOption(apiAddrKwd, "Address for the daemon rpc API (overrides config)"),
@@ -301,6 +312,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	txid, _ := req.Options[verifyTxid].(string)
 	secret, _ := req.Options[verifySecret].(string)
 	voutid, _ := req.Options[verifyVoutid].(int)
+	account, _ := req.Options[reportUosAccount].(string)
 
 	rcfg, err := repo.Config()
 	if err != nil {
@@ -320,6 +332,11 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 		rcfg.Verify.Secret = secret
 		needSave = true
 	}
+	if account != "" {
+		rcfg.Report.Account = account
+		needSave = true
+	}
+
 	if needSave {
 		err = repo.SetConfig(rcfg)
 		if err != nil {
@@ -337,6 +354,10 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 		err = verify.CheckUCenterInfo(&rcfg.UCenter)
 		if err != nil {
 			return errors.Wrap(err, "check ucenter info failed")
+		}
+
+		if rcfg.Report.Account == "" {
+			return errors.New("must provide uos account from config or option of command daemon")
 		}
 	}
 
@@ -454,6 +475,8 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 			return err
 		}
 		fmt.Println("run blacklist refresh service success")
+
+		go reportWorker(node, req.Context)
 	}
 
 	fmt.Printf("Daemon is ready\n")
@@ -754,9 +777,244 @@ func YesNoPrompt(prompt string) bool {
 	return false
 }
 
+
 func printVersion() {
 	fmt.Printf("go-ipfs version: %s-%s\n", version.CurrentVersionNumber, version.CurrentCommit)
 	fmt.Printf("Repo version: %d\n", fsrepo.RepoVersion)
 	fmt.Printf("System version: %s\n", runtime.GOARCH+"/"+runtime.GOOS)
 	fmt.Printf("Golang version: %s\n", runtime.Version())
+}
+
+
+// ============================================================== report
+
+/*
+{
+    "sign": "",
+    "txid": "",
+    "pubkey": "",
+    "voutid": 1,
+    "licperiod": 1234,
+    "licversion": 1,
+    "data": {
+        "sign": "fkldjslkfjlasfjldj",
+        "id": "",
+        "ts": 12345,
+        "in": 12,
+        "out": 34,
+        "storage": 431234,
+        "list": [
+            {
+                "id": "",
+                "in": 2,
+                "out": 1
+            }
+        ]
+    }
+}
+*/
+type dataMetaListObject struct {
+	Src string `json:"nodeId"`
+	ID  string `json:"desNodeId"`
+	In  int32  `json:"inflow"`
+	Out int32  `json:"outflow"`
+}
+
+type reportData struct {
+	Sign    string                `json:"sign,omitempty"`
+	Account string `json:"account"`
+	ID      string                `json:"id"`
+	Ts      int64                 `json:"ts"`
+	In      int32                 `json:"in"`
+	Out     int32                 `json:"out"`
+	Storage int32                 `json:"storage"`
+	List    []*dataMetaListObject `json:"list,omitempty"`
+}
+
+type reportRequestBody struct {
+	Sign       string      `json:"sign"`
+	Txid       string      `json:"txid"`
+	Pubkey     string      `json:"pubkey"`
+	Voutid     int32       `json:"voutid"`
+	Licperiod  int64       `json:"licperiod"`
+	Licversion int32       `json:"licversion"`
+	Data       *reportData `json:"data"`
+}
+
+type reportResonseBody struct {
+	ErrorCode string `json:"errorCode"`
+	Success   bool   `json:"success"`
+	ErrorMsg  string `json:"errorMsg"`
+}
+
+func reportWorker(node *core.IpfsNode, ctx context.Context) {
+	repo := node.Repo
+	cfg, err := repo.Config()
+	if err != nil {
+		log.Error("get repo config failed:", err.Error())
+		return
+	}
+
+	_, err = url.Parse(cfg.Report.Address)
+	if err != nil {
+		log.Error("parse config.Report.Address as a URL failed: ", err.Error())
+		return
+	}
+
+	pubkey, err := ca.PublicKeyFromPrivateAddr(cfg.Verify.Secret)
+	if err != nil {
+		log.Error("got verify public key failed: ", err)
+		return
+	}
+
+	for cfg.Verify.License == "" {
+		time.Sleep(5 * time.Second)
+		continue
+	}
+
+	min := int(cfg.Report.DurationMin.Seconds())
+	max := int(cfg.Report.DurationMax.Seconds())
+
+	if max <= min {
+		log.Errorf("report duration max value must more then min value: min=%d max=%d\n", min, max)
+		return
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	reportDurationDiff := max - min
+
+	dur := time.Duration(min+rand.Intn(reportDurationDiff)) * time.Second
+	log.Debug("report duration = ", dur)
+	tm := time.NewTimer(dur)
+	defer tm.Stop()
+
+	cli := &http.Client{
+		Timeout: cfg.Report.RequestTimeout.Duration,
+	}
+
+	rrb := reportRequestBody{
+		Sign:       cfg.Verify.License,
+		Txid:       cfg.Verify.Txid,
+		Voutid:     cfg.Verify.Voutid,
+		Pubkey:     pubkey,
+		Licperiod:  cfg.Verify.Period,
+		Licversion: cfg.Verify.Licversion,
+	}
+
+	bs, ok := node.Exchange.(*bitswap.Bitswap)
+	if !ok {
+		log.Error("exchange is not a bitswap object!")
+		return
+	}
+
+	for {
+		select {
+		case <-tm.C:
+			dur := time.Duration(min+rand.Intn(reportDurationDiff)) * time.Second
+			log.Debug("report duration = ", dur)
+			tm.Reset(dur)
+
+			if cfg.Verify.License == "" {
+				continue
+			}
+
+			data, err := buildReportData(node.Identity.Pretty(), bs, repo)
+			if err != nil {
+				log.Error("build report data failed:", err)
+				continue
+			}
+			rrb.Data = data
+
+			b, err := json.Marshal(rrb)
+			if err != nil {
+				log.Error("marshal report request body failed: ", err)
+				continue
+			}
+
+			log.Debug("report request body: ", string(b))
+
+			resp, err := cli.Post(cfg.Report.Address, "application/json", bytes.NewReader(b))
+			if err != nil {
+				log.Error("report error:", err.Error())
+				continue
+			}
+
+			err = handleReportResponse(resp)
+			if err != nil {
+				log.Error("report failed:", err.Error())
+				continue
+			}
+
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
+func buildReportData(src string, bs *bitswap.Bitswap, repo repo.Repo) (*reportData, error) {
+
+	usage, err := repo.GetStorageUsage()
+	if err != nil {
+		return nil, errors.Wrap(err, "got repo storage usage error")
+	}
+
+	usage = usage / 1024 / 1024
+
+	diffs := bs.AllLedgerAccountDiff()
+
+	cfg, _ := repo.Config()
+
+	data := &reportData{
+		Account: cfg.Report.Account,
+		ID:      cfg.Identity.PeerID,
+		Storage: int32(usage),
+		Ts:      time.Now().Unix(),
+	}
+
+	for _, diff := range diffs {
+		data.List = append(data.List, &dataMetaListObject{
+			Src: src,
+			ID:  diff.ID,
+			In:  int32(diff.RecvDiff),
+			Out: int32(diff.SentDiff),
+		})
+	}
+
+	b, err := json.Marshal(data)
+	if err != nil {
+		return nil, errors.Wrap(err, "marshal report data error")
+	}
+
+	uint256 := ca.NewSha2Hash(b)
+	sign, err := ca.Sign(uint256.String(), cfg.Verify.Secret)
+	if err != nil {
+		return nil, errors.Wrap(err, "sign report data error")
+	}
+	data.Sign = sign
+
+	return data, nil
+
+}
+
+func handleReportResponse(resp *http.Response) error {
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return errors.Errorf("report response code not 200: %d", resp.StatusCode)
+	}
+
+	bs, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return errors.Wrap(err, "read report response body error")
+	}
+
+	rrb := &reportResonseBody{}
+	err = json.Unmarshal(bs, rrb)
+	if err != nil {
+		return errors.Wrapf(err, "unmarshal report response [body=%s]error", string(bs))
+	}
+
+	if rrb.ErrorCode != "OK" {
+		return errors.New(string(bs))
+	}
+	return nil
 }

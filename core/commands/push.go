@@ -64,11 +64,34 @@ Push do the same thing like command add first (but with default not pin). Then d
 		cmdkit.StringOption(hashOptionName, "Hash function to use. Implies CIDv1 if not sha2-256. (experimental)").WithDefault("sha2-256"),
 		cmdkit.BoolOption(inlineOptionName, "Inline small blocks into CIDs. (experimental)"),
 		cmdkit.IntOption(inlineLimitOptionName, "Maximum block size to inline. (experimental)").WithDefault(32),
+		cmdkit.StringOption(accountOptionName, "Account of user to check"),
+		cmdkit.StringOption(checkOptionName, "The hash value for check"),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
+		acc := req.Options[accountOptionName]
+		if acc == nil {
+			return errors.New("must set option account.")
+		}
+		account := acc.(string)
+
+		h := req.Options[checkOptionName]
+		if h == nil {
+			return errors.New("must set option check.")
+		}
+		check := h.(string)
+
 		node, err := cmdenv.GetNode(env)
 		if err != nil {
 			return err
+		}
+
+		cfg, _ := node.Repo.Config()
+		var size uint64
+		if !cfg.UOSCheck.Disable {
+			size, err = ValidOnUOS(&cfg.UOSCheck, account, check)
+			if err != nil {
+				return errors.Wrap(err, "valid failed")
+			}
 		}
 
 		// Must be online!
@@ -183,12 +206,46 @@ Push do the same thing like command add first (but with default not pin). Then d
 								}()
 							}
 
-							// do backup
 							c, err := cid.Parse(ar.Hash)
 							if err != nil {
-								backupErr = errors.Wrap(err, "backup failed")
+								backupErr = errors.Wrapf(err, "parse hash %s to cid failed", ar.Hash)
 								return
 							}
+
+							if !cfg.UOSCheck.Disable {
+								// check size
+
+								s, _ := strconv.ParseUint(ar.Size, 10, 64)
+								if size*1024 < s {
+									// remove the content
+									err = corerepo.Remove(node, req.Context, []cid.Cid{c}, true, false)
+									if err != nil {
+										err = errors.Wrap(err, "unpin the content failed")
+										return
+									}
+
+									err = errors.New("the content size not matched on uos")
+									return
+								}
+
+								// check hash
+								if c.String() != check {
+
+									// remove the content
+									err = corerepo.Remove(node, req.Context, []cid.Cid{c}, true, false)
+									if err != nil {
+										err = errors.Wrap(err, "unpin the content failed")
+										return
+									}
+
+									err = errors.New("the content hash not matched on uos")
+									return
+								}
+							}
+
+							log.Debug(("add success, ready to push"))
+
+							// do backup
 							backupOutput, err := backupFunc(node, c)
 
 							if err != nil {

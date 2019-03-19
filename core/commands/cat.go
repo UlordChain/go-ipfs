@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
 	"io"
 	"os"
 	"time"
@@ -32,11 +33,28 @@ var CatCmd = &cmds.Command{
 	Options: []cmdkit.Option{
 		cmdkit.Int64Option(offsetOptionName, "o", "Byte offset to begin reading from."),
 		cmdkit.Int64Option(lengthOptionName, "l", "Maximum number of bytes to read."),
+		cmdkit.StringOption(accountOptionName, "Account of user to check"),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
+		acc := req.Options[accountOptionName]
+		if acc == nil {
+			return errors.New("must set option account.")
+		}
+		account := acc.(string)
+
+		check := req.Arguments[0]
+
 		node, err := cmdenv.GetNode(env)
 		if err != nil {
 			return err
+		}
+
+		cfg, _ := node.Repo.Config()
+		if !cfg.UOSCheck.Disable {
+			_, err = ValidOnUOS(&cfg.UOSCheck, account, check)
+			if err != nil {
+				return errors.Wrap(err, "valid failed")
+			}
 		}
 
 		api, err := cmdenv.GetApi(env)

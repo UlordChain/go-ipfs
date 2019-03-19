@@ -2,6 +2,10 @@ package commands
 
 import (
 	"fmt"
+	"github.com/ipfs/go-ipfs/core/corerepo"
+	"github.com/pkg/errors"
+	"gx/ipfs/QmPSQnBKM9g7BaUcZCvswUJVscQ1ipjmwxN5PXCjkp9EQ7/go-cid"
+	"gx/ipfs/QmR7TcHkR9nxkUorfi8XMTAMLUK7GiP64TWWBzY3aacc1o/go-ipld-format"
 	"io"
 	"os"
 	"strings"
@@ -39,6 +43,8 @@ const (
 	hashOptionName        = "hash"
 	inlineOptionName      = "inline"
 	inlineLimitOptionName = "inline-limit"
+	accountOptionName     = "account"
+	checkOptionName       = "check"
 )
 
 const adderOutChanSize = 8
@@ -118,6 +124,8 @@ You can now check what blocks have been created by:
 		cmdkit.StringOption(hashOptionName, "Hash function to use. Implies CIDv1 if not sha2-256. (experimental)").WithDefault("sha2-256"),
 		cmdkit.BoolOption(inlineOptionName, "Inline small blocks into CIDs. (experimental)"),
 		cmdkit.IntOption(inlineLimitOptionName, "Maximum block size to inline. (experimental)").WithDefault(32),
+		cmdkit.StringOption(accountOptionName, "Account of user to check"),
+		cmdkit.StringOption(checkOptionName, "The hash value for check"),
 	},
 	PreRun: func(req *cmds.Request, env cmds.Environment) error {
 		quiet, _ := req.Options[quietOptionName].(bool)
@@ -139,6 +147,32 @@ You can now check what blocks have been created by:
 		return nil
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
+		acc := req.Options[accountOptionName]
+		if acc == nil {
+			return errors.New("must set option account.")
+		}
+		account := acc.(string)
+
+		h := req.Options[checkOptionName]
+		if h == nil {
+			return errors.New("must set option check.")
+		}
+		check := h.(string)
+
+		node, err := cmdenv.GetNode(env)
+		if err != nil {
+			return err
+		}
+
+		cfg, _ := node.Repo.Config()
+		var size uint64
+		if !cfg.UOSCheck.Disable {
+			size, err = ValidOnUOS(&cfg.UOSCheck, account, check)
+			if err != nil {
+				return errors.Wrap(err, "valid failed")
+			}
+		}
+
 		api, err := cmdenv.GetApi(env)
 		if err != nil {
 			return err
@@ -209,7 +243,48 @@ You can now check what blocks have been created by:
 			var err error
 			defer func() { errCh <- err }()
 			defer close(events)
-			_, err = api.Unixfs().Add(req.Context, req.Files, opts...)
+			var rp coreiface.ResolvedPath
+			rp, err = api.Unixfs().Add(req.Context, req.Files, opts...)
+			if err != nil {
+				return
+			}
+
+			if !cfg.UOSCheck.Disable {
+				var n format.Node
+				n, err = api.ResolveNode(req.Context, rp)
+				if err != nil {
+					return
+				}
+
+				// check size
+				validSize, _ := n.Size()
+				if size*1024 < validSize {
+					// remove the content
+					err = corerepo.Remove(node, req.Context, []cid.Cid{rp.Cid()}, true, false)
+					if err != nil {
+						err = errors.Wrap(err, "unpin the content failed")
+						return
+					}
+
+					err = errors.New("the content size not matched on uos")
+					return
+				}
+
+				// check hash
+				if rp.Cid().String() != check {
+
+					// remove the content
+					err = corerepo.Remove(node, req.Context, []cid.Cid{rp.Cid()}, true, false)
+					if err != nil {
+						err = errors.Wrap(err, "unpin the content failed")
+						return
+					}
+
+					err = errors.New("the content hash not matched on uos")
+					return
+				}
+			}
+
 		}()
 
 		err = res.Emit(events)

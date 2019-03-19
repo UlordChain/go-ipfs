@@ -25,9 +25,11 @@ var LogFormats = map[string]string{
 	"nocolor": "%{time:2006-01-02 15:04:05.000000} %{level} %{module} %{shortfile}: %{message}",
 	"color": ansiGray + "%{time:15:04:05.000} %{color}%{level:5.5s} " + ansiBlue +
 		"%{module:10.10s}: %{color:reset}%{message} " + ansiGray + "%{shortfile}%{color:reset}",
+	"default": ansiGray + "%{time:2006-01-02 15:04:05.000} %{color}%{level:5.5s} " + ansiBlue +
+		"%{module:10.10s}: %{color:reset}%{message} " + ansiGray + "%{shortfile}%{color:reset}",
 }
 
-var defaultLogFormat = "color"
+var defaultLogFormat = "default"
 
 // Logging environment variables
 const (

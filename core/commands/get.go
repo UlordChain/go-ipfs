@@ -3,7 +3,6 @@ package commands
 import (
 	"compress/gzip"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -11,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	core "github.com/ipfs/go-ipfs/core"
 	cmdenv "github.com/ipfs/go-ipfs/core/commands/cmdenv"
 	e "github.com/ipfs/go-ipfs/core/commands/e"
@@ -57,12 +57,21 @@ may also specify the level of compression by specifying '-l=<1-9>'.
 		cmdkit.BoolOption(archiveOptionName, "a", "Output a TAR archive."),
 		cmdkit.BoolOption(compressOptionName, "C", "Compress the output with GZIP compression."),
 		cmdkit.IntOption(compressionLevelOptionName, "l", "The level of compression (1-9)."),
+		cmdkit.StringOption(accountOptionName, "Account of user to check"),
 	},
 	PreRun: func(req *cmds.Request, env cmds.Environment) error {
 		_, err := getCompressOptions(req)
 		return err
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
+		acc := req.Options[accountOptionName]
+		if acc == nil {
+			return errors.New("must set option account.")
+		}
+		account := acc.(string)
+
+		check := req.Arguments[0]
+
 		cmplvl, err := getCompressOptions(req)
 		if err != nil {
 			return err
@@ -72,6 +81,15 @@ may also specify the level of compression by specifying '-l=<1-9>'.
 		if err != nil {
 			return err
 		}
+
+		cfg, _ := node.Repo.Config()
+		if !cfg.UOSCheck.Disable {
+			_, err = ValidOnUOS(&cfg.UOSCheck, account, check)
+			if err != nil {
+				return errors.Wrap(err, "valid failed")
+			}
+		}
+
 		p := path.Path(req.Arguments[0])
 		ctx, _ := context.WithTimeout(req.Context, 2*time.Minute)
 		dn, err := core.Resolve(ctx, node.Namesys, node.Resolver, p)

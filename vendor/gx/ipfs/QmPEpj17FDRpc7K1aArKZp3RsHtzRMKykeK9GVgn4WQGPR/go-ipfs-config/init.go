@@ -94,6 +94,9 @@ func Init(out io.Writer, nBitsForKeypair int) (*Config, error) {
 			ServerPubkeys: []*VersionPubkey{},
 		},
 		Report: defaultReportInfo,
+		UOSCheck: UOSCheck{
+			Disable:true,
+		},
 	}
 
 	return conf, nil

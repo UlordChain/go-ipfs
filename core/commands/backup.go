@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strings"
 	"sync"
 	"time"
 
@@ -38,12 +39,33 @@ var BackupCmd = &commands.Command{
 	Arguments: []cmdkit.Argument{
 		cmdkit.StringArg("ipfs-path", true, false, "Path to object(s) to be pinned.").EnableStdin(),
 	},
+	Options: []cmdkit.Option{
+		cmdkit.StringOption(accountOptionName, "Account of user to check"),
+	},
 	Run: func(req commands.Request, res commands.Response) {
+		acc := req.Options()[accountOptionName]
+		if acc == nil {
+			res.SetError(errors.New("must set option account."), cmdkit.ErrNormal)
+			return
+		}
+		account := acc.(string)
+		check := req.StringArguments()[0]
+
 		n, err := req.InvocContext().GetNode()
 		if err != nil {
 			res.SetError(err, cmdkit.ErrNormal)
 			return
 		}
+
+		cfg, _ := n.Repo.Config()
+		if !cfg.UOSCheck.Disable {
+			_, err = ValidOnUOS(&cfg.UOSCheck, account, check)
+			if err != nil {
+				res.SetError(errors.Wrap(err, "valid failed"), cmdkit.ErrNormal)
+				return
+			}
+		}
+
 
 		if n.Routing == nil {
 			res.SetError(ErrNotOnline, cmdkit.ErrNormal)
@@ -166,7 +188,7 @@ func doBackup(n *core.IpfsNode, id peer.ID, c cid.Cid) error {
 	}
 	defer s.Close()
 
-	// TODO: consider to use protobuf, now just direct send the cid
+	// TODO: consider to use protobuf, now just direct send the cid and account
 	_, err = s.Write([]byte(c.String() + "\n"))
 	if err != nil {
 		return err
@@ -227,12 +249,29 @@ func SetupBackupHandler(env cmds.Environment) {
 			return
 		}
 
-		c, err := cid.Decode(bs[:len(bs)-1])
+		n := strings.Index(bs, ",")
+		if n == -1 {
+			errRet = errors.Wrap(err, "backup-handler read ',' failed")
+			return
+		}
+
+		account := bs[:n]
+
+		c, err := cid.Decode(bs[n+1 : len(bs)-1])
 		if err != nil {
 			errRet = errors.Wrap(err, "decode cid failed")
 			return
 		}
 		log.Debug("backup-handler cid=", c.String())
+
+		cfg, _ := node.Repo.Config()
+		if !cfg.UOSCheck.Disable {
+			_, err = ValidOnUOS(&cfg.UOSCheck, account, c.String())
+			if err != nil {
+				errRet = errors.Wrapf(err, "valid ipfs-hash for user=%s error", account)
+				return
+			}
+		}
 
 		// do pin add
 		defer node.Blockstore.PinLock().Unlock()
