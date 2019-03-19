@@ -374,8 +374,8 @@ Push do the same thing like command add first (but with default not pin). Then d
 			}
 
 			// do backup
-			backupOutput, err := backupFunc(n, c, req.Options[accountOptionName].(string))
-
+			//backupOutput, err := backupFunc(n, c, req.Options[accountOptionName].(string))
+			backupOutput, err := backupFunc(n, c)
 			if err != nil {
 				err = errors.Wrap(err, "backup failed:")
 				return
