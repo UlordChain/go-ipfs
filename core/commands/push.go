@@ -154,8 +154,8 @@ Push do the same thing like command add first (but with default not pin). Then d
 			opts = append(opts, options.Unixfs.Events(tempEvents))
 
 			var backupErr error
+			wg.Add(1)
 			go func(){
-				wg.Add(1)
 				defer wg.Done()
 
 				for e := range tempEvents{
