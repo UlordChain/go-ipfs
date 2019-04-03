@@ -1,14 +1,17 @@
 package commands
 
 import (
-	"bytes"
 	"fmt"
+	"github.com/ipfs/go-ipfs/core/commands/cmdenv"
+	"github.com/ipfs/go-ipfs/core/commands/sms"
 	"github.com/ipfs/go-ipfs/core/coreapi/interface"
-	"io"
+	"github.com/pkg/errors"
+	"gx/ipfs/QmT3rzed1ppXefourpmoZ7tyVQfsGPQZ1pHDngLmCvXxd3/go-path"
+	"os"
 
-	cmds "github.com/ipfs/go-ipfs/commands"
 	"github.com/ipfs/go-ipfs/core/commands/e"
 	"github.com/ipfs/go-ipfs/core/corerepo"
+	"gx/ipfs/QmSXUokcP4TJpFfqozT69AVAYRtzXVMUjzQVkYX41R9Svs/go-ipfs-cmds"
 
 	"gx/ipfs/QmPSQnBKM9g7BaUcZCvswUJVscQ1ipjmwxN5PXCjkp9EQ7/go-cid"
 	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
@@ -27,78 +30,85 @@ var LocalrmCmd = &cmds.Command{
 	Options: []cmdkit.Option{
 		cmdkit.BoolOption("recursive", "r", "Recursively unpin the object linked to by the specified object(s).").WithDefault(true),
 		cmdkit.BoolOption("clear", "", "Clear the cache from repo.").WithDefault(false),
+		cmdkit.StringOption(tokenOptionName, "The token value for verify"),
 	},
 	Type: PinOutput{},
-	Run: func(req cmds.Request, res cmds.Response) {
-		n, err := req.InvocContext().GetNode()
-		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
+		if len(req.Arguments) > 1 {
+			return errors.New("Do not allow multiple files to be remove once now")
 		}
 
-		api, err := req.InvocContext().GetApi()
+		// verify token
+		tokenInf := req.Options[tokenOptionName]
+		if tokenInf == nil {
+			return errors.New("must set option token.")
+		}
+		token := tokenInf.(string)
+		p := path.Path(req.Arguments[0])
+
+		err := sms.Delete(token, p.String())
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
+		}
+
+		node, err := cmdenv.GetNode(env)
+		if err != nil {
+			return err
+		}
+
+		api, err := cmdenv.GetApi(env)
+		if err != nil {
+			return err
 		}
 
 		// set recursive flag
-		recursive, _, err := req.Option("recursive").Bool()
-		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
-		}
+		recursive, _ := req.Options["recursive"].(bool)
 
-
-		args := req.Arguments()
+		args := req.Arguments
 		cids := make([]cid.Cid, len(args))
 		for i, a := range args {
 			pth, err := iface.ParsePath(a)
 			if err != nil {
-				res.SetError(err, cmdkit.ErrNormal)
-				return
+				return err
 			}
 
-			c, err := api.ResolvePath(req.Context(), pth)
+			c, err := api.ResolvePath(req.Context, pth)
 			if err != nil {
-				res.SetError(err, cmdkit.ErrNormal)
-				return
+				return err
 			}
 
 			cids[i] = c.Cid()
 		}
 
-		removed, err := corerepo.Unpin(n, api, req.Context(), req.Arguments(), recursive)
+		removed, err := corerepo.Unpin(node, api, req.Context, req.Arguments, recursive)
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 
-		err = corerepo.Remove(n, req.Context(), removed, recursive, false)
+		err = corerepo.Remove(node, req.Context, removed, recursive, false)
 		if err != nil {
-			res.SetError(err, cmdkit.ErrNormal)
-			return
+			return err
 		}
 
-		res.SetOutput(&PinOutput{cidsToStrings(removed)})
+		res.Emit(&PinOutput{cidsToStrings(removed)})
+		return nil
 	},
-	Marshalers: cmds.MarshalerMap{
-		cmds.Text: func(res cmds.Response) (io.Reader, error) {
-			v, err := unwrapOutput(res.Output())
+	PostRun: cmds.PostRunMap{
+		cmds.CLI: func(res cmds.Response, re cmds.ResponseEmitter) error {
+			v, err := res.Next()
 			if err != nil {
-				return nil, err
+				return err
 			}
 
 			added, ok := v.(*PinOutput)
 			if !ok {
-				return nil, e.TypeErr(added, v)
+				return e.New(e.TypeErr(added, v))
 			}
 
-			buf := new(bytes.Buffer)
 			for _, k := range added.Pins {
-				fmt.Fprintf(buf, "unpinned %s\n", k)
+				fmt.Fprintf(os.Stdout, "unpinned %s\n", k)
 			}
-			return buf, nil
+			return nil
 		},
 	},
 }

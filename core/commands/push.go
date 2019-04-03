@@ -9,10 +9,12 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/ipfs/go-ipfs/core/commands/cmdenv"
+	"github.com/ipfs/go-ipfs/core/commands/sms"
 	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
 	"github.com/ipfs/go-ipfs/core/coreapi/interface/options"
 	"github.com/ipfs/go-ipfs/core/corerepo"
 	"gx/ipfs/QmPSQnBKM9g7BaUcZCvswUJVscQ1ipjmwxN5PXCjkp9EQ7/go-cid"
+	"gx/ipfs/QmR7TcHkR9nxkUorfi8XMTAMLUK7GiP64TWWBzY3aacc1o/go-ipld-format"
 	"io"
 	"os"
 	"os/exec"
@@ -66,8 +68,24 @@ Push do the same thing like command add first (but with default not pin). Then d
 		cmdkit.IntOption(inlineLimitOptionName, "Maximum block size to inline. (experimental)").WithDefault(32),
 		cmdkit.StringOption(accountOptionName, "Account of user to check"),
 		cmdkit.StringOption(checkOptionName, "The hash value for check"),
+		cmdkit.StringOption(tokenOptionName, "The token value for verify"),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
+		if len(req.Arguments) > 1 {
+			return errors.New("Do not allow multiple files to be push now")
+		}
+
+		// verify token
+		tokenInf := req.Options[tokenOptionName]
+		if tokenInf == nil {
+			return errors.New("must set option token.")
+		}
+		token := tokenInf.(string)
+		err := sms.CheckAdd(token, req.RawRequest.ContentLength)
+		if err != nil {
+			return err
+		}
+
 		node, err := cmdenv.GetNode(env)
 		if err != nil {
 			return err
@@ -141,7 +159,7 @@ Push do the same thing like command add first (but with default not pin). Then d
 
 			options.Unixfs.Chunker(chunker),
 
-			options.Unixfs.Pin(true),
+			options.Unixfs.Pin(dopin),
 			options.Unixfs.HashOnly(hash),
 			options.Unixfs.Local(local),
 			options.Unixfs.FsCache(fscache),
@@ -153,7 +171,7 @@ Push do the same thing like command add first (but with default not pin). Then d
 
 			options.Unixfs.Progress(progress),
 			options.Unixfs.Silent(silent),
-			//options.Unixfs.Events(events),
+			options.Unixfs.Events(events),
 		}
 
 		if cidVerSet {
@@ -168,111 +186,72 @@ Push do the same thing like command add first (but with default not pin). Then d
 			opts = append(opts, options.Unixfs.Layout(options.TrickleLayout))
 		}
 
-		needUnpin := !dopin
 		errCh := make(chan error)
 		go func() {
 			var err error
 			defer func() { errCh <- err }()
 			defer close(events)
+			var rp coreiface.ResolvedPath
+			rp, err = api.Unixfs().Add(req.Context, req.Files, opts...)
+			if err != nil {
+				return
+			}
 
+			defer func(){
+				if err != nil {
+					// remove the content
+					if dopin {
+						_, e := corerepo.Unpin(node, api, req.Context, []string{rp.Cid().String()}, true)
+						if e != nil {
+							e = errors.Wrap(e, "unpin the content failed")
+							log.Error(e)
+							return
+						}
+					}
 
-			wg := sync.WaitGroup{}
-			tempEvents := make(chan interface{}, adderOutChanSize)
-			opts = append(opts, options.Unixfs.Events(tempEvents))
-
-			var backupErr error
-			wg.Add(1)
-			go func(){
-				defer wg.Done()
-
-				for e := range tempEvents{
-					if addevent, ok := e.(*coreiface.AddEvent); !ok {
-						events <- e
-					}else if backupErr == nil {
-
-						wg.Add(1)
-						go func(ar *coreiface.AddEvent){
-							defer wg.Done()
-
-							if needUnpin {
-								PushRecorder.Write(ar.Hash, "1")
-								defer func() {
-									_, e := corerepo.Unpin(node, api, req.Context, []string{ar.Hash}, true)
-									if e != nil {
-										if err != nil {
-											log.Warning(err.Error() + "(unpin failed" + e.Error() + ")")
-										} else {
-											log.Warning("unpin failed: "+ e.Error())
-										}
-									} else {
-										PushRecorder.Write(ar.Hash, "-1")
-									}
-								}()
-							}
-
-							c, err := cid.Parse(ar.Hash)
-							if err != nil {
-								backupErr = errors.Wrapf(err, "parse hash %s to cid failed", ar.Hash)
-								return
-							}
-
-							if cfg.UOSCheck.Enable {
-								// check size
-
-								s, _ := strconv.ParseUint(ar.Size, 10, 64)
-								if size*1024 < s {
-									// remove the content
-									err = corerepo.Remove(node, req.Context, []cid.Cid{c}, true, false)
-									if err != nil {
-										err = errors.Wrap(err, "unpin the content failed")
-										return
-									}
-
-									err = errors.New("the content size not matched on uos")
-									return
-								}
-
-								// check hash
-								if c.String() != check {
-
-									// remove the content
-									err = corerepo.Remove(node, req.Context, []cid.Cid{c}, true, false)
-									if err != nil {
-										err = errors.Wrap(err, "unpin the content failed")
-										return
-									}
-
-									err = errors.New("the content hash not matched on uos")
-									return
-								}
-							}
-
-							log.Debug(("add success, ready to push"))
-
-							// do backup
-							backupOutput, err := backupFunc(node, c)
-
-							if err != nil {
-								backupErr = errors.Wrap(err, "backup failed")
-								return
-							}
-
-							ar.Extend = backupOutput
-							events <- ar
-
-						}(addevent)
+					e := corerepo.Remove(node, req.Context, []cid.Cid{rp.Cid()}, true, false)
+					if e != nil {
+						e = errors.Wrap(e, "remove the content failed")
+						log.Error(e)
+						return
 					}
 				}
 			}()
 
-			_, err = api.Unixfs().Add(req.Context, req.Files, opts...)
+			var n format.Node
+			n, err = api.ResolveNode(req.Context, rp)
 			if err != nil {
 				return
 			}
-			close(tempEvents)
+			validSize, _ := n.Size()
 
-			wg.Wait()
-			err = backupErr
+			if cfg.UOSCheck.Enable {
+				// check size
+				if size*1024 < validSize {
+					err = errors.New("the content size not matched on uos")
+					return
+				}
+
+				// check hash
+				if rp.Cid().String() != check {
+					err = errors.New("the content hash not matched on uos")
+					return
+				}
+			}
+
+			err = sms.FinishAdd(token, validSize, rp.Cid().String())
+			if err != nil {
+				return
+			}
+
+			log.Debug("add success, ready to push")
+
+			// do backup
+			_, backupErr := backupFunc(node, rp.Cid())
+			if backupErr != nil {
+				// TODO: log to database
+				log.Error("backup failed: ", err.Error())
+			}
 		}()
 
 		err = res.Emit(events)

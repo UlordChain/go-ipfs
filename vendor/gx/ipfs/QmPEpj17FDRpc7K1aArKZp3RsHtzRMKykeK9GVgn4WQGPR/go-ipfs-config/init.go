@@ -26,7 +26,17 @@ func Init(out io.Writer, nBitsForKeypair int) (*Config, error) {
 
 	conf := &Config{
 		API: API{
-			HTTPHeaders: map[string][]string{},
+			HTTPHeaders: map[string][]string{
+				"Access-Control-Allow-Methods": {
+					"PUT",
+					"GET",
+					"POST",
+					"OPTIONS",
+				},
+				"Access-Control-Allow-Origin": {
+					"*",
+				},
+			},
 		},
 
 		// setup the node's default addresses.

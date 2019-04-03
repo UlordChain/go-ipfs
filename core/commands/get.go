@@ -4,6 +4,7 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
+	"github.com/ipfs/go-ipfs/core/commands/sms"
 	"io"
 	"os"
 	"path/filepath"
@@ -58,12 +59,30 @@ may also specify the level of compression by specifying '-l=<1-9>'.
 		cmdkit.BoolOption(compressOptionName, "C", "Compress the output with GZIP compression."),
 		cmdkit.IntOption(compressionLevelOptionName, "l", "The level of compression (1-9)."),
 		cmdkit.StringOption(accountOptionName, "Account of user to check"),
+		cmdkit.StringOption(tokenOptionName, "The token value for verify"),
 	},
 	PreRun: func(req *cmds.Request, env cmds.Environment) error {
 		_, err := getCompressOptions(req)
 		return err
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
+		if len(req.Arguments) > 1 {
+			return errors.New("Do not allow multiple files to be got now")
+		}
+
+		// verify token
+		tokenInf := req.Options[tokenOptionName]
+		if tokenInf == nil {
+			return errors.New("must set option token.")
+		}
+		token := tokenInf.(string)
+		p := path.Path(req.Arguments[0])
+
+		err := sms.Get(token, p.String())
+		if err != nil {
+			return err
+		}
+
 		cmplvl, err := getCompressOptions(req)
 		if err != nil {
 			return err
@@ -93,7 +112,6 @@ may also specify the level of compression by specifying '-l=<1-9>'.
 			}
 		}
 
-		p := path.Path(req.Arguments[0])
 		ctx, _ := context.WithTimeout(req.Context, 2*time.Minute)
 		dn, err := core.Resolve(ctx, node.Namesys, node.Resolver, p)
 		if err != nil {

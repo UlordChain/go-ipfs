@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"github.com/ipfs/go-ipfs/core/commands/sms"
 	"github.com/ipfs/go-ipfs/core/corerepo"
 	"github.com/pkg/errors"
 	"gx/ipfs/QmPSQnBKM9g7BaUcZCvswUJVscQ1ipjmwxN5PXCjkp9EQ7/go-cid"
@@ -45,6 +46,7 @@ const (
 	inlineLimitOptionName = "inline-limit"
 	accountOptionName     = "account"
 	checkOptionName       = "check"
+	tokenOptionName = "token"
 )
 
 const adderOutChanSize = 8
@@ -126,6 +128,7 @@ You can now check what blocks have been created by:
 		cmdkit.IntOption(inlineLimitOptionName, "Maximum block size to inline. (experimental)").WithDefault(32),
 		cmdkit.StringOption(accountOptionName, "Account of user to check"),
 		cmdkit.StringOption(checkOptionName, "The hash value for check"),
+		cmdkit.StringOption(tokenOptionName, "The token value for verify"),
 	},
 	PreRun: func(req *cmds.Request, env cmds.Environment) error {
 		quiet, _ := req.Options[quietOptionName].(bool)
@@ -147,11 +150,25 @@ You can now check what blocks have been created by:
 		return nil
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
-		node, err := cmdenv.GetNode(env)
+		if len(req.Arguments) > 1 {
+			return errors.New("Do not allow multiple files to be added now")
+		}
+
+		// verify token
+		tokenInf := req.Options[tokenOptionName]
+		if tokenInf == nil {
+			return errors.New("must set option token.")
+		}
+		token := tokenInf.(string)
+		err := sms.CheckAdd(token, req.RawRequest.ContentLength)
 		if err != nil {
 			return err
 		}
 
+		node, err := cmdenv.GetNode(env)
+		if err != nil {
+			return err
+		}
 		cfg, _ := node.Repo.Config()
 		var(
 			account string
@@ -253,40 +270,52 @@ You can now check what blocks have been created by:
 				return
 			}
 
-			if cfg.UOSCheck.Enable {
-				var n format.Node
-				n, err = api.ResolveNode(req.Context, rp)
+			defer func(){
 				if err != nil {
-					return
-				}
 
-				// check size
-				validSize, _ := n.Size()
-				if size*1024 < validSize {
 					// remove the content
-					err = corerepo.Remove(node, req.Context, []cid.Cid{rp.Cid()}, true, false)
-					if err != nil {
-						err = errors.Wrap(err, "unpin the content failed")
-						return
+					if dopin {
+						_, e := corerepo.Unpin(node, api, req.Context, []string{rp.Cid().String()}, true)
+						if e != nil {
+							e = errors.Wrap(e, "unpin the content failed")
+							log.Error(e)
+							return
+						}
 					}
 
+					e := corerepo.Remove(node, req.Context, []cid.Cid{rp.Cid()}, true, false)
+					if e != nil {
+						e = errors.Wrap(e, "remove the content failed")
+						log.Error(e)
+						return
+					}
+				}
+			}()
+
+			var n format.Node
+			n, err = api.ResolveNode(req.Context, rp)
+			if err != nil {
+				return
+			}
+			validSize, _ := n.Size()
+
+			if cfg.UOSCheck.Enable {
+				// check size
+				if size*1024 < validSize {
 					err = errors.New("the content size not matched on uos")
 					return
 				}
 
 				// check hash
 				if rp.Cid().String() != check {
-
-					// remove the content
-					err = corerepo.Remove(node, req.Context, []cid.Cid{rp.Cid()}, true, false)
-					if err != nil {
-						err = errors.Wrap(err, "unpin the content failed")
-						return
-					}
-
 					err = errors.New("the content hash not matched on uos")
 					return
 				}
+			}
+
+			err = sms.FinishAdd(token, validSize, rp.Cid().String())
+			if err != nil {
+				return
 			}
 
 		}()
