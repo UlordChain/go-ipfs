@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
 	"io/ioutil"
 	"mime"
 	"net/http"
@@ -14,6 +15,13 @@ import (
 	"gx/ipfs/QmZMWMvWMVKCbHetJ4RgndbuEF1io2UpUxwQwtNjtYPzSC/go-ipfs-files"
 	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
 )
+
+var forbiddenCommandPathPrefix = []string{
+	"pin/rm",
+	"backup",
+	"ls",
+	"files",
+}
 
 // parseRequest parses the data in a http.Request and returns a command Request object
 func parseRequest(ctx context.Context, r *http.Request, root *cmds.Command) (*cmds.Request, error) {
@@ -27,6 +35,11 @@ func parseRequest(ctx context.Context, r *http.Request, root *cmds.Command) (*cm
 		getPath    = pth[:len(pth)-1]
 	)
 
+	for _, fbd := range forbiddenCommandPathPrefix {
+		if strings.HasPrefix(r.URL.Path, fbd) {
+			return nil, errors.New("403 forbidden")
+		}
+	}
 	cmd, err := root.Get(getPath)
 	if err != nil {
 		// 404 if there is no command at that path

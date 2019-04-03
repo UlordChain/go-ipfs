@@ -3,7 +3,9 @@ package commands
 import (
 	"context"
 	"fmt"
+	"github.com/ipfs/go-ipfs/core/commands/sms"
 	"github.com/pkg/errors"
+	"gx/ipfs/QmT3rzed1ppXefourpmoZ7tyVQfsGPQZ1pHDngLmCvXxd3/go-path"
 	"io"
 	"os"
 	"time"
@@ -34,8 +36,26 @@ var CatCmd = &cmds.Command{
 		cmdkit.Int64Option(offsetOptionName, "o", "Byte offset to begin reading from."),
 		cmdkit.Int64Option(lengthOptionName, "l", "Maximum number of bytes to read."),
 		cmdkit.StringOption(accountOptionName, "Account of user to check"),
+		cmdkit.StringOption(tokenOptionName, "The token value for verify"),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
+		if len(req.Arguments) > 1 {
+			return errors.New("Do not allow multiple files to be got now")
+		}
+
+		// verify token
+		tokenInf := req.Options[tokenOptionName]
+		if tokenInf == nil {
+			return errors.New("must set option token.")
+		}
+		token := tokenInf.(string)
+		p := path.Path(req.Arguments[0])
+
+		err := sms.Get(token, p.String())
+		if err != nil {
+			return err
+		}
+
 		node, err := cmdenv.GetNode(env)
 		if err != nil {
 			return err
