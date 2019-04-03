@@ -58,7 +58,7 @@ Push do the same thing like command add first (but with default not pin). Then d
 		cmdkit.StringOption(stdinPathName, "Assign a name if the file source is stdin."),
 		cmdkit.BoolOption(hiddenOptionName, "H", "Include files that are hidden. Only takes effect on recursive add."),
 		cmdkit.StringOption(chunkerOptionName, "s", "Chunking algorithm, size-[bytes] or rabin-[min]-[avg]-[max]").WithDefault("size-262144"),
-		cmdkit.BoolOption(pinOptionName, "Pin this object when pushing.").WithDefault(false),
+		cmdkit.BoolOption(pinOptionName, "Pin this object when adding.").WithDefault(true),
 		cmdkit.BoolOption(rawLeavesOptionName, "Use raw blocks for leaf nodes. (experimental)"),
 		cmdkit.BoolOption(noCopyOptionName, "Add the file using filestore. Implies raw-leaves. (experimental)"),
 		cmdkit.BoolOption(fstoreCacheOptionName, "Check the filestore for pre-existing blocks. (experimental)"),
@@ -70,9 +70,28 @@ Push do the same thing like command add first (but with default not pin). Then d
 		cmdkit.StringOption(checkOptionName, "The hash value for check"),
 		cmdkit.StringOption(tokenOptionName, "The token value for verify"),
 	},
+	PreRun: func(req *cmds.Request, env cmds.Environment) error {
+		quiet, _ := req.Options[quietOptionName].(bool)
+		quieter, _ := req.Options[quieterOptionName].(bool)
+		quiet = quiet || quieter
+
+		silent, _ := req.Options[silentOptionName].(bool)
+
+		if quiet || silent {
+			return nil
+		}
+
+		// ipfs cli progress bar defaults to true unless quiet or silent is used
+		_, found := req.Options[progressOptionName].(bool)
+		if !found {
+			req.Options[progressOptionName] = true
+		}
+
+		return nil
+	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		if len(req.Arguments) > 1 {
-			return errors.New("Do not allow multiple files to be push now")
+			return errors.New("Do not allow multiple files to be added now")
 		}
 
 		// verify token
@@ -90,7 +109,6 @@ Push do the same thing like command add first (but with default not pin). Then d
 		if err != nil {
 			return err
 		}
-
 		cfg, _ := node.Repo.Config()
 		var(
 			account string
@@ -114,11 +132,6 @@ Push do the same thing like command add first (but with default not pin). Then d
 			if err != nil {
 				return errors.Wrap(err, "valid failed")
 			}
-		}
-
-		// Must be online!
-		if !node.OnlineMode() {
-			return cmdkit.Errorf(cmdkit.ErrClient, ErrNotOnline.Error())
 		}
 
 		api, err := cmdenv.GetApi(env)
@@ -199,6 +212,7 @@ Push do the same thing like command add first (but with default not pin). Then d
 
 			defer func(){
 				if err != nil {
+
 					// remove the content
 					if dopin {
 						_, e := corerepo.Unpin(node, api, req.Context, []string{rp.Cid().String()}, true)
@@ -250,7 +264,7 @@ Push do the same thing like command add first (but with default not pin). Then d
 			_, backupErr := backupFunc(node, rp.Cid())
 			if backupErr != nil {
 				// TODO: log to database
-				log.Error("backup failed: ", err.Error())
+				log.Errorf("backup failed: %v", backupErr.Error())
 			}
 		}()
 
@@ -337,14 +351,6 @@ Push do the same thing like command add first (but with default not pin). Then d
 								fmt.Fprintf(os.Stdout, "added %s %s\n", output.Hash, output.Name)
 							}
 
-							if output.Extend != nil {
-								for _, s := range output.Extend.Success {
-									fmt.Fprintf(os.Stdout, "backup success to %s\n", s.ID)
-								}
-								for _, f := range output.Extend.Failed {
-									fmt.Fprintf(os.Stdout, "backup failed to %s : %s\n", f.ID, f.Msg)
-								}
-							}
 						} else {
 							if !progress {
 								continue
@@ -410,6 +416,7 @@ Push do the same thing like command add first (but with default not pin). Then d
 	},
 	Type: coreiface.AddEvent{},
 }
+
 
 type pushRecord struct {
 	filename string

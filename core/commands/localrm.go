@@ -8,11 +8,11 @@ import (
 	"github.com/pkg/errors"
 	"gx/ipfs/QmT3rzed1ppXefourpmoZ7tyVQfsGPQZ1pHDngLmCvXxd3/go-path"
 	"os"
+	"strings"
 
 	"github.com/ipfs/go-ipfs/core/commands/e"
 	"github.com/ipfs/go-ipfs/core/corerepo"
 	"gx/ipfs/QmSXUokcP4TJpFfqozT69AVAYRtzXVMUjzQVkYX41R9Svs/go-ipfs-cmds"
-
 	"gx/ipfs/QmPSQnBKM9g7BaUcZCvswUJVscQ1ipjmwxN5PXCjkp9EQ7/go-cid"
 	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
 )
@@ -29,7 +29,7 @@ var LocalrmCmd = &cmds.Command{
 	},
 	Options: []cmdkit.Option{
 		cmdkit.BoolOption("recursive", "r", "Recursively unpin the object linked to by the specified object(s).").WithDefault(true),
-		cmdkit.BoolOption("clear", "", "Clear the cache from repo.").WithDefault(false),
+		//cmdkit.BoolOption("clear", "", "Clear the cache from repo.").WithDefault(false),
 		cmdkit.StringOption(tokenOptionName, "The token value for verify"),
 	},
 	Type: PinOutput{},
@@ -80,17 +80,17 @@ var LocalrmCmd = &cmds.Command{
 			cids[i] = c.Cid()
 		}
 
-		removed, err := corerepo.Unpin(node, api, req.Context, req.Arguments, recursive)
+		err = corerepo.Remove(node, req.Context, cids, recursive, false)
 		if err != nil {
 			return err
 		}
 
-		err = corerepo.Remove(node, req.Context, removed, recursive, false)
-		if err != nil {
+		_, err = corerepo.Unpin(node, api, req.Context, req.Arguments, recursive)
+		if err != nil && !strings.Contains(err.Error(), "not pinned"){
 			return err
 		}
 
-		res.Emit(&PinOutput{cidsToStrings(removed)})
+		res.Emit(&PinOutput{cidsToStrings(cids)})
 		return nil
 	},
 	PostRun: cmds.PostRunMap{
@@ -106,7 +106,7 @@ var LocalrmCmd = &cmds.Command{
 			}
 
 			for _, k := range added.Pins {
-				fmt.Fprintf(os.Stdout, "unpinned %s\n", k)
+				fmt.Fprintf(os.Stdout, "removed %s\n", k)
 			}
 			return nil
 		},

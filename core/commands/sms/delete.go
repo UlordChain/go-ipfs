@@ -11,9 +11,9 @@ func Delete(token, hash string) (err error) {
 		return
 	}
 
-	url := fmt.Sprintf("%s/v%d/resource/delete/%s", SMSAddr, policy.Ver, hash)
+	url := fmt.Sprintf("%s/v%d/resource/%s", SMSAddr, policy.Ver, hash)
 
-	r, err :=http.NewRequest(http.MethodGet, url, nil)
+	r, err :=http.NewRequest(http.MethodDelete, url, nil)
 	if err != nil {
 		return
 	}

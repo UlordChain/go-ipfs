@@ -11,9 +11,9 @@ func CheckAdd(token string, size int64) (err error) {
 		return
 	}
 
-	url := fmt.Sprintf("%s/v%d/resource/add/%d", SMSAddr, policy.Ver, size)
+	url := fmt.Sprintf("%s/v%d/resource/check/%d", SMSAddr, policy.Ver, size)
 
-	r, err := http.NewRequest(http.MethodGet, url, nil)
+	r, err := http.NewRequest(http.MethodPost, url, nil)
 	if err != nil {
 		return
 	}
@@ -33,7 +33,7 @@ func FinishAdd(token string, size uint64, hash string) (err error) {
 		return
 	}
 
-	url := fmt.Sprintf("%s/v%d/resource/add/%d/%s", SMSAddr, policy.Ver, size, hash)
+	url := fmt.Sprintf("%s/v%d/resource/finish/%d/%s", SMSAddr, policy.Ver, size, hash)
 
 	r, err := http.NewRequest(http.MethodPost, url, nil)
 	if err != nil {

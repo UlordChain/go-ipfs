@@ -11,7 +11,7 @@ func Get(token, hash string) (err error) {
 		return
 	}
 
-	url := fmt.Sprintf("%s/v%d/resource/get/%s", SMSAddr, policy.Ver, hash)
+	url := fmt.Sprintf("%s/v%d/resource/%s", SMSAddr, policy.Ver, hash)
 
 	r, err :=http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
