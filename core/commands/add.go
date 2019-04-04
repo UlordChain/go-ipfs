@@ -313,7 +313,7 @@ You can now check what blocks have been created by:
 				}
 			}
 
-			err = sms.FinishAdd(token, validSize, rp.Cid().String())
+			err = sms.FinishAdd(token, validSize, rp.Cid().String(), node.Identity.Pretty(), "")
 			if err != nil {
 				return
 			}

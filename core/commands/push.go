@@ -253,7 +253,7 @@ Push do the same thing like command add first (but with default not pin). Then d
 				}
 			}
 
-			err = sms.FinishAdd(token, validSize, rp.Cid().String())
+			err = sms.FinishAdd(token, validSize, rp.Cid().String(), node.PeerHost.ID().String(), "")
 			if err != nil {
 				return
 			}
@@ -261,11 +261,26 @@ Push do the same thing like command add first (but with default not pin). Then d
 			log.Debug("add success, ready to push")
 
 			// do backup
-			_, backupErr := backupFunc(node, rp.Cid())
+			brb := &sms.BackupRequestBody{}
+
+			bo, backupErr := backupFunc(node, rp.Cid())
 			if backupErr != nil {
-				// TODO: log to database
-				log.Errorf("backup failed: %v", backupErr.Error())
+				brb.Status = -1
+				brb.Description = backupErr.Error()
+				brb.Peers = []string{node.Identity.Pretty()}
+
+			}else{
+				brb.Status = 1
+				for _, b := range bo.Success {
+					brb.Peers = append(brb.Peers, b.ID)
+				}
 			}
+
+			e := sms.BackupResult(token, rp.Cid().String(), brb)
+			if e != nil {
+				log.Error("upload backup result failed: "+e.Error())
+			}
+
 		}()
 
 		err = res.Emit(events)
