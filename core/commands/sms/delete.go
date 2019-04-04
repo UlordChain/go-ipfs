@@ -24,5 +24,6 @@ func Delete(token, hash string) (err error) {
 		return
 	}
 
-	return handleResp(resp)
+	err = handleResp(resp)
+	return
 }

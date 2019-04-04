@@ -1,25 +1,28 @@
 package commands
 
 import (
+	"context"
+	"crypto/md5"
 	"fmt"
 	"github.com/ipfs/go-ipfs/core/commands/sms"
 	"github.com/ipfs/go-ipfs/core/corerepo"
 	"github.com/pkg/errors"
 	"gx/ipfs/QmPSQnBKM9g7BaUcZCvswUJVscQ1ipjmwxN5PXCjkp9EQ7/go-cid"
-	"gx/ipfs/QmR7TcHkR9nxkUorfi8XMTAMLUK7GiP64TWWBzY3aacc1o/go-ipld-format"
 	"io"
+	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 
-	cmdenv "github.com/ipfs/go-ipfs/core/commands/cmdenv"
+	"github.com/ipfs/go-ipfs/core/commands/cmdenv"
 	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
-	options "github.com/ipfs/go-ipfs/core/coreapi/interface/options"
+	"github.com/ipfs/go-ipfs/core/coreapi/interface/options"
 
 	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
-	pb "gx/ipfs/QmPtj12fdwuAqj9sBSTNUxBNu8kCGNp8b3o8yUzMm5GHpq/pb"
-	cmds "gx/ipfs/QmSXUokcP4TJpFfqozT69AVAYRtzXVMUjzQVkYX41R9Svs/go-ipfs-cmds"
-	files "gx/ipfs/QmZMWMvWMVKCbHetJ4RgndbuEF1io2UpUxwQwtNjtYPzSC/go-ipfs-files"
-	cmdkit "gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
+	"gx/ipfs/QmPtj12fdwuAqj9sBSTNUxBNu8kCGNp8b3o8yUzMm5GHpq/pb"
+	"gx/ipfs/QmSXUokcP4TJpFfqozT69AVAYRtzXVMUjzQVkYX41R9Svs/go-ipfs-cmds"
+	"gx/ipfs/QmZMWMvWMVKCbHetJ4RgndbuEF1io2UpUxwQwtNjtYPzSC/go-ipfs-files"
+	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
 )
 
 // ErrDepthLimitExceeded indicates that the max depth has been exceeded.
@@ -292,12 +295,15 @@ You can now check what blocks have been created by:
 				}
 			}()
 
-			var n format.Node
-			n, err = api.ResolveNode(req.Context, rp)
+			tmCtx, _ := context.WithTimeout(req.Context, 2*time.Minute)
+			file, err := api.Unixfs().Get(tmCtx, rp)
 			if err != nil {
 				return
 			}
-			validSize, _ := n.Size()
+
+			vs, _ := file.Size()
+			validSize := uint64(vs)
+
 
 			if cfg.UOSCheck.Enable {
 				// check size
@@ -313,7 +319,9 @@ You can now check what blocks have been created by:
 				}
 			}
 
-			err = sms.FinishAdd(token, validSize, rp.Cid().String(), node.Identity.Pretty(), "")
+			bs, _ := ioutil.ReadAll(file)
+			d5 := md5.Sum(bs)
+			err = sms.FinishAdd(token, validSize, rp.Cid().String(), node.Identity.Pretty(), "", d5[:])
 			if err != nil {
 				return
 			}

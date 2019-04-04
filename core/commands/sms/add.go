@@ -2,6 +2,7 @@ package sms
 
 import (
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
@@ -36,10 +37,25 @@ type finishAddRequestBody struct {
 	FileName string
 }
 
+type addObj struct {
+	FileName string `json:"file_name"`
+	Md5      string `json:"md5"`
+}
 
-func FinishAdd(token string, size uint64, hash, peer, filename string) (err error) {
+func FinishAdd(token string, size uint64, hash, peer, filename string, d5 []byte) (err error) {
 	policy, err := parsePolicy(token)
 	if err != nil {
+		return
+	}
+
+	ao := &addObj{}
+	err = json.Unmarshal(policy.Ext, ao)
+	if err != nil {
+		err = errors.Wrap(err, "unmarshal add object failed")
+		return
+	}
+	if ao.Md5 != hex.EncodeToString(d5) {
+		err = errors.New("md5 verify failed")
 		return
 	}
 
@@ -65,7 +81,8 @@ func FinishAdd(token string, size uint64, hash, peer, filename string) (err erro
 		return
 	}
 
-	return handleResp(resp)
+	err = handleResp(resp)
+	return
 }
 
 type BackupRequestBody struct {
@@ -98,5 +115,6 @@ func BackupResult(token string, hash string, brb *BackupRequestBody) (err error)
 		return
 	}
 
-	return handleResp(resp)
+	err = handleResp(resp)
+	return
 }

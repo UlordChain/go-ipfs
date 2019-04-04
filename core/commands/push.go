@@ -6,6 +6,7 @@ package commands
 
 import (
 	"context"
+	"crypto/md5"
 	"encoding/csv"
 	"fmt"
 	"github.com/ipfs/go-ipfs/core/commands/cmdenv"
@@ -14,8 +15,8 @@ import (
 	"github.com/ipfs/go-ipfs/core/coreapi/interface/options"
 	"github.com/ipfs/go-ipfs/core/corerepo"
 	"gx/ipfs/QmPSQnBKM9g7BaUcZCvswUJVscQ1ipjmwxN5PXCjkp9EQ7/go-cid"
-	"gx/ipfs/QmR7TcHkR9nxkUorfi8XMTAMLUK7GiP64TWWBzY3aacc1o/go-ipld-format"
 	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -24,6 +25,7 @@ import (
 	"sync"
 	"syscall"
 	"github.com/pkg/errors"
+	"time"
 
 	mh "gx/ipfs/QmPnFwZ2JXKnXgMw8CdBPxn7FWh6LLdjUjxV1fKHuJnkr8/go-multihash"
 	"gx/ipfs/QmPtj12fdwuAqj9sBSTNUxBNu8kCGNp8b3o8yUzMm5GHpq/pb"
@@ -232,12 +234,15 @@ Push do the same thing like command add first (but with default not pin). Then d
 				}
 			}()
 
-			var n format.Node
-			n, err = api.ResolveNode(req.Context, rp)
+			tmCtx, _ := context.WithTimeout(req.Context, 2*time.Minute)
+			file, err := api.Unixfs().Get(tmCtx, rp)
 			if err != nil {
 				return
 			}
-			validSize, _ := n.Size()
+
+			vs, _ := file.Size()
+			validSize := uint64(vs)
+
 
 			if cfg.UOSCheck.Enable {
 				// check size
@@ -253,7 +258,9 @@ Push do the same thing like command add first (but with default not pin). Then d
 				}
 			}
 
-			err = sms.FinishAdd(token, validSize, rp.Cid().String(), node.PeerHost.ID().String(), "")
+			bs, _ := ioutil.ReadAll(file)
+			d5 := md5.Sum(bs)
+			err = sms.FinishAdd(token, validSize, rp.Cid().String(), node.PeerHost.ID().String(), "", d5[:])
 			if err != nil {
 				return
 			}
