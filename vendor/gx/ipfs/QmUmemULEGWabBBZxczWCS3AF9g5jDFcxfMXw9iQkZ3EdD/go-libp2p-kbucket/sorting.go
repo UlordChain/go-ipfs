@@ -4,7 +4,7 @@ import (
 	"container/list"
 	"sort"
 
-	peer "gx/ipfs/QmTRhk7cgjUf2gfQ3p2M9KPECNZEW9XUrmHcFCgog4cPgB/go-libp2p-peer"
+	"gx/ipfs/QmTRhk7cgjUf2gfQ3p2M9KPECNZEW9XUrmHcFCgog4cPgB/go-libp2p-peer"
 	pstore "gx/ipfs/QmTTJcDL3gsnGDALjh2fDGg1onGRUdVgNL2hU2WEZcVrMX/go-libp2p-peerstore"
 )
 
@@ -27,7 +27,7 @@ func (p peerSorterArr) Less(a, b int) bool {
 
 func copyPeersFromList(target ID, peerArr peerSorterArr, peerList *list.List) peerSorterArr {
 	if cap(peerArr) < len(peerArr)+peerList.Len() {
-		newArr := make(peerSorterArr, 0, len(peerArr)+peerList.Len())
+		newArr := make(peerSorterArr, len(peerArr), len(peerArr)+peerList.Len())
 		copy(newArr, peerArr)
 		peerArr = newArr
 	}
@@ -63,7 +63,7 @@ func SortClosestPeers(peers []peer.ID, target ID) []peer.ID {
 
 func copyMasterPeersFromList(peerstore pstore.Peerstore, target ID, peerArr peerSorterArr, peerList *list.List) peerSorterArr {
 	if cap(peerArr) < len(peerArr)+peerList.Len() {
-		newArr := make(peerSorterArr, 0, len(peerArr)+peerList.Len())
+		newArr := make(peerSorterArr, len(peerArr), len(peerArr)+peerList.Len())
 		copy(newArr, peerArr)
 		peerArr = newArr
 	}
