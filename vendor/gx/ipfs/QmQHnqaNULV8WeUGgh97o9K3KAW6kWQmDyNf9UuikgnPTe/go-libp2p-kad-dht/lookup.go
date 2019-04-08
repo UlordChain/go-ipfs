@@ -115,9 +115,9 @@ func (dht *IpfsDHT) GetClosestPeers(ctx context.Context, key string) (<-chan pee
 
 // Kademlia 'node lookup' operation. Returns a channel of the K closest peers
 // to the given key
-func (dht *IpfsDHT) GetClosestMasterPeers(ctx context.Context, key string) (<-chan peer.ID, error) {
+func (dht *IpfsDHT) GetClosestMasterPeers(ctx context.Context, key string, count int) (<-chan peer.ID, error) {
 	e := log.EventBegin(ctx, "getClosestMasterPeers", loggableKey(key))
-	tablepeers := dht.routingTable.NearestMasterPeers(dht.peerstore, kb.ConvertKey(key), AlphaValue)
+	tablepeers := dht.routingTable.NearestMasterPeers(kb.ConvertKey(key), count)
 	if len(tablepeers) == 0 {
 		return nil, kb.ErrLookupFailure
 	}
