@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	peer "gx/ipfs/QmTRhk7cgjUf2gfQ3p2M9KPECNZEW9XUrmHcFCgog4cPgB/go-libp2p-peer"
+	"gx/ipfs/QmTRhk7cgjUf2gfQ3p2M9KPECNZEW9XUrmHcFCgog4cPgB/go-libp2p-peer"
 	pstore "gx/ipfs/QmTTJcDL3gsnGDALjh2fDGg1onGRUdVgNL2hU2WEZcVrMX/go-libp2p-peerstore"
 	logging "gx/ipfs/QmZChCsSt8DctjceaL56Eibc29CVQq4dGKRXC5JRZ6Ppae/go-log"
 )
@@ -37,6 +37,8 @@ type RoutingTable struct {
 	// notification functions
 	PeerRemoved func(peer.ID)
 	PeerAdded   func(peer.ID)
+
+	peerstore pstore.Peerstore
 }
 
 // NewRoutingTable creates a new routing table with a given bucketsize, local ID, and latency tolerance.
@@ -50,6 +52,8 @@ func NewRoutingTable(bucketsize int, localID ID, latency time.Duration, m pstore
 		PeerRemoved: func(peer.ID) {},
 		PeerAdded:   func(peer.ID) {},
 	}
+
+	rt.peerstore, _ = m.(pstore.Peerstore)
 
 	return rt
 }
@@ -92,8 +96,12 @@ func (rt *RoutingTable) Update(p peer.ID) {
 		if bucketID == len(rt.Buckets)-1 {
 			rt.nextBucket()
 		} else {
-			// If the bucket cant split kick out least active node
-			rt.PeerRemoved(bucket.PopBack())
+			// skip up remove master node
+			back := bucket.PopBackWithNotMaster(rt.peerstore)
+			if back != "" {
+				// If the bucket cant split kick out least active node
+				rt.PeerRemoved(back)
+			}
 		}
 	}
 }
@@ -254,7 +262,7 @@ func (rt *RoutingTable) Write(w io.Writer) {
 }
 
 // NearestMasterPeers returns a list of the 'count' closest peers to the given ID
-func (rt *RoutingTable) NearestMasterPeers(peerstore pstore.Peerstore, id ID, count int) []peer.ID {
+func (rt *RoutingTable) NearestMasterPeers(id ID, count int) []peer.ID {
 	cpl := commonPrefixLen(id, rt.local)
 
 	rt.tabLock.RLock()
@@ -267,7 +275,7 @@ func (rt *RoutingTable) NearestMasterPeers(peerstore pstore.Peerstore, id ID, co
 	bucket = rt.Buckets[cpl]
 
 	peerArr := make(peerSorterArr, 0, count)
-	peerArr = copyMasterPeersFromList(peerstore, id, peerArr, bucket.list)
+	peerArr = copyMasterPeersFromList(rt.peerstore, id, peerArr, bucket.list)
 
 	if len(peerArr) < count {
 		prefix := cpl - 1
@@ -275,16 +283,16 @@ func (rt *RoutingTable) NearestMasterPeers(peerstore pstore.Peerstore, id ID, co
 		last := len(rt.Buckets) - 1
 
 		// copy from nearby peers until got enough or found all
-		for len(peerArr) < count && (prefix > 0 || suffix < last) {
+		for len(peerArr) < count && (prefix >= 0 || suffix <= last) {
 			// In the case of an unusual split, one bucket may be short or empty.
 			// if this happens, search both surrounding buckets for nearby peers
-			if prefix > 0 {
-				peerArr = copyMasterPeersFromList(peerstore, id, peerArr, rt.Buckets[prefix].list)
+			if prefix >= 0 {
+				peerArr = copyMasterPeersFromList(rt.peerstore, id, peerArr, rt.Buckets[prefix].list)
 				prefix--
 			}
 
-			if suffix < last {
-				peerArr = copyMasterPeersFromList(peerstore, id, peerArr, rt.Buckets[suffix].list)
+			if len(peerArr) < count && suffix <= last {
+				peerArr = copyMasterPeersFromList(rt.peerstore, id, peerArr, rt.Buckets[suffix].list)
 				suffix++
 			}
 		}

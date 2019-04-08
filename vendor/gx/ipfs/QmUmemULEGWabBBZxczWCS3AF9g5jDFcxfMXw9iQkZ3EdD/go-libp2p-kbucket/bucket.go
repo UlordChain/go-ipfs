@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	peer "gx/ipfs/QmTRhk7cgjUf2gfQ3p2M9KPECNZEW9XUrmHcFCgog4cPgB/go-libp2p-peer"
+	pstore "gx/ipfs/QmTTJcDL3gsnGDALjh2fDGg1onGRUdVgNL2hU2WEZcVrMX/go-libp2p-peerstore"
 )
 
 // Bucket holds a list of peers.
@@ -73,6 +74,25 @@ func (b *Bucket) PopBack() peer.ID {
 	last := b.list.Back()
 	b.list.Remove(last)
 	return last.Value.(peer.ID)
+}
+
+func (b *Bucket) PopBackWithNotMaster(peerstore pstore.Peerstore) peer.ID {
+	b.lk.Lock()
+	defer b.lk.Unlock()
+	last := b.list.Back()
+	for last != b.list.Front() {
+		p := last.Value.(peer.ID)
+		masterInf, _ := peerstore.Get(p, "master")
+		master, _ := masterInf.(bool)
+		if !master {
+			b.list.Remove(last)
+			return p
+		}
+
+		last = last.Prev()
+	}
+
+	return ""
 }
 
 func (b *Bucket) Len() int {
