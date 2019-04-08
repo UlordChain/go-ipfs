@@ -95,7 +95,7 @@ func backupFunc(n *core.IpfsNode, c cid.Cid) (*coreiface.BackupOutput, error) {
 	// get peers for backup
 	toctx, cancel := context.WithTimeout(n.Context(), timeoutForLookup)
 	defer cancel()
-	closestPeers, err := n.DHT.GetClosestMasterPeers(toctx, c.KeyString())
+	closestPeers, err := n.DHT.GetClosestMasterPeers(toctx, c.KeyString(), numberForBackup)
 	if err != nil {
 		return nil, errors.Wrap(err, "got closest master peers timeout")
 	}
