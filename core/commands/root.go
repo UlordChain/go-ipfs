@@ -156,6 +156,7 @@ var rootSubcommands = map[string]*cmds.Command{
 	"localrm":   LocalrmCmd,
 	"blacklist": BlacklistCmd,
 	"check":     CheckCmd,
+	"cache": CacheCmd,
 }
 
 // RootRO is the readonly version of Root

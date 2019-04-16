@@ -11,7 +11,7 @@ import (
 )
 
 const(
-	SMSAddr	= "http://localhost:9090"
+	SMSAddr	= "http://192.168.14.42:9090"
 )
 type policyObj struct{
 	Ver int
