@@ -11,7 +11,7 @@ func Cache(token, hash, peer string) (err error) {
 		return
 	}
 
-	url := fmt.Sprintf("%s/v%d/resource/cache/%s/%s", SMSAddr, policy.Ver, hash, peer)
+	url := fmt.Sprintf("%s/v%d/resource/cache/%s/%s", SMSAddr, policy.Ver, peer, hash)
 
 	r, err :=http.NewRequest(http.MethodPost, url, nil)
 	if err != nil {
