@@ -101,7 +101,7 @@ var CacheCmd = &cmds.Command{
 			return errors.Wrap(err, "get ipfs-path object failed")
 		}
 
-		err = sms.Cache(token, req.Arguments[1], pi.ID.Pretty())
+		err = sms.Cache(token, req.Arguments[1], node.Identity.Pretty())
 		if err != nil {
 			return errors.Wrap(err, "sms cache notify failed")
 		}

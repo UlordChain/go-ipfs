@@ -11,7 +11,7 @@ import (
 )
 
 const(
-	SMSAddr	= "http://192.168.14.42:9090"
+	SMSAddr	= "http://221.122.35.157:9090"
 )
 type policyObj struct{
 	Ver int
@@ -47,7 +47,7 @@ func parsePolicy(token string) (*policyObj, error) {
 	}
 
 	if time.Now().After(time.Unix(obj.Expired, 0)) {
-		return nil, errors.Wrap(err, "token have out of date")
+		return nil, errors.New("token have out of date")
 	}
 
 	return obj, nil
@@ -56,6 +56,11 @@ func parsePolicy(token string) (*policyObj, error) {
 
 func handleResp(resp *http.Response) error{
 	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		return errors.New("not found request uri")
+	}
+
 	body := &respBody{}
 	if resp.ContentLength > 0 {
 		bs, err := ioutil.ReadAll(resp.Body)
