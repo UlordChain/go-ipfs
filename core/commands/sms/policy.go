@@ -11,7 +11,7 @@ import (
 )
 
 const(
-	SMSAddr	= "http://221.122.35.157:9090"
+	SMSAddr	= "http://sms.udfs.one"
 )
 type policyObj struct{
 	Ver int
