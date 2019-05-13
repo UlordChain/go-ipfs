@@ -260,7 +260,7 @@ Push do the same thing like command add first (but with default not pin). Then d
 
 			bs, _ := ioutil.ReadAll(file)
 			d5 := md5.Sum(bs)
-			err = sms.FinishAdd(token, validSize, rp.Cid().String(), node.PeerHost.ID().String(), "", d5[:])
+			err = sms.FinishAdd(token, validSize, rp.Cid().String(), node.PeerHost.ID().Pretty(), "", d5[:])
 			if err != nil {
 				return
 			}
