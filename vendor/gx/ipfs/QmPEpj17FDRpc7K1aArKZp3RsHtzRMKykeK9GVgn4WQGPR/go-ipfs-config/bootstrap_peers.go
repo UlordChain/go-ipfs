@@ -17,12 +17,16 @@ import (
 // NOTE: This is here -- and not inside cmd/ipfs/init.go -- because of an
 // import dependency issue. TODO: move this into a config/default/ package.
 var DefaultBootstrapAddresses = []string{
-	"/dns4/bootstrap0.ulord.one/tcp/4001/ipfs/QmbETUnWes7zdwZkkMGgPRtpZAYpFPxrUrCYy7fWi7JjFY",
-	"/dns4/bootstrap1.ulord.one/tcp/4001/ipfs/QmUEBGtsPNLyngqfqTtGEnR5FBVn4Nkf2Zj7PvcuaYRKxA",
-	"/dns4/bootstrap2.ulord.one/tcp/4001/ipfs/QmWCL8zrsrqe2XibqKDEdgfbXZnLwtZRSK4Ww11nYi3oq4",
-	"/dns4/bootstrap3.ulord.one/tcp/4001/ipfs/QmRq3cTbMHwNXuWEULsqrKUAYbswZv9xQKDeyPyQSnf3yY",
-	"/dns4/bootstrap4.ulord.one/tcp/4001/ipfs/Qmb5ATRjRLBfhJYCS3WpuaYgbyviSPuh3H9p9oNgrq2m78",
-	"/dns4/bootstrap5.ulord.one/tcp/4001/ipfs/QmYhJv1f6uShrfy3SerzDmyn5VWXxPWp6DgMxmzMEfhX4Y",
+	"/ip4/bootstrap0.udfs.one/tcp/4001/ipfs/QmZwfRydFZrL9ARqpqKLjP8b8EYQcDPYD6DxyxKmxbYGsd",
+	"/ip4/bootstrap1.udfs.one/tcp/4001/ipfs/QmYtMoTxTMCETEwJgB3JAz8Ysx8D9pScH9HojPCMK6KPwz",
+	"/ip4/bootstrap2.udfs.one/tcp/4001/ipfs/QmaV2SD8BrDv8FRjd9cqUXA5W7DA4EjH9VKqbkFYBVygPM",
+	"/ip4/bootstrap3.udfs.one/tcp/4001/ipfs/QmX58rWnvtRVV16evApDzSkYvboz19M5zMTVNBtQPssiGL",
+	//"/dns4/bootstrap0.ulord.one/tcp/4001/ipfs/QmbETUnWes7zdwZkkMGgPRtpZAYpFPxrUrCYy7fWi7JjFY",
+	//"/dns4/bootstrap1.ulord.one/tcp/4001/ipfs/QmUEBGtsPNLyngqfqTtGEnR5FBVn4Nkf2Zj7PvcuaYRKxA",
+	//"/dns4/bootstrap2.ulord.one/tcp/4001/ipfs/QmWCL8zrsrqe2XibqKDEdgfbXZnLwtZRSK4Ww11nYi3oq4",
+	//"/dns4/bootstrap3.ulord.one/tcp/4001/ipfs/QmRq3cTbMHwNXuWEULsqrKUAYbswZv9xQKDeyPyQSnf3yY",
+	//"/dns4/bootstrap4.ulord.one/tcp/4001/ipfs/Qmb5ATRjRLBfhJYCS3WpuaYgbyviSPuh3H9p9oNgrq2m78",
+	//"/dns4/bootstrap5.ulord.one/tcp/4001/ipfs/QmYhJv1f6uShrfy3SerzDmyn5VWXxPWp6DgMxmzMEfhX4Y",
 	//"/dnsaddr/bootstrap.libp2p.io/ipfs/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN",
 	//"/dnsaddr/bootstrap.libp2p.io/ipfs/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa",
 	//"/dnsaddr/bootstrap.libp2p.io/ipfs/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb",
