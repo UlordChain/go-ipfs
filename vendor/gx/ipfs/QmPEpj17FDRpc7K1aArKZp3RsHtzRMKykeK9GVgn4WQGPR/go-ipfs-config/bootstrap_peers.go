@@ -17,10 +17,10 @@ import (
 // NOTE: This is here -- and not inside cmd/ipfs/init.go -- because of an
 // import dependency issue. TODO: move this into a config/default/ package.
 var DefaultBootstrapAddresses = []string{
-	"/ip4/bootstrap0.udfs.one/tcp/4001/ipfs/QmZwfRydFZrL9ARqpqKLjP8b8EYQcDPYD6DxyxKmxbYGsd",
-	"/ip4/bootstrap1.udfs.one/tcp/4001/ipfs/QmYtMoTxTMCETEwJgB3JAz8Ysx8D9pScH9HojPCMK6KPwz",
-	"/ip4/bootstrap2.udfs.one/tcp/4001/ipfs/QmaV2SD8BrDv8FRjd9cqUXA5W7DA4EjH9VKqbkFYBVygPM",
-	"/ip4/bootstrap3.udfs.one/tcp/4001/ipfs/QmX58rWnvtRVV16evApDzSkYvboz19M5zMTVNBtQPssiGL",
+	"/dns4/bootstrap0.udfs.one/tcp/4001/ipfs/QmZwfRydFZrL9ARqpqKLjP8b8EYQcDPYD6DxyxKmxbYGsd",
+	"/dns4/bootstrap1.udfs.one/tcp/4001/ipfs/QmYtMoTxTMCETEwJgB3JAz8Ysx8D9pScH9HojPCMK6KPwz",
+	"/dns4/bootstrap2.udfs.one/tcp/4001/ipfs/QmaV2SD8BrDv8FRjd9cqUXA5W7DA4EjH9VKqbkFYBVygPM",
+	"/dns4/bootstrap3.udfs.one/tcp/4001/ipfs/QmX58rWnvtRVV16evApDzSkYvboz19M5zMTVNBtQPssiGL",
 	//"/dns4/bootstrap0.ulord.one/tcp/4001/ipfs/QmbETUnWes7zdwZkkMGgPRtpZAYpFPxrUrCYy7fWi7JjFY",
 	//"/dns4/bootstrap1.ulord.one/tcp/4001/ipfs/QmUEBGtsPNLyngqfqTtGEnR5FBVn4Nkf2Zj7PvcuaYRKxA",
 	//"/dns4/bootstrap2.ulord.one/tcp/4001/ipfs/QmWCL8zrsrqe2XibqKDEdgfbXZnLwtZRSK4Ww11nYi3oq4",
