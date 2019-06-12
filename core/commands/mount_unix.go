@@ -9,9 +9,8 @@ import (
 	cmdenv "github.com/ipfs/go-ipfs/core/commands/cmdenv"
 	nodeMount "github.com/ipfs/go-ipfs/fuse/node"
 
-	cmds "gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
-	config "gx/ipfs/QmcRKBUqc2p3L1ZraoJjbXfs9E6xzvEuyK9iypb5RGwfsr/go-ipfs-config"
-	cmdkit "gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
+	cmds "github.com/ipfs/go-ipfs-cmds"
+	config "github.com/ipfs/go-ipfs-config"
 )
 
 const (
@@ -20,7 +19,7 @@ const (
 )
 
 var MountCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "Mounts IPFS to the filesystem (read-only).",
 		ShortDescription: `
 Mount IPFS at a read-only mountpoint on the OS (default: /ipfs and /ipns).
@@ -76,9 +75,9 @@ baz
 baz
 `,
 	},
-	Options: []cmdkit.Option{
-		cmdkit.StringOption(mountIPFSPathOptionName, "f", "The path where IPFS should be mounted."),
-		cmdkit.StringOption(mountIPNSPathOptionName, "n", "The path where IPNS should be mounted."),
+	Options: []cmds.Option{
+		cmds.StringOption(mountIPFSPathOptionName, "f", "The path where IPFS should be mounted."),
+		cmds.StringOption(mountIPNSPathOptionName, "n", "The path where IPNS should be mounted."),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		cfg, err := cmdenv.GetConfig(env)
@@ -92,7 +91,7 @@ baz
 		}
 
 		// error if we aren't running node in online mode
-		if nd.LocalMode() {
+		if !nd.IsOnline {
 			return ErrNotOnline
 		}
 

@@ -202,6 +202,12 @@ test_files_api() {
     test_cmp ls_l_expected ls_l_actual
   '
 
+  test_expect_success "file has correct hash and size listed with -l --cid-base=base32" '
+    echo "file1	`cid-fmt -v 1 -b base32 %s $FILE1`	4" > ls_l_expected &&
+    ipfs files ls --cid-base=base32 -l /cats/file1 > ls_l_actual &&
+    test_cmp ls_l_expected ls_l_actual
+  '
+
   test_expect_success "file shows up with the correct name" '
     echo "file1" > ls_l_expected &&
     ipfs files ls /cats/file1 > ls_l_actual &&
@@ -215,6 +221,19 @@ test_files_api() {
   test_expect_success "stat output looks good" '
     grep -v CumulativeSize: file1stat_orig > file1stat_actual &&
     echo "$FILE1" > file1stat_expect &&
+    echo "Size: 4" >> file1stat_expect &&
+    echo "ChildBlocks: 0" >> file1stat_expect &&
+    echo "Type: file" >> file1stat_expect &&
+    test_cmp file1stat_expect file1stat_actual
+  '
+
+  test_expect_success "can stat file with --cid-base=base32 $EXTRA" '
+    ipfs files stat --cid-base=base32 /cats/file1 > file1stat_orig
+  '
+
+  test_expect_success "stat output looks good with --cid-base=base32" '
+    grep -v CumulativeSize: file1stat_orig > file1stat_actual &&
+    echo `cid-fmt -v 1 -b base32 %s $FILE1` > file1stat_expect &&
     echo "Size: 4" >> file1stat_expect &&
     echo "ChildBlocks: 0" >> file1stat_expect &&
     echo "Type: file" >> file1stat_expect &&
@@ -505,6 +524,14 @@ test_files_api() {
     ipfs files mv /cats/this/is /cats/
   '
 
+  test_expect_success "can mv dir and dest dir is / $EXTRA" '
+    ipfs files mv /cats/is /
+  '
+
+  test_expect_success "can mv dir and dest dir path has no trailing slash $EXTRA" '
+    ipfs files mv /is /cats
+  '
+
   test_expect_success "mv worked $EXTRA" '
     verify_dir_contents /cats file1 ipfs this is walrus &&
     verify_dir_contents /cats/this
@@ -684,34 +711,34 @@ tests_for_files_api() {
   test_files_api "($EXTRA, raw-leaves)" '' --raw-leaves
 
   ROOT_HASH=QmageRWxC7wWjPv5p36NeAgBAiFdBHaNfxAehBSwzNech2
-  CATS_HASH=zdj7WkEzPLNAr5TYJSQC8CFcBjLvWFfGdx6kaBrJXnBguwWeX
-  FILE_HASH=zdj7WYHvf5sBRgSBjYnq64QFr449CCbgupXfBvoYL3aHC1DzJ
-  TRUNC_HASH=zdj7Wjr8GHZonPFVCWvz2SLLo9H6MmqBxyeB34ArHfyCbmdJG
+  CATS_HASH=bafybeig4cpvfu2qwwo3u4ffazhqdhyynfhnxqkzvbhrdbamauthf5mfpuq
+  FILE_HASH=bafybeibkrazpbejqh3qun7xfnsl7yofl74o4jwhxebpmtrcpavebokuqtm
+  TRUNC_HASH=bafybeigwhb3q36yrm37jv5fo2ap6r6eyohckqrxmlejrenex4xlnuxiy3e
   if [ "$EXTRA" = "offline" ]; then
     test_files_api "($EXTRA, cidv1)" --cid-version=1
   fi
 
   test_expect_success "can update root hash to cidv1" '
     ipfs files chcid --cid-version=1 / &&
-    echo zdj7WbTaiJT1fgatdet9Ei9iDB5hdCxkbVyhyh8YTUnXMiwYi > hash_expect &&
+    echo bafybeiczsscdsbs7ffqz55asqdf3smv6klcw3gofszvwlyarci47bgf354 > hash_expect &&
     ipfs files stat --hash / > hash_actual &&
     test_cmp hash_expect hash_actual
   '
 
-  ROOT_HASH=zdj7Whmtnx23bR7c7E1Yn3zWYWjnvT4tpzWYGaBMyqcopDWrx
+  ROOT_HASH=bafybeifxnoetaa2jetwmxubv3gqiyaknnujwkkkhdeua63kulm63dcr5wu
     test_files_api "($EXTRA, cidv1 root)"
 
   if [ "$EXTRA" = "offline" ]; then
     test_expect_success "can update root hash to blake2b-256" '
     ipfs files chcid --hash=blake2b-256 / &&
-      echo zDMZof1kvswQMT8txrmnb3JGBuna6qXCTry6hSifrkZEd6VmHbBm > hash_expect &&
+      echo bafykbzacebugfutjir6qie7apo5shpry32ruwfi762uytd5g3u2gk7tpscndq > hash_expect &&
       ipfs files stat --hash / > hash_actual &&
       test_cmp hash_expect hash_actual
     '
-    ROOT_HASH=zDMZof1kxEsAwSgCZsGQRVcHCMtHLjkUQoiZUbZ87erpPQJGUeW8
-    CATS_HASH=zDMZof1kuAhr3zBkxq48V7o9HJZCTVyu1Wd9wnZtVcPJLW8xnGft
-    FILE_HASH=zDMZof1kxbB9CvxgRioBzESbGnZUxtSCsZ18H1EUkxDdWt1DYEkK
-    TRUNC_HASH=zDMZof1kpH1vxK3k2TeYc8w59atCbzMzrhZonsztMWSptVro2zQa
+    ROOT_HASH=bafykbzaceb6jv27itwfun6wsrbaxahpqthh5be2bllsjtb3qpmly3vji4mlfk
+    CATS_HASH=bafykbzacebhpn7rtcjjc5oa4zgzivhs7a6e2tq4uk4px42bubnmhpndhqtjig
+    FILE_HASH=bafykbzaceca45w2i3o3q3ctqsezdv5koakz7sxsw37ygqjg4w54m2bshzevxy
+    TRUNC_HASH=bafykbzaceadeu7onzmlq7v33ytjpmo37rsqk2q6mzeqf5at55j32zxbcdbwig
     test_files_api "($EXTRA, blake2b-256 root)"
   fi
 
@@ -742,7 +769,7 @@ test_launch_ipfs_daemon --offline
 SHARD_HASH=QmPkwLJTYZRGPJ8Lazr9qPdrLmswPtUjaDbEpmR9jEh1se
 test_sharding "(cidv0)"
 
-SHARD_HASH=zdj7WZXr6vG2Ne7ZLHGEKrGyF3pHBfAViEnmH9CoyvjrFQM8E
+SHARD_HASH=bafybeib46tpawg2d2hhlmmn2jvgio33wqkhlehxrem7wbfvqqikure37rm
 test_sharding "(cidv1 root)" "--cid-version=1"
 
 test_kill_ipfs_daemon

@@ -10,13 +10,11 @@ import (
 
 	"github.com/ipfs/go-ipfs/core/commands/cmdenv"
 
-	ma "gx/ipfs/QmNTCey11oxhb1AxDnQBRHtdhap6Ctud872NjAYPYYXPuc/go-multiaddr"
-	pstore "gx/ipfs/QmPiemjiKBC9VA7vZF82m4x1oygtg2c2YVqag8PX7dN1BD/go-libp2p-peerstore"
-	cmds "gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
-	"gx/ipfs/QmY5Grm8pJdiSSVsYxx4uNRgweY72EmYwuSDbRnbFok3iY/go-libp2p-peer"
-	iaddr "gx/ipfs/QmYDzHj9xwKN8gCXVJYxYBKxCwCwJURNkwgkvuPP69p3bX/go-ipfs-addr"
-	ping "gx/ipfs/QmYxivS34F2M2n44WQQnRHGAKS8aoRUxwGpi9wk4Cdn4Jf/go-libp2p/p2p/protocol/ping"
-	cmdkit "gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
+	cmds "github.com/ipfs/go-ipfs-cmds"
+	peer "github.com/libp2p/go-libp2p-core/peer"
+	pstore "github.com/libp2p/go-libp2p-core/peerstore"
+	ping "github.com/libp2p/go-libp2p/p2p/protocol/ping"
+	ma "github.com/multiformats/go-multiaddr"
 )
 
 const kPingTimeout = 10 * time.Second
@@ -35,7 +33,7 @@ const (
 var ErrPingSelf = errors.New("error: can't ping self")
 
 var PingCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "Send echo request packets to IPFS hosts.",
 		ShortDescription: `
 'ipfs ping' is a tool to test sending data to other nodes. It finds nodes
@@ -43,11 +41,11 @@ via the routing system, sends pings, waits for pongs, and prints out round-
 trip latency information.
 		`,
 	},
-	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("peer ID", true, true, "ID of peer to be pinged.").EnableStdin(),
+	Arguments: []cmds.Argument{
+		cmds.StringArg("peer ID", true, true, "ID of peer to be pinged.").EnableStdin(),
 	},
-	Options: []cmdkit.Option{
-		cmdkit.IntOption(pingCountOptionName, "n", "Number of ping messages to send.").WithDefault(10),
+	Options: []cmds.Option{
+		cmds.IntOption(pingCountOptionName, "n", "Number of ping messages to send.").WithDefault(10),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		n, err := cmdenv.GetNode(env)
@@ -56,7 +54,7 @@ trip latency information.
 		}
 
 		// Must be online!
-		if !n.OnlineMode() {
+		if !n.IsOnline {
 			return ErrNotOnline
 		}
 
@@ -75,7 +73,7 @@ trip latency information.
 
 		numPings, _ := req.Options[pingCountOptionName].(int)
 		if numPings <= 0 {
-			return fmt.Errorf("error: ping count must be greater than 0, was %d", numPings)
+			return fmt.Errorf("ping count must be greater than 0, was %d", numPings)
 		}
 
 		if len(n.Peerstore.Addrs(pid)) == 0 {
@@ -91,7 +89,7 @@ trip latency information.
 			p, err := n.Routing.FindPeer(ctx, pid)
 			cancel()
 			if err != nil {
-				return res.Emit(&PingResult{Text: fmt.Sprintf("Peer lookup error: %s", err)})
+				return fmt.Errorf("peer lookup failed: %s", err)
 			}
 			n.Peerstore.AddAddrs(p.ID, p.Addrs, pstore.TempAddrTTL)
 		}
@@ -105,31 +103,37 @@ trip latency information.
 
 		ctx, cancel := context.WithTimeout(req.Context, kPingTimeout*time.Duration(numPings))
 		defer cancel()
-		pings, err := ping.Ping(ctx, n.PeerHost, pid)
-		if err != nil {
-			return res.Emit(&PingResult{
-				Success: false,
-				Text:    fmt.Sprintf("Ping error: %s", err),
-			})
-		}
+		pings := ping.Ping(ctx, n.PeerHost, pid)
 
-		var total time.Duration
+		var (
+			count int
+			total time.Duration
+		)
 		ticker := time.NewTicker(time.Second)
 		defer ticker.Stop()
+
 		for i := 0; i < numPings; i++ {
-			t, ok := <-pings
+			r, ok := <-pings
 			if !ok {
 				break
 			}
 
-			if err := res.Emit(&PingResult{
-				Success: true,
-				Time:    t,
-			}); err != nil {
+			if r.Error != nil {
+				err = res.Emit(&PingResult{
+					Success: false,
+					Text:    fmt.Sprintf("Ping error: %s", r.Error),
+				})
+			} else {
+				count++
+				total += r.RTT
+				err = res.Emit(&PingResult{
+					Success: true,
+					Time:    r.RTT,
+				})
+			}
+			if err != nil {
 				return err
 			}
-
-			total += t
 
 			select {
 			case <-ticker.C:
@@ -137,13 +141,54 @@ trip latency information.
 				return ctx.Err()
 			}
 		}
-		averagems := total.Seconds() * 1000 / float64(numPings)
+		if count == 0 {
+			return fmt.Errorf("ping failed")
+		}
+		averagems := total.Seconds() * 1000 / float64(count)
 		return res.Emit(&PingResult{
 			Success: true,
 			Text:    fmt.Sprintf("Average latency: %.2fms", averagems),
 		})
 	},
 	Type: PingResult{},
+	PostRun: cmds.PostRunMap{
+		cmds.CLI: func(res cmds.Response, re cmds.ResponseEmitter) error {
+			var (
+				total time.Duration
+				count int
+			)
+
+			for {
+				event, err := res.Next()
+				switch err {
+				case nil:
+				case io.EOF:
+					return nil
+				case context.Canceled, context.DeadlineExceeded:
+					if count == 0 {
+						return err
+					}
+					averagems := total.Seconds() * 1000 / float64(count)
+					return re.Emit(&PingResult{
+						Success: true,
+						Text:    fmt.Sprintf("Average latency: %.2fms", averagems),
+					})
+				default:
+					return err
+				}
+
+				pr := event.(*PingResult)
+				if pr.Success && pr.Text == "" {
+					total += pr.Time
+					count++
+				}
+				err = re.Emit(event)
+				if err != nil {
+					return err
+				}
+			}
+		},
+	},
 	Encoders: cmds.EncoderMap{
 		cmds.Text: cmds.MakeTypedEncoder(func(req *cmds.Request, w io.Writer, out *PingResult) error {
 			if len(out.Text) > 0 {
@@ -161,11 +206,15 @@ trip latency information.
 func ParsePeerParam(text string) (ma.Multiaddr, peer.ID, error) {
 	// Multiaddr
 	if strings.HasPrefix(text, "/") {
-		a, err := iaddr.ParseString(text)
+		maddr, err := ma.NewMultiaddr(text)
 		if err != nil {
 			return nil, "", err
 		}
-		return a.Transport(), a.ID(), nil
+		transport, id := peer.SplitAddr(maddr)
+		if id == "" {
+			return nil, "", peer.ErrInvalidAddr
+		}
+		return transport, id, nil
 	}
 	// Raw peer ID
 	p, err := peer.IDB58Decode(text)

@@ -8,19 +8,19 @@ IFS=$'\n\t'
 # readlink doesn't work on macos
 OUTPUT="${1:-go-ipfs-source.tar.gz}"
 if ! [[ "$OUTPUT" = /* ]]; then
-    OUTPUT="$PWD/$OUTPUT"
+  OUTPUT="$PWD/$OUTPUT"
 fi
 
-TMPDIR="$(mktemp -d)"
-NEWIPFS="$TMPDIR/src/github.com/ipfs/go-ipfs"
-mkdir -p "$NEWIPFS"
-cp -r . "$NEWIPFS"
-( cd "$NEWIPFS" &&
-      echo $PWD &&
-      GOPATH="$TMPDIR" gx install --local &&
-      (git rev-parse --short HEAD || true) > .tarball &&
-      chmod -R u=rwX,go=rX "$NEWIPFS" # normalize permissions
-      tar -czf "$OUTPUT" --exclude="./.git" .
-)
+GOCC=${GOCC=go}
 
-rm -rf "$TMPDIR"
+TEMP="$(mktemp -d)"
+cp -r . "$TEMP"
+( cd "$TEMP" &&
+  echo $PWD &&
+  $GOCC mod vendor &&
+  (git describe --always --match=NeVeRmAtCh --dirty 2>/dev/null || true) > .tarball &&
+  chmod -R u=rwX,go=rX "$TEMP" # normalize permissions
+  tar -czf "$OUTPUT" --exclude="./.git" .
+  )
+
+rm -rf "$TEMP"

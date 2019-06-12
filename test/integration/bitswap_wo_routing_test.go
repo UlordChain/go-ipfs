@@ -5,12 +5,12 @@ import (
 	"context"
 	"testing"
 
+	"github.com/ipfs/go-block-format"
+	"github.com/ipfs/go-cid"
 	"github.com/ipfs/go-ipfs/core"
 	"github.com/ipfs/go-ipfs/core/mock"
-	"gx/ipfs/QmWoXtvgC8inqFkAATB7cp2Dax7XBi9VDvSg9RCCZufmRk/go-block-format"
-
-	cid "gx/ipfs/QmR8BauakNcBa3RbE4nbQu76PDiJgoQgz8AJdhJuiU4TAw/go-cid"
-	mocknet "gx/ipfs/QmYxivS34F2M2n44WQQnRHGAKS8aoRUxwGpi9wk4Cdn4Jf/go-libp2p/p2p/net/mock"
+	"github.com/ipfs/go-ipfs/core/node/libp2p"
+	mocknet "github.com/libp2p/go-libp2p/p2p/net/mock"
 )
 
 func TestBitswapWithoutRouting(t *testing.T) {
@@ -26,7 +26,7 @@ func TestBitswapWithoutRouting(t *testing.T) {
 		n, err := core.NewNode(ctx, &core.BuildCfg{
 			Online:  true,
 			Host:    coremock.MockHostOption(mn),
-			Routing: core.NilRouterOption, // no routing
+			Routing: libp2p.NilRouterOption, // no routing
 		})
 		if err != nil {
 			t.Fatal(err)
@@ -35,7 +35,10 @@ func TestBitswapWithoutRouting(t *testing.T) {
 		nodes = append(nodes, n)
 	}
 
-	mn.LinkAll()
+	err := mn.LinkAll()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// connect them
 	for _, n1 := range nodes {

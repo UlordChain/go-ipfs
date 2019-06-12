@@ -2,18 +2,19 @@ package pin
 
 import (
 	"context"
+	"io"
 	"testing"
 	"time"
 
-	mdag "gx/ipfs/QmTQdH4848iTVCJmKXYyRiK72HufWTLYQQ8iN3JaQ8K1Hq/go-merkledag"
-	bs "gx/ipfs/QmYPZzd9VqmJDwxUnThfeSbV1Y5o53aVPDijTB7j7rS9Ep/go-blockservice"
+	bs "github.com/ipfs/go-blockservice"
+	mdag "github.com/ipfs/go-merkledag"
 
-	util "gx/ipfs/QmNohiVssaPw3KVLZik59DBVGTSm2dGvYT9eoXt5DQ36Yz/go-ipfs-util"
-	cid "gx/ipfs/QmR8BauakNcBa3RbE4nbQu76PDiJgoQgz8AJdhJuiU4TAw/go-cid"
-	blockstore "gx/ipfs/QmS2aqUZLJp8kF1ihE5rvDGE5LvmKDPnx32w9Z1BW9xLV5/go-ipfs-blockstore"
-	offline "gx/ipfs/QmYZwey1thDTynSrvd6qQkX24UpTka6TFhQ2v569UpoqxD/go-ipfs-exchange-offline"
-	ds "gx/ipfs/Qmf4xQhNomPNhrtZc67qSnfJSjxjXs9LWvknJtSXwimPrM/go-datastore"
-	dssync "gx/ipfs/Qmf4xQhNomPNhrtZc67qSnfJSjxjXs9LWvknJtSXwimPrM/go-datastore/sync"
+	cid "github.com/ipfs/go-cid"
+	ds "github.com/ipfs/go-datastore"
+	dssync "github.com/ipfs/go-datastore/sync"
+	blockstore "github.com/ipfs/go-ipfs-blockstore"
+	offline "github.com/ipfs/go-ipfs-exchange-offline"
+	util "github.com/ipfs/go-ipfs-util"
 )
 
 var rand = util.NewTimeSeededRand()
@@ -21,7 +22,10 @@ var rand = util.NewTimeSeededRand()
 func randNode() (*mdag.ProtoNode, cid.Cid) {
 	nd := new(mdag.ProtoNode)
 	nd.SetData(make([]byte, 32))
-	rand.Read(nd.Data())
+	_, err := io.ReadFull(rand, nd.Data())
+	if err != nil {
+		panic(err)
+	}
 	k := nd.Cid()
 	return nd, k
 }
@@ -111,11 +115,11 @@ func TestPinnerBasic(t *testing.T) {
 	assertPinned(t, p, bk, "Recursively pinned node not found..")
 
 	d, _ := randNode()
-	d.AddNodeLink("a", a)
-	d.AddNodeLink("c", c)
+	_ = d.AddNodeLink("a", a)
+	_ = d.AddNodeLink("c", c)
 
 	e, _ := randNode()
-	d.AddNodeLink("e", e)
+	_ = d.AddNodeLink("e", e)
 
 	// Must be in dagserv for unpin to work
 	err = dserv.Add(ctx, e)
@@ -385,8 +389,12 @@ func TestPinUpdate(t *testing.T) {
 	n1, c1 := randNode()
 	n2, c2 := randNode()
 
-	dserv.Add(ctx, n1)
-	dserv.Add(ctx, n2)
+	if err := dserv.Add(ctx, n1); err != nil {
+		t.Fatal(err)
+	}
+	if err := dserv.Add(ctx, n2); err != nil {
+		t.Fatal(err)
+	}
 
 	if err := p.Pin(ctx, n1, true); err != nil {
 		t.Fatal(err)

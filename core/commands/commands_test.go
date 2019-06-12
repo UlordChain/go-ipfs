@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	cmds "gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
+	cmds "github.com/ipfs/go-ipfs-cmds"
 )
 
 func collectPaths(prefix string, cmd *cmds.Command, out map[string]struct{}) {
@@ -211,6 +211,7 @@ func TestCommands(t *testing.T) {
 		"/urlstore",
 		"/urlstore/add",
 		"/version",
+		"/version/deps",
 		"/cid",
 		"/cid/format",
 		"/cid/base32",

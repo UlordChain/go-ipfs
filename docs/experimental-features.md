@@ -24,10 +24,12 @@ the above issue.
 - [p2p http proxy](#p2p-http-proxy)
 - [Circuit Relay](#circuit-relay)
 - [Plugins](#plugins)
-- [Directory Sharding / HAMT](#directory-sharding-hamt)
+- [Directory Sharding / HAMT](#directory-sharding--hamt)
 - [IPNS PubSub](#ipns-pubsub)
 - [QUIC](#quic)
 - [AutoRelay](#autorelay)
+- [TLS 1.3 Handshake](#tls-13-as-default-handshake-protocol)
+- [Strategic Providing](#strategic-providing)
 
 ---
 
@@ -104,50 +106,18 @@ bandwidth than the others, but is lacking on congestion control and backpressure
 logic. It is available to try out and experiment with.
 
 ### State
-Experimental
+Stable
 
 ### In Version
 0.4.5
 
 ### How to enable
-run your daemon with `--enable-mplex-experiment`
 
 To make it the default stream muxer, set the environment variable
 `LIBP2P_MUX_PREFS` as follows:
 ```
 export LIBP2P_MUX_PREFS="/mplex/6.7.0 /yamux/1.0.0 /spdy/3.1.0"
 ```
-
-To check which stream muxer is being used between any two given peers, check the
-json output of the `ipfs swarm peers` command, you'll see something like this:
-```
-$ ipfs swarm peers -v --enc=json | jq .
-{
-  "Peers": [
-    {
-      "Addr": "/ip4/104.131.131.82/tcp/4001",
-      "Peer": "QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
-      "Latency": "46.032624ms",
-      "Muxer": "*peerstream_multiplex.conn",
-      "Streams": [
-        {
-          "Protocol": "/ipfs/bitswap/1.1.0"
-        },
-        {
-          "Protocol": "/ipfs/kad/1.0.0"
-        },
-        {
-          "Protocol": "/ipfs/kad/1.0.0"
-        }
-      ]
-    },
-    {
-...
-```
-
-### Road to being a real feature
-- [ ] Significant real world testing and performance metrics across a wide
-      variety of workloads showing that it works well.
 
 ---
 
@@ -183,7 +153,10 @@ Modify your ipfs config:
 ipfs config --json Experimental.FilestoreEnabled true
 ```
 
-And then pass the `--nocopy` flag when running `ipfs add`
+Then restart your IPFS node to reload your config.
+
+Finally, when adding files with ipfs add, pass the --nocopy flag to use the
+filestore instead of copying the files into your local IPFS repo.
 
 ### Road to being a real feature
 - [ ] Needs more people to use and report on how well it works.
@@ -547,7 +520,7 @@ See [Plugin docs](./plugins.md)
  ```
  $ ipfs init --profile=badgerds
  ```
- or
+ or install https://github.com/ipfs/ipfs-ds-convert/ and
  ```
  [BACKUP ~/.ipfs]
  $ ipfs config profile apply badgerds
@@ -680,3 +653,53 @@ ipfs config --json Swarm.EnableAutoNATService true
 ### Road to being a real feature
 
 - [ ] needs testing
+
+
+## TLS 1.3 as default handshake protocol
+
+### State
+
+Every go-ipfs node (>=0.4.21) accepts secio and TLS 1.3 connections but prefers
+secio over TLS when dialing. To prefer TLS when dialing, you'll have to enable
+this feature.
+
+### How to enable
+
+Modify your ipfs config:
+
+```
+ipfs config --json Experimental.PreferTLS true
+```
+
+### Road to being a real feature
+
+- [ ] needs testing
+- [ ] needs adoption
+
+---
+
+## Strategic Providing
+
+### State
+
+Experimental, disabled by default.
+
+Replaces the existing provide mechanism with a robust, strategic provider system.
+
+### How to enable
+
+Modify your ipfs config:
+
+```
+ipfs config --json Experimental.StrategicProviding true
+```
+
+### Road to being a real feature
+
+- [ ] needs real world testing
+- [ ] needs adoption
+- [ ] needs to support all providing features
+    - [X] provide nothing
+    - [ ] provide roots
+    - [ ] provide all
+    - [ ] provide strategic

@@ -8,13 +8,13 @@ import (
 	"time"
 
 	cmdenv "github.com/ipfs/go-ipfs/core/commands/cmdenv"
-	options "github.com/ipfs/go-ipfs/core/coreapi/interface/options"
-	nsopts "github.com/ipfs/go-ipfs/namesys/opts"
+	namesys "github.com/ipfs/go-ipfs/namesys"
 
-	path "gx/ipfs/QmNYPETsdAu2uQ1k9q9S1jYEGURaLHV6cbYRSVFVRftpF8/go-path"
-	cmds "gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
-	logging "gx/ipfs/QmcuXC5cxs79ro2cUuHs4HQ2bkDLJUYokwL8aivcX6HW3C/go-log"
-	cmdkit "gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
+	cmds "github.com/ipfs/go-ipfs-cmds"
+	logging "github.com/ipfs/go-log"
+	path "github.com/ipfs/go-path"
+	options "github.com/ipfs/interface-go-ipfs-core/options"
+	nsopts "github.com/ipfs/interface-go-ipfs-core/options/namesys"
 )
 
 var log = logging.Logger("core/commands/ipns")
@@ -32,7 +32,7 @@ const (
 )
 
 var IpnsCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "Resolve IPNS names.",
 		ShortDescription: `
 IPNS is a PKI namespace, where names are the hashes of public keys, and
@@ -69,15 +69,15 @@ Resolve the value of a dnslink:
 `,
 	},
 
-	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("name", false, false, "The IPNS name to resolve. Defaults to your node's peerID."),
+	Arguments: []cmds.Argument{
+		cmds.StringArg("name", false, false, "The IPNS name to resolve. Defaults to your node's peerID."),
 	},
-	Options: []cmdkit.Option{
-		cmdkit.BoolOption(recursiveOptionName, "r", "Resolve until the result is not an IPNS name."),
-		cmdkit.BoolOption(nocacheOptionName, "n", "Do not use cached entries."),
-		cmdkit.UintOption(dhtRecordCountOptionName, "dhtrc", "Number of records to request for DHT resolution."),
-		cmdkit.StringOption(dhtTimeoutOptionName, "dhtt", "Max time to collect values during DHT resolution eg \"30s\". Pass 0 for no timeout."),
-		cmdkit.BoolOption(streamOptionName, "s", "Stream entries as they are found."),
+	Options: []cmds.Option{
+		cmds.BoolOption(recursiveOptionName, "r", "Resolve until the result is not an IPNS name.").WithDefault(true),
+		cmds.BoolOption(nocacheOptionName, "n", "Do not use cached entries."),
+		cmds.UintOption(dhtRecordCountOptionName, "dhtrc", "Number of records to request for DHT resolution."),
+		cmds.StringOption(dhtTimeoutOptionName, "dhtt", "Max time to collect values during DHT resolution eg \"30s\". Pass 0 for no timeout."),
+		cmds.BoolOption(streamOptionName, "s", "Stream entries as they are found."),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		api, err := cmdenv.GetApi(env, req)
@@ -130,7 +130,7 @@ Resolve the value of a dnslink:
 
 		if !stream {
 			output, err := api.Name().Resolve(req.Context, name, opts...)
-			if err != nil {
+			if err != nil && (recursive || err != namesys.ErrResolveRecursion) {
 				return err
 			}
 
@@ -143,8 +143,8 @@ Resolve the value of a dnslink:
 		}
 
 		for v := range output {
-			if v.Err != nil {
-				return err
+			if v.Err != nil && (recursive || v.Err != namesys.ErrResolveRecursion) {
+				return v.Err
 			}
 			if err := res.Emit(&ResolvedPath{path.FromString(v.Path.String())}); err != nil {
 				return err

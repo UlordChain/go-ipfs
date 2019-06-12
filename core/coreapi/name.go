@@ -6,22 +6,22 @@ import (
 	"strings"
 	"time"
 
-	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
-	caopts "github.com/ipfs/go-ipfs/core/coreapi/interface/options"
 	"github.com/ipfs/go-ipfs/keystore"
 	"github.com/ipfs/go-ipfs/namesys"
 
-	ipath "gx/ipfs/QmNYPETsdAu2uQ1k9q9S1jYEGURaLHV6cbYRSVFVRftpF8/go-path"
-	"gx/ipfs/QmNiJiXwWE3kRhZrC5ej3kSjWHm337pYfhjLGSCDNKJP2s/go-libp2p-crypto"
-	ci "gx/ipfs/QmNiJiXwWE3kRhZrC5ej3kSjWHm337pYfhjLGSCDNKJP2s/go-libp2p-crypto"
-	"gx/ipfs/QmY5Grm8pJdiSSVsYxx4uNRgweY72EmYwuSDbRnbFok3iY/go-libp2p-peer"
+	ipath "github.com/ipfs/go-path"
+	coreiface "github.com/ipfs/interface-go-ipfs-core"
+	caopts "github.com/ipfs/interface-go-ipfs-core/options"
+	path "github.com/ipfs/interface-go-ipfs-core/path"
+	ci "github.com/libp2p/go-libp2p-core/crypto"
+	peer "github.com/libp2p/go-libp2p-core/peer"
 )
 
 type NameAPI CoreAPI
 
 type ipnsEntry struct {
 	name  string
-	value coreiface.Path
+	value path.Path
 }
 
 // Name returns the ipnsEntry name.
@@ -30,12 +30,12 @@ func (e *ipnsEntry) Name() string {
 }
 
 // Value returns the ipnsEntry value.
-func (e *ipnsEntry) Value() coreiface.Path {
+func (e *ipnsEntry) Value() path.Path {
 	return e.value
 }
 
 // Publish announces new IPNS name and returns the new IPNS entry.
-func (api *NameAPI) Publish(ctx context.Context, p coreiface.Path, opts ...caopts.NamePublishOption) (coreiface.IpnsEntry, error) {
+func (api *NameAPI) Publish(ctx context.Context, p path.Path, opts ...caopts.NamePublishOption) (coreiface.IpnsEntry, error) {
 	if err := api.checkPublishAllowed(); err != nil {
 		return nil, err
 	}
@@ -106,10 +106,8 @@ func (api *NameAPI) Search(ctx context.Context, name string, opts ...caopts.Name
 	go func() {
 		defer close(out)
 		for res := range resolver.ResolveAsync(ctx, name, options.ResolveOpts...) {
-			p, _ := coreiface.ParsePath(res.Path.String())
-
 			select {
-			case out <- coreiface.IpnsResult{Path: p, Err: res.Err}:
+			case out <- coreiface.IpnsResult{Path: path.New(res.Path.String()), Err: res.Err}:
 			case <-ctx.Done():
 				return
 			}
@@ -121,14 +119,14 @@ func (api *NameAPI) Search(ctx context.Context, name string, opts ...caopts.Name
 
 // Resolve attempts to resolve the newest version of the specified name and
 // returns its path.
-func (api *NameAPI) Resolve(ctx context.Context, name string, opts ...caopts.NameResolveOption) (coreiface.Path, error) {
+func (api *NameAPI) Resolve(ctx context.Context, name string, opts ...caopts.NameResolveOption) (path.Path, error) {
 	results, err := api.Search(ctx, name, opts...)
 	if err != nil {
 		return nil, err
 	}
 
 	err = coreiface.ErrResolveFailed
-	var p coreiface.Path
+	var p path.Path
 
 	for res := range results {
 		p, err = res.Path, res.Err
@@ -140,7 +138,7 @@ func (api *NameAPI) Resolve(ctx context.Context, name string, opts ...caopts.Nam
 	return p, err
 }
 
-func keylookup(self ci.PrivKey, kstore keystore.Keystore, k string) (crypto.PrivKey, error) {
+func keylookup(self ci.PrivKey, kstore keystore.Keystore, k string) (ci.PrivKey, error) {
 	if k == "self" {
 		return self, nil
 	}

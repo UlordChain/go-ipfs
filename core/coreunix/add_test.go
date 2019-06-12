@@ -12,25 +12,25 @@ import (
 	"time"
 
 	"github.com/ipfs/go-ipfs/core"
-	coreiface "github.com/ipfs/go-ipfs/core/coreapi/interface"
 	"github.com/ipfs/go-ipfs/pin/gc"
 	"github.com/ipfs/go-ipfs/repo"
 
-	pi "gx/ipfs/QmR6YMs8EkXQLXNwQKxLnQp2VBZSepoEJ8KCZAyanJHhJu/go-ipfs-posinfo"
-	cid "gx/ipfs/QmR8BauakNcBa3RbE4nbQu76PDiJgoQgz8AJdhJuiU4TAw/go-cid"
-	blockstore "gx/ipfs/QmS2aqUZLJp8kF1ihE5rvDGE5LvmKDPnx32w9Z1BW9xLV5/go-ipfs-blockstore"
-	dag "gx/ipfs/QmTQdH4848iTVCJmKXYyRiK72HufWTLYQQ8iN3JaQ8K1Hq/go-merkledag"
-	blocks "gx/ipfs/QmWoXtvgC8inqFkAATB7cp2Dax7XBi9VDvSg9RCCZufmRk/go-block-format"
-	files "gx/ipfs/QmXWZCd8jfaHmt4UDSnjKmGcrQMw95bDGWqEeVLVJjoANX/go-ipfs-files"
-	"gx/ipfs/QmYPZzd9VqmJDwxUnThfeSbV1Y5o53aVPDijTB7j7rS9Ep/go-blockservice"
-	config "gx/ipfs/QmcRKBUqc2p3L1ZraoJjbXfs9E6xzvEuyK9iypb5RGwfsr/go-ipfs-config"
-	datastore "gx/ipfs/Qmf4xQhNomPNhrtZc67qSnfJSjxjXs9LWvknJtSXwimPrM/go-datastore"
-	syncds "gx/ipfs/Qmf4xQhNomPNhrtZc67qSnfJSjxjXs9LWvknJtSXwimPrM/go-datastore/sync"
+	blocks "github.com/ipfs/go-block-format"
+	"github.com/ipfs/go-blockservice"
+	cid "github.com/ipfs/go-cid"
+	datastore "github.com/ipfs/go-datastore"
+	syncds "github.com/ipfs/go-datastore/sync"
+	blockstore "github.com/ipfs/go-ipfs-blockstore"
+	config "github.com/ipfs/go-ipfs-config"
+	files "github.com/ipfs/go-ipfs-files"
+	pi "github.com/ipfs/go-ipfs-posinfo"
+	dag "github.com/ipfs/go-merkledag"
+	coreiface "github.com/ipfs/interface-go-ipfs-core"
 )
 
 const testPeerID = "QmTFauExutTsy4XP6JbMFcw2Wa9645HJt2bTqL6qYDCKfe"
 
-func TestAddRecursive(t *testing.T) {
+func TestAddMultipleGCLive(t *testing.T) {
 	r := &repo.Mock{
 		C: config.Config{
 			Identity: config.Identity{
@@ -43,10 +43,100 @@ func TestAddRecursive(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if k, err := AddR(node, "test/data"); err != nil {
+
+	out := make(chan interface{}, 10)
+	adder, err := NewAdder(context.Background(), node.Pinning, node.Blockstore, node.DAG)
+	if err != nil {
 		t.Fatal(err)
-	} else if k != "QmWCCga8AbTyfAQ7pTnGT6JgmRMAB3Qp8ZmTEFi5q5o8jC" {
-		t.Fatal("keys do not match: ", k)
+	}
+	adder.Out = out
+
+	// make two files with pipes so we can 'pause' the add for timing of the test
+	piper1, pipew1 := io.Pipe()
+	hangfile1 := files.NewReaderFile(piper1)
+
+	piper2, pipew2 := io.Pipe()
+	hangfile2 := files.NewReaderFile(piper2)
+
+	rfc := files.NewBytesFile([]byte("testfileA"))
+
+	slf := files.NewMapDirectory(map[string]files.Node{
+		"a": hangfile1,
+		"b": hangfile2,
+		"c": rfc,
+	})
+
+	go func() {
+		defer close(out)
+		_, _ = adder.AddAllAndPin(slf)
+		// Ignore errors for clarity - the real bug would be gc'ing files while adding them, not this resultant error
+	}()
+
+	// Start writing the first file but don't close the stream
+	if _, err := pipew1.Write([]byte("some data for file a")); err != nil {
+		t.Fatal(err)
+	}
+
+	var gc1out <-chan gc.Result
+	gc1started := make(chan struct{})
+	go func() {
+		defer close(gc1started)
+		gc1out = gc.GC(context.Background(), node.Blockstore, node.Repo.Datastore(), node.Pinning, nil)
+	}()
+
+	// GC shouldn't get the lock until after the file is completely added
+	select {
+	case <-gc1started:
+		t.Fatal("gc shouldnt have started yet")
+	default:
+	}
+
+	// finish write and unblock gc
+	pipew1.Close()
+
+	// Should have gotten the lock at this point
+	<-gc1started
+
+	removedHashes := make(map[string]struct{})
+	for r := range gc1out {
+		if r.Error != nil {
+			t.Fatal(err)
+		}
+		removedHashes[r.KeyRemoved.String()] = struct{}{}
+	}
+
+	if _, err := pipew2.Write([]byte("some data for file b")); err != nil {
+		t.Fatal(err)
+	}
+
+	var gc2out <-chan gc.Result
+	gc2started := make(chan struct{})
+	go func() {
+		defer close(gc2started)
+		gc2out = gc.GC(context.Background(), node.Blockstore, node.Repo.Datastore(), node.Pinning, nil)
+	}()
+
+	select {
+	case <-gc2started:
+		t.Fatal("gc shouldnt have started yet")
+	default:
+	}
+
+	pipew2.Close()
+
+	<-gc2started
+
+	for r := range gc2out {
+		if r.Error != nil {
+			t.Fatal(err)
+		}
+		removedHashes[r.KeyRemoved.String()] = struct{}{}
+	}
+
+	for o := range out {
+		if _, ok := removedHashes[o.(*coreiface.AddEvent).Path.Cid().String()]; ok {
+			t.Fatal("gc'ed a hash we just added")
+		}
 	}
 }
 
@@ -92,7 +182,7 @@ func TestAddGCLive(t *testing.T) {
 		_, err := adder.AddAllAndPin(slf)
 
 		if err != nil {
-			t.Fatal(err)
+			t.Error(err)
 		}
 
 	}()
@@ -113,7 +203,9 @@ func TestAddGCLive(t *testing.T) {
 	}()
 
 	// gc shouldnt start until we let the add finish its current file.
-	pipew.Write([]byte("some data for file b"))
+	if _, err := pipew.Write([]byte("some data for file b")); err != nil {
+		t.Fatal(err)
+	}
 
 	select {
 	case <-gcstarted:
@@ -198,7 +290,7 @@ func testAddWPosInfo(t *testing.T, rawLeaves bool) {
 		defer close(adder.Out)
 		_, err = adder.AddAllAndPin(file)
 		if err != nil {
-			t.Fatal(err)
+			t.Error(err)
 		}
 	}()
 	for range out {
@@ -247,7 +339,7 @@ func (bs *testBlockstore) PutMany(blocks []blocks.Block) error {
 	return bs.GCBlockstore.PutMany(blocks)
 }
 
-func (bs *testBlockstore) CheckForPosInfo(block blocks.Block) error {
+func (bs *testBlockstore) CheckForPosInfo(block blocks.Block) {
 	fsn, ok := block.(*pi.FilestoreNode)
 	if ok {
 		posInfo := fsn.PosInfo
@@ -260,7 +352,6 @@ func (bs *testBlockstore) CheckForPosInfo(block blocks.Block) error {
 			bs.countAtOffsetNonZero += 1
 		}
 	}
-	return nil
 }
 
 type dummyFileInfo struct {

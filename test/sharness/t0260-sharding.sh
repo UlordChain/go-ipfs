@@ -65,15 +65,16 @@ test_expect_success "ipfs cat error output the same" '
   test_cmp sharded_err unsharded_err
 '
 
-test_expect_success "'ipfs ls --resolve-type=false' admits missing block" '
+test_expect_success "'ipfs ls --resolve-type=false --size=false' admits missing block" '
   ipfs ls "$SHARDED" | head -1 > first_file &&
+  ipfs ls --size=false "$SHARDED" | sort > sharded_out_nosize &&
   read -r HASH _ NAME <first_file &&
   ipfs pin rm "$SHARDED" "$UNSHARDED" && # To allow us to remove the block
   ipfs block rm "$HASH" &&
   test_expect_code 1 ipfs cat "$SHARDED/$NAME" &&
   test_expect_code 1 ipfs ls "$SHARDED" &&
-  ipfs ls --resolve-type=false "$SHARDED" | sort > missing_out &&
-  test_cmp sharded_out missing_out
+  ipfs ls --resolve-type=false --size=false "$SHARDED" | sort > missing_out &&
+  test_cmp sharded_out_nosize missing_out
 '
 
 test_launch_ipfs_daemon
@@ -107,7 +108,7 @@ test_add_large_dir_v1() {
 }
 
 # this hash implies the directory is CIDv1 and leaf entries are CIDv1 and raw
-SHARDEDV1="zdj7WY8aNcxF49q1ZpFXfchNmbswnUxiVDVjmrHb53xRM8W4C"
+SHARDEDV1="bafybeibiemewfzzdyhq2l74wrd6qj2oz42usjlktgnlqv4yfawgouaqn4u"
 test_add_large_dir_v1 "$SHARDEDV1"
 
 test_launch_ipfs_daemon

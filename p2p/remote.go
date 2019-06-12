@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	ma "gx/ipfs/QmNTCey11oxhb1AxDnQBRHtdhap6Ctud872NjAYPYYXPuc/go-multiaddr"
-	net "gx/ipfs/QmNgLg1NTw37iWbYPKcyK85YJ9Whs1MkPtJwhfqbNYAyKg/go-libp2p-net"
-	protocol "gx/ipfs/QmZNkThpqfVXs9GNbexPrfBbXSLNYeKrE7jwFM2oqHbyqN/go-libp2p-protocol"
-	manet "gx/ipfs/QmZcLBXKaFe8ND5YHPkJRAwmhJGrVsi1JqDZNyJ4nRK5Mj/go-multiaddr-net"
+	net "github.com/libp2p/go-libp2p-core/network"
+	protocol "github.com/libp2p/go-libp2p-core/protocol"
+	ma "github.com/multiformats/go-multiaddr"
+	manet "github.com/multiformats/go-multiaddr-net"
 )
 
 var maPrefix = "/" + ma.ProtocolWithCode(ma.P_IPFS).Name + "/"
@@ -48,7 +48,7 @@ func (p2p *P2P) ForwardRemote(ctx context.Context, proto protocol.ID, addr ma.Mu
 func (l *remoteListener) handleStream(remote net.Stream) {
 	local, err := manet.Dial(l.addr)
 	if err != nil {
-		remote.Reset()
+		_ = remote.Reset()
 		return
 	}
 
@@ -56,14 +56,14 @@ func (l *remoteListener) handleStream(remote net.Stream) {
 
 	if l.reportRemote {
 		if _, err := fmt.Fprintf(local, "%s\n", peer.Pretty()); err != nil {
-			remote.Reset()
+			_ = remote.Reset()
 			return
 		}
 	}
 
 	peerMa, err := ma.NewMultiaddr(maPrefix + peer.Pretty())
 	if err != nil {
-		remote.Reset()
+		_ = remote.Reset()
 		return
 	}
 

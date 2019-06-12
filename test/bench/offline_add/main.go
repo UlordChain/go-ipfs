@@ -11,8 +11,8 @@ import (
 
 	"github.com/ipfs/go-ipfs/thirdparty/unit"
 
-	random "gx/ipfs/QmSJ9n2s9NUoA9D849W5jj5SJ94nMcZpj1jCgQJieiNqSt/go-random"
-	config "gx/ipfs/QmcRKBUqc2p3L1ZraoJjbXfs9E6xzvEuyK9iypb5RGwfsr/go-ipfs-config"
+	config "github.com/ipfs/go-ipfs-config"
+	random "github.com/jbenet/go-random"
 )
 
 func main() {
@@ -62,7 +62,10 @@ func benchmarkAdd(amount int64) (*testing.BenchmarkResult, error) {
 			}
 			defer os.Remove(f.Name())
 
-			random.WritePseudoRandomBytes(amount, f, seed)
+			err = random.WritePseudoRandomBytes(amount, f, seed)
+			if err != nil {
+				b.Fatal(err)
+			}
 			if err := f.Close(); err != nil {
 				b.Fatal(err)
 			}

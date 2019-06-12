@@ -14,13 +14,12 @@ import (
 	cmdenv "github.com/ipfs/go-ipfs/core/commands/cmdenv"
 	p2p "github.com/ipfs/go-ipfs/p2p"
 
-	ma "gx/ipfs/QmNTCey11oxhb1AxDnQBRHtdhap6Ctud872NjAYPYYXPuc/go-multiaddr"
-	pstore "gx/ipfs/QmPiemjiKBC9VA7vZF82m4x1oygtg2c2YVqag8PX7dN1BD/go-libp2p-peerstore"
-	madns "gx/ipfs/QmQc7jbDUsxUJZyFJzxVrnrWeECCct6fErEpMqtjyWvCX8/go-multiaddr-dns"
-	cmds "gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
-	ipfsaddr "gx/ipfs/QmYDzHj9xwKN8gCXVJYxYBKxCwCwJURNkwgkvuPP69p3bX/go-ipfs-addr"
-	protocol "gx/ipfs/QmZNkThpqfVXs9GNbexPrfBbXSLNYeKrE7jwFM2oqHbyqN/go-libp2p-protocol"
-	cmdkit "gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
+	cmds "github.com/ipfs/go-ipfs-cmds"
+	peer "github.com/libp2p/go-libp2p-core/peer"
+	pstore "github.com/libp2p/go-libp2p-core/peerstore"
+	protocol "github.com/libp2p/go-libp2p-core/protocol"
+	ma "github.com/multiformats/go-multiaddr"
+	madns "github.com/multiformats/go-multiaddr-dns"
 )
 
 // P2PProtoPrefix is the default required prefix for protocol names
@@ -60,7 +59,7 @@ var resolveTimeout = 10 * time.Second
 
 // P2PCmd is the 'ipfs p2p' command
 var P2PCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "Libp2p stream mounting.",
 		ShortDescription: `
 Create and use tunnels to remote peers over libp2p
@@ -79,7 +78,7 @@ are refined`,
 }
 
 var p2pForwardCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "Forward connections to libp2p service",
 		ShortDescription: `
 Forward connections made to <listen-address> to <target-address>.
@@ -93,13 +92,13 @@ Example:
 
 `,
 	},
-	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("protocol", true, false, "Protocol name."),
-		cmdkit.StringArg("listen-address", true, false, "Listening endpoint."),
-		cmdkit.StringArg("target-address", true, false, "Target endpoint."),
+	Arguments: []cmds.Argument{
+		cmds.StringArg("protocol", true, false, "Protocol name."),
+		cmds.StringArg("listen-address", true, false, "Listening endpoint."),
+		cmds.StringArg("target-address", true, false, "Target endpoint."),
 	},
-	Options: []cmdkit.Option{
-		cmdkit.BoolOption(allowCustomProtocolOptionName, "Don't require /x/ prefix"),
+	Options: []cmds.Option{
+		cmds.BoolOption(allowCustomProtocolOptionName, "Don't require /x/ prefix"),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		n, err := p2pGetNode(env)
@@ -134,38 +133,53 @@ Example:
 }
 
 // parseIpfsAddr is a function that takes in addr string and return ipfsAddrs
-func parseIpfsAddr(addr string) ([]ipfsaddr.IPFSAddr, error) {
-	mutiladdr, err := ma.NewMultiaddr(addr)
+func parseIpfsAddr(addr string) (*peer.AddrInfo, error) {
+	multiaddr, err := ma.NewMultiaddr(addr)
 	if err != nil {
 		return nil, err
 	}
-	if _, err := mutiladdr.ValueForProtocol(ma.P_IPFS); err == nil {
-		iaddrs := make([]ipfsaddr.IPFSAddr, 1)
-		iaddrs[0], err = ipfsaddr.ParseMultiaddr(mutiladdr)
-		if err != nil {
-			return nil, err
-		}
-		return iaddrs, nil
+
+	pi, err := peer.AddrInfoFromP2pAddr(multiaddr)
+	if err == nil {
+		return pi, nil
 	}
-	// resolve mutiladdr whose protocol is not ma.P_IPFS
+
+	// resolve multiaddr whose protocol is not ma.P_IPFS
 	ctx, cancel := context.WithTimeout(context.Background(), resolveTimeout)
-	addrs, err := madns.Resolve(ctx, mutiladdr)
-	cancel()
+	defer cancel()
+	addrs, err := madns.Resolve(ctx, multiaddr)
+	if err != nil {
+		return nil, err
+	}
 	if len(addrs) == 0 {
-		return nil, errors.New("fail to resolve the multiaddr:" + mutiladdr.String())
+		return nil, errors.New("fail to resolve the multiaddr:" + multiaddr.String())
 	}
-	iaddrs := make([]ipfsaddr.IPFSAddr, len(addrs))
-	for i, addr := range addrs {
-		iaddrs[i], err = ipfsaddr.ParseMultiaddr(addr)
-		if err != nil {
-			return nil, err
+	var info peer.AddrInfo
+	for _, addr := range addrs {
+		taddr, id := peer.SplitAddr(addr)
+		if id == "" {
+			// not an ipfs addr, skipping.
+			continue
 		}
+		switch info.ID {
+		case "":
+			info.ID = id
+		case id:
+		default:
+			return nil, fmt.Errorf(
+				"ambiguous multiaddr %s could refer to %s or %s",
+				multiaddr,
+				info.ID,
+				id,
+			)
+		}
+		info.Addrs = append(info.Addrs, taddr)
 	}
-	return iaddrs, nil
+	return &info, nil
 }
 
 var p2pListenCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "Create libp2p service",
 		ShortDescription: `
 Create libp2p service and forward connections made to <target-address>.
@@ -178,13 +192,13 @@ Example:
 
 `,
 	},
-	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("protocol", true, false, "Protocol name."),
-		cmdkit.StringArg("target-address", true, false, "Target endpoint."),
+	Arguments: []cmds.Argument{
+		cmds.StringArg("protocol", true, false, "Protocol name."),
+		cmds.StringArg("target-address", true, false, "Target endpoint."),
 	},
-	Options: []cmdkit.Option{
-		cmdkit.BoolOption(allowCustomProtocolOptionName, "Don't require /x/ prefix"),
-		cmdkit.BoolOption(reportPeerIDOptionName, "r", "Send remote base58 peerid to target when a new connection is established"),
+	Options: []cmds.Option{
+		cmds.BoolOption(allowCustomProtocolOptionName, "Don't require /x/ prefix"),
+		cmds.BoolOption(reportPeerIDOptionName, "r", "Send remote base58 peerid to target when a new connection is established"),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		n, err := p2pGetNode(env)
@@ -254,14 +268,10 @@ func checkPort(target ma.Multiaddr) error {
 }
 
 // forwardLocal forwards local connections to a libp2p service
-func forwardLocal(ctx context.Context, p *p2p.P2P, ps pstore.Peerstore, proto protocol.ID, bindAddr ma.Multiaddr, addrs []ipfsaddr.IPFSAddr) error {
-	for _, addr := range addrs {
-		ps.AddAddr(addr.ID(), addr.Multiaddr(), pstore.TempAddrTTL)
-	}
+func forwardLocal(ctx context.Context, p *p2p.P2P, ps pstore.Peerstore, proto protocol.ID, bindAddr ma.Multiaddr, addr *peer.AddrInfo) error {
+	ps.AddAddrs(addr.ID, addr.Addrs, pstore.TempAddrTTL)
 	// TODO: return some info
-	// the length of the addrs must large than 0
-	// peerIDs in addr must be the same and choose addr[0] to connect
-	_, err := p.ForwardLocal(ctx, addrs[0].ID(), proto, bindAddr)
+	_, err := p.ForwardLocal(ctx, addr.ID, proto, bindAddr)
 	return err
 }
 
@@ -270,11 +280,11 @@ const (
 )
 
 var p2pLsCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "List active p2p listeners.",
 	},
-	Options: []cmdkit.Option{
-		cmdkit.BoolOption(p2pHeadersOptionName, "v", "Print table headers (Protocol, Listen, Target)."),
+	Options: []cmds.Option{
+		cmds.BoolOption(p2pHeadersOptionName, "v", "Print table headers (Protocol, Listen, Target)."),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		n, err := p2pGetNode(env)
@@ -333,14 +343,14 @@ const (
 )
 
 var p2pCloseCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "Stop listening for new connections to forward.",
 	},
-	Options: []cmdkit.Option{
-		cmdkit.BoolOption(p2pAllOptionName, "a", "Close all listeners."),
-		cmdkit.StringOption(p2pProtocolOptionName, "p", "Match protocol name"),
-		cmdkit.StringOption(p2pListenAddressOptionName, "l", "Match listen address"),
-		cmdkit.StringOption(p2pTargetAddressOptionName, "t", "Match target address"),
+	Options: []cmds.Option{
+		cmds.BoolOption(p2pAllOptionName, "a", "Close all listeners."),
+		cmds.StringOption(p2pProtocolOptionName, "p", "Match protocol name"),
+		cmds.StringOption(p2pListenAddressOptionName, "l", "Match listen address"),
+		cmds.StringOption(p2pTargetAddressOptionName, "t", "Match target address"),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		n, err := p2pGetNode(env)
@@ -355,14 +365,22 @@ var p2pCloseCmd = &cmds.Command{
 
 		proto := protocol.ID(protoOpt)
 
-		listen, err := ma.NewMultiaddr(listenOpt)
-		if err != nil {
-			return err
+		var (
+			target, listen ma.Multiaddr
+		)
+
+		if l {
+			listen, err = ma.NewMultiaddr(listenOpt)
+			if err != nil {
+				return err
+			}
 		}
 
-		target, err := ma.NewMultiaddr(targetOpt)
-		if err != nil {
-			return err
+		if t {
+			target, err = ma.NewMultiaddr(targetOpt)
+			if err != nil {
+				return err
+			}
 		}
 
 		if !(closeAll || p || l || t) {
@@ -409,7 +427,7 @@ var p2pCloseCmd = &cmds.Command{
 
 // p2pStreamCmd is the 'ipfs p2p stream' command
 var p2pStreamCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline:          "P2P stream management.",
 		ShortDescription: "Create and manage p2p streams",
 	},
@@ -421,11 +439,11 @@ var p2pStreamCmd = &cmds.Command{
 }
 
 var p2pStreamLsCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "List active p2p streams.",
 	},
-	Options: []cmdkit.Option{
-		cmdkit.BoolOption(p2pHeadersOptionName, "v", "Print table headers (ID, Protocol, Local, Remote)."),
+	Options: []cmds.Option{
+		cmds.BoolOption(p2pHeadersOptionName, "v", "Print table headers (ID, Protocol, Local, Remote)."),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		n, err := p2pGetNode(env)
@@ -470,14 +488,14 @@ var p2pStreamLsCmd = &cmds.Command{
 }
 
 var p2pStreamCloseCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "Close active p2p stream.",
 	},
-	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("id", false, false, "Stream identifier"),
+	Arguments: []cmds.Argument{
+		cmds.StringArg("id", false, false, "Stream identifier"),
 	},
-	Options: []cmdkit.Option{
-		cmdkit.BoolOption(p2pAllOptionName, "a", "Close all streams."),
+	Options: []cmds.Option{
+		cmds.BoolOption(p2pAllOptionName, "a", "Close all streams."),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		n, err := p2pGetNode(env)
@@ -535,7 +553,7 @@ func p2pGetNode(env cmds.Environment) (*core.IpfsNode, error) {
 		return nil, errors.New("libp2p stream mounting not enabled")
 	}
 
-	if !nd.OnlineMode() {
+	if !nd.IsOnline {
 		return nil, ErrNotOnline
 	}
 

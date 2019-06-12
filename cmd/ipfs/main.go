@@ -21,23 +21,21 @@ import (
 	repo "github.com/ipfs/go-ipfs/repo"
 	fsrepo "github.com/ipfs/go-ipfs/repo/fsrepo"
 
-	ma "gx/ipfs/QmNTCey11oxhb1AxDnQBRHtdhap6Ctud872NjAYPYYXPuc/go-multiaddr"
-	u "gx/ipfs/QmNohiVssaPw3KVLZik59DBVGTSm2dGvYT9eoXt5DQ36Yz/go-ipfs-util"
-	madns "gx/ipfs/QmQc7jbDUsxUJZyFJzxVrnrWeECCct6fErEpMqtjyWvCX8/go-multiaddr-dns"
-	"gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
-	"gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds/cli"
-	"gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds/http"
-	loggables "gx/ipfs/QmWZnkipEJbsdUDhgTGBnKAN1iHM2WDMNqsXHyAuaAiCgo/go-libp2p-loggables"
-	osh "gx/ipfs/QmXuBJ7DR6k3rmUEKtvVMhwjmXDuJgXXPUt4LQXKBMsU93/go-os-helper"
-	manet "gx/ipfs/QmZcLBXKaFe8ND5YHPkJRAwmhJGrVsi1JqDZNyJ4nRK5Mj/go-multiaddr-net"
-	"gx/ipfs/QmcRKBUqc2p3L1ZraoJjbXfs9E6xzvEuyK9iypb5RGwfsr/go-ipfs-config"
-	logging "gx/ipfs/QmcuXC5cxs79ro2cUuHs4HQ2bkDLJUYokwL8aivcX6HW3C/go-log"
+	osh "github.com/Kubuxu/go-os-helper"
+	"github.com/ipfs/go-ipfs-cmds"
+	"github.com/ipfs/go-ipfs-cmds/cli"
+	"github.com/ipfs/go-ipfs-cmds/http"
+	"github.com/ipfs/go-ipfs-config"
+	u "github.com/ipfs/go-ipfs-util"
+	logging "github.com/ipfs/go-log"
+	loggables "github.com/libp2p/go-libp2p-loggables"
+	ma "github.com/multiformats/go-multiaddr"
+	madns "github.com/multiformats/go-multiaddr-dns"
+	manet "github.com/multiformats/go-multiaddr-net"
 )
 
 // log is the command logger
 var log = logging.Logger("cmd/ipfs")
-
-var errRequestCanceled = errors.New("request canceled")
 
 // declared as a var for testing purposes
 var dnsResolver = madns.DefaultResolver
@@ -62,15 +60,15 @@ func loadPlugins(repoPath string) (*loader.PluginLoader, error) {
 	}
 	plugins, err = loader.NewPluginLoader(pluginpath)
 	if err != nil {
-		log.Error("error loading plugins: ", err)
+		return nil, fmt.Errorf("error loading plugins: %s", err)
 	}
 
 	if err := plugins.Initialize(); err != nil {
-		log.Error("error initializing plugins: ", err)
+		return nil, fmt.Errorf("error initializing plugins: %s", err)
 	}
 
-	if err := plugins.Run(); err != nil {
-		log.Error("error running plugins: ", err)
+	if err := plugins.Inject(); err != nil {
+		return nil, fmt.Errorf("error initializing plugins: %s", err)
 	}
 	return plugins, nil
 }
@@ -171,7 +169,6 @@ func mainRet() int {
 					return nil, err
 				}
 
-				n.SetLocal(true)
 				return n, nil
 			},
 		}, nil
@@ -326,7 +323,11 @@ func startProfiling() (func(), error) {
 	if err != nil {
 		return nil, err
 	}
-	pprof.StartCPUProfile(ofi)
+	err = pprof.StartCPUProfile(ofi)
+	if err != nil {
+		ofi.Close()
+		return nil, err
+	}
 	go func() {
 		for range time.NewTicker(time.Second * 30).C {
 			err := writeHeapProfileToFile()

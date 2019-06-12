@@ -10,13 +10,12 @@ import (
 	e "github.com/ipfs/go-ipfs/core/commands/e"
 	filestore "github.com/ipfs/go-ipfs/filestore"
 
-	cid "gx/ipfs/QmR8BauakNcBa3RbE4nbQu76PDiJgoQgz8AJdhJuiU4TAw/go-cid"
-	cmds "gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
-	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
+	"github.com/ipfs/go-cid"
+	"github.com/ipfs/go-ipfs-cmds"
 )
 
 var FileStoreCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "Interact with filestore objects.",
 	},
 	Subcommands: map[string]*cmds.Command{
@@ -31,7 +30,7 @@ const (
 )
 
 var lsFileStore = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "List objects in filestore.",
 		LongDescription: `
 List objects in the filestore.
@@ -44,11 +43,11 @@ The output is:
 <hash> <size> <path> <offset>
 `,
 	},
-	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("obj", false, true, "Cid of objects to list."),
+	Arguments: []cmds.Argument{
+		cmds.StringArg("obj", false, true, "Cid of objects to list."),
 	},
-	Options: []cmdkit.Option{
-		cmdkit.BoolOption(fileOrderOptionName, "sort the results based on the path of the backing file"),
+	Options: []cmds.Option{
+		cmds.BoolOption(fileOrderOptionName, "sort the results based on the path of the backing file"),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		_, fs, err := getFilestore(env)
@@ -79,20 +78,26 @@ The output is:
 		return nil
 	},
 	PostRun: cmds.PostRunMap{
-		cmds.CLI: streamResult(func(v interface{}, out io.Writer) nonFatalError {
-			r := v.(*filestore.ListRes)
-			if r.ErrorMsg != "" {
-				return nonFatalError(r.ErrorMsg)
+		cmds.CLI: func(res cmds.Response, re cmds.ResponseEmitter) error {
+			enc, err := cmdenv.GetCidEncoder(res.Request())
+			if err != nil {
+				return err
 			}
-			fmt.Fprintf(out, "%s\n", r.FormatLong())
-			return ""
-		}),
+			return streamResult(func(v interface{}, out io.Writer) nonFatalError {
+				r := v.(*filestore.ListRes)
+				if r.ErrorMsg != "" {
+					return nonFatalError(r.ErrorMsg)
+				}
+				fmt.Fprintf(out, "%s\n", r.FormatLong(enc.Encode))
+				return ""
+			})(res, re)
+		},
 	},
 	Type: filestore.ListRes{},
 }
 
 var verifyFileStore = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "Verify objects in filestore.",
 		LongDescription: `
 Verify objects in the filestore.
@@ -115,11 +120,11 @@ ERROR:    internal error, most likely due to a corrupt database
 For ERROR entries the error will also be printed to stderr.
 `,
 	},
-	Arguments: []cmdkit.Argument{
-		cmdkit.StringArg("obj", false, true, "Cid of objects to verify."),
+	Arguments: []cmds.Argument{
+		cmds.StringArg("obj", false, true, "Cid of objects to verify."),
 	},
-	Options: []cmdkit.Option{
-		cmdkit.BoolOption(fileOrderOptionName, "verify the objects based on the order of the backing file"),
+	Options: []cmds.Option{
+		cmds.BoolOption(fileOrderOptionName, "verify the objects based on the order of the backing file"),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		_, fs, err := getFilestore(env)
@@ -151,6 +156,11 @@ For ERROR entries the error will also be printed to stderr.
 	},
 	PostRun: cmds.PostRunMap{
 		cmds.CLI: func(res cmds.Response, re cmds.ResponseEmitter) error {
+			enc, err := cmdenv.GetCidEncoder(res.Request())
+			if err != nil {
+				return err
+			}
+
 			for {
 				v, err := res.Next()
 				if err != nil {
@@ -168,7 +178,7 @@ For ERROR entries the error will also be printed to stderr.
 				if list.Status == filestore.StatusOtherError {
 					fmt.Fprintf(os.Stderr, "%s\n", list.ErrorMsg)
 				}
-				fmt.Fprintf(os.Stdout, "%s %s\n", list.Status.Format(), list.FormatLong())
+				fmt.Fprintf(os.Stdout, "%s %s\n", list.Status.Format(), list.FormatLong(enc.Encode))
 			}
 		},
 	},
@@ -176,7 +186,7 @@ For ERROR entries the error will also be printed to stderr.
 }
 
 var dupsFileStore = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "List blocks that are both in the filestore and standard block storage.",
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
@@ -184,6 +194,12 @@ var dupsFileStore = &cmds.Command{
 		if err != nil {
 			return err
 		}
+
+		enc, err := cmdenv.GetCidEncoder(req)
+		if err != nil {
+			return err
+		}
+
 		ch, err := fs.FileManager().AllKeysChan(req.Context)
 		if err != nil {
 			return err
@@ -195,7 +211,7 @@ var dupsFileStore = &cmds.Command{
 				return res.Emit(&RefWrapper{Err: err.Error()})
 			}
 			if have {
-				if err := res.Emit(&RefWrapper{Ref: cid.String()}); err != nil {
+				if err := res.Emit(&RefWrapper{Ref: enc.Encode(cid)}); err != nil {
 					return err
 				}
 			}

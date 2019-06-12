@@ -69,10 +69,10 @@ test_object_cmd() {
   '
 
   test_expect_success "'ipfs object get' output looks good" '
-    echo "NumLinks: 0" > expected_stat &&
-    echo "BlockSize: 18" >> expected_stat &&
-    echo "LinksSize: 2" >> expected_stat &&
-    echo "DataSize: 16" >> expected_stat &&
+    echo "NumLinks:       0" > expected_stat &&
+    echo "BlockSize:      18" >> expected_stat &&
+    echo "LinksSize:      2" >> expected_stat &&
+    echo "DataSize:       16" >> expected_stat &&
     echo "CumulativeSize: 18" >> expected_stat &&
     test_cmp expected_stat actual_stat
   '
@@ -111,11 +111,11 @@ test_object_cmd() {
     cat ../t0051-object-data/testPut.xml | ipfs object put --inputenc=xml > actual_putStdinOut
   '
 
-  test_expect_success "'ipfs object put broken.xml' should fail" '
+  test_expect_failure "'ipfs object put broken.xml' should fail" '
     test_expect_code 1 ipfs object put ../t0051-object-data/brokenPut.xml --inputenc=xml 2>actual_putBrokenErr >actual_putBroken
   '
 
-  test_expect_success "'ipfs object put broken.hxml' output looks good" '
+  test_expect_failure "'ipfs object put broken.hxml' output looks good" '
     touch expected_putBroken &&
     printf "Error: no data or links in this node\n" > expected_putBrokenErr &&
     test_cmp expected_putBroken actual_putBroken &&
@@ -170,7 +170,7 @@ test_object_cmd() {
 
   test_expect_success "'ipfs object put broken.hjson' output looks good" '
     touch expected_putBroken &&
-    printf "Error: no data or links in this node\n" > expected_putBrokenErr &&
+    printf "Error: json: unknown field \"this\"\n" > expected_putBrokenErr &&
     test_cmp expected_putBroken actual_putBroken &&
     test_cmp expected_putBrokenErr actual_putBrokenErr
   '
@@ -251,8 +251,6 @@ test_object_cmd() {
     test_cmp expected actual
   '
 
-
-
   test_expect_success "object patch creation looks right" '
     echo "QmPc73aWK9dgFBXe86P4PvQizHo9e5Qt7n7DAMXWuigFuG" > hash_exp &&
     echo $N3 > hash_actual &&
@@ -278,13 +276,27 @@ test_object_cmd() {
   '
 
   test_expect_success "ipfs object stat output looks good" '
-    echo NumLinks: 1 > obj_stat_exp &&
-    echo BlockSize: 47 >> obj_stat_exp &&
-    echo LinksSize: 45 >> obj_stat_exp &&
-    echo DataSize: 2 >> obj_stat_exp &&
-    echo CumulativeSize: 114 >> obj_stat_exp &&
+    echo "NumLinks:       1" > obj_stat_exp &&
+    echo "BlockSize:      47" >> obj_stat_exp &&
+    echo "LinksSize:      45" >> obj_stat_exp &&
+    echo "DataSize:       2" >> obj_stat_exp &&
+    echo "CumulativeSize: 114" >> obj_stat_exp &&
 
     test_cmp obj_stat_exp obj_stat_out
+  '
+
+  test_expect_success "'ipfs object stat --human' succeeds" '
+    ipfs object stat $(cat multi_patch)/a --human > obj_stat_human_out
+  '
+  
+  test_expect_success "ipfs object stat --human output looks good" '
+    echo "NumLinks:       1" > obj_stat_human_exp &&
+    echo "BlockSize:      47" >> obj_stat_human_exp &&
+    echo "LinksSize:      45" >> obj_stat_human_exp &&
+    echo "DataSize:       2" >> obj_stat_human_exp &&
+    echo "CumulativeSize: 114 B" >> obj_stat_human_exp &&
+
+    test_cmp obj_stat_human_exp obj_stat_human_out
   '
 
   test_expect_success "should have created dir within a dir" '
@@ -292,7 +304,7 @@ test_object_cmd() {
   '
 
   test_expect_success "output looks good" '
-    echo "QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn 4 foo/" > patched_exp &&
+    echo "QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn - foo/" > patched_exp &&
     test_cmp patched_exp patched_output
   '
 
@@ -349,6 +361,58 @@ test_object_cmd() {
     echo "{\"Links\":[],\"Data\":\"foobar\"}" > exp_data_append &&
     ipfs object get $HASH > actual_data_append &&
     test_cmp exp_data_append actual_data_append
+  '
+
+  #
+  # CidBase Tests
+  #
+
+  test_expect_success "'ipfs object put file.json --cid-base=base32' succeeds" '
+    ipfs object put --cid-base=base32 ../t0051-object-data/testPut.json > actual_putOut
+  '
+
+  test_expect_success "'ipfs object put file.json --cid-base=base32' output looks good" '
+    HASH="QmUTSAdDi2xsNkDtLqjFgQDMEn5di3Ab9eqbrt4gaiNbUD" &&
+    printf "added $HASH\n" > expected_putOut &&
+    test_cmp expected_putOut actual_putOut
+  '
+
+  test_expect_success "'ipfs object put file.json --cid-base=base32 --upgrade-cidv0-in-output=true' succeeds" '
+    ipfs object put --cid-base=base32 --upgrade-cidv0-in-output=true ../t0051-object-data/testPut.json > actual_putOut
+  '
+
+  test_expect_success "'ipfs object put file.json --cid-base=base32 --upgrade-cidv0-in-output=true' output looks good" '
+    HASH=$(ipfs cid base32 "QmUTSAdDi2xsNkDtLqjFgQDMEn5di3Ab9eqbrt4gaiNbUD") &&
+    printf "added $HASH\n" > expected_putOut &&
+    test_cmp expected_putOut actual_putOut
+  '
+
+  test_expect_success "'insert json dag with both CidV0 and CidV1 links'" '
+    MIXED=$(ipfs object put ../t0051-object-data/mixed.json -q) &&
+    echo $MIXED
+  '
+
+  test_expect_success "ipfs object get then put creates identical object with --cid-base=base32" '
+    ipfs object get --cid-base=base32 $MIXED > mixedv2.json &&
+    MIXED2=$(ipfs object put -q mixedv2.json) &&
+    echo "$MIXED =? $MIXED2" &&
+    test "$MIXED" = "$MIXED2"
+  '
+
+  HASHv0=QmXg9Pp2ytZ14xgmQjYEiHjVjMFXzCVVEcRTWJBmLgR39V
+  HASHv1=bafkqadsimvwgy3zajb2w2yloeefau
+
+  test_expect_success "ipfs object get with --cid-base=base32 uses base32 for CidV1 link only" '
+    ipfs object get --cid-base=base32 $MIXED > mixed.actual &&
+    grep -q $HASHv0 mixed.actual &&
+    grep -q $(ipfs cid base32 $HASHv1) mixed.actual
+  '
+
+  test_expect_success "ipfs object links --cid-base=base32 --upgrade-cidv0-in-output=true converts both links" '
+    ipfs object links --cid-base=base32 --upgrade-cidv0-in-output=true $MIXED | awk "{print \$1}" | sort > links.actual &&
+    echo $(ipfs cid base32 $HASHv1) > links.expected
+    echo $(ipfs cid base32 $HASHv0) >> links.expected
+    test_cmp links.actual links.expected
   '
 }
 

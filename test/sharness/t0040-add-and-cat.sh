@@ -272,6 +272,69 @@ test_add_cat_file() {
     echo "added QmZQWnfcqJ6hNkkPvrY9Q5X39GP3jUnUbAV4AbmbbR3Cb1 test_current_dir" > expected
     test_cmp expected actual
   '
+
+  # --cid-base=base32
+
+  test_expect_success "ipfs add --cid-base=base32 succeeds" '
+    echo "base32 test" >mountdir/base32-test.txt &&
+    ipfs add --cid-base=base32 mountdir/base32-test.txt >actual
+  '
+  test_expect_success "ipfs add --cid-base=base32 output looks good" '
+    HASHb32="bafybeibyosqxljd2eptb4ebbtvk7pb4aoxzqa6ttdsflty6rsslz5y6i34" &&
+    echo "added $HASHb32 base32-test.txt" >expected &&
+    test_cmp expected actual
+  '
+
+  test_expect_success "ipfs add --cid-base=base32 --only-hash succeeds" '
+    ipfs add --cid-base=base32 --only-hash mountdir/base32-test.txt > oh_actual
+  '
+  test_expect_success "ipfs add --cid-base=base32 --only-hash output looks good" '
+    test_cmp expected oh_actual
+  '
+
+  test_expect_success "ipfs add --cid-base=base32 --upgrade-cidv0-in-output=false succeeds" '
+    echo "base32 test" >mountdir/base32-test.txt &&
+    ipfs add --cid-base=base32 --upgrade-cidv0-in-output=false mountdir/base32-test.txt >actual
+  '
+  test_expect_success "ipfs add --cid-base=base32 --upgrade-cidv0-in-output=false output looks good" '
+    HASHv0=$(cid-fmt -v 0 -b z %s "$HASHb32") &&
+    echo "added $HASHv0 base32-test.txt" >expected &&
+    test_cmp expected actual
+  '
+
+  test_expect_success "ipfs add --cid-base=base32 --upgrade-cidv0-in-output=false --only-hash succeeds" '
+    ipfs add --cid-base=base32 --upgrade-cidv0-in-output=false --only-hash mountdir/base32-test.txt > oh_actual
+  '
+  test_expect_success "ipfs add --cid-base=base32 --upgrade-cidv0-in-output=false --only-hash output looks good" '
+    test_cmp expected oh_actual
+  '
+
+  test_expect_success "ipfs cat with base32 hash succeeds" '
+    ipfs cat "$HASHb32" >actual
+  '
+  test_expect_success "ipfs cat with base32 hash output looks good" '
+    echo "base32 test" >expected &&
+    test_cmp expected actual
+  '
+
+  test_expect_success "ipfs cat using CIDv0 hash succeeds" '
+    ipfs cat "$HASHv0" >actual
+  '
+  test_expect_success "ipfs cat using CIDv0 hash looks good" '
+    echo "base32 test" >expected &&
+    test_cmp expected actual
+  '
+
+  test_expect_success "ipfs add with multiple files succeeds" '
+    echo "Helloo Worlds!" >mountdir/hello2.txt &&
+    ipfs add mountdir/hello.txt mountdir/hello2.txt >actual
+  '
+
+  test_expect_success "ipfs add with multiple files output looks good" '
+    echo "added QmVr26fY1tKyspEJBniVhqxQeEjhF78XerGiqWAwraVLQH hello.txt" >expected &&
+    echo "added Qmf35k66MZNW2GijohUmXQEWKZU4cCGTCwK6idfnt152wJ hello2.txt" >> expected &&
+    test_cmp expected actual
+  '
 }
 
 test_add_cat_5MB() {
@@ -312,6 +375,30 @@ test_add_cat_5MB() {
   test_expect_success FUSE "cat ipfs/bigfile looks good" '
     test_cmp mountdir/bigfile actual
   '
+
+  test_expect_success "remove hash" '
+    ipfs pin rm "$EXP_HASH" &&
+    ipfs block rm "$EXP_HASH"
+  '
+
+  test_expect_success "get base32 version of CID" '
+    ipfs cid base32 $EXP_HASH > base32_cid &&
+    BASE32_HASH=`cat base32_cid`
+  '
+
+  test_expect_success "ipfs add --cid-base=base32 bigfile' succeeds" '
+    ipfs add $ADD_FLAGS --cid-base=base32 mountdir/bigfile >actual ||
+    test_fsh cat daemon_err
+  '
+
+  test_expect_success "'ipfs add bigfile --cid-base=base32' output looks good" '
+    echo "added $BASE32_HASH bigfile" >expected &&
+    test_cmp expected actual
+  '
+
+  test_expect_success "'ipfs cat $BASE32_HASH' succeeds" '
+    ipfs cat "$BASE32_HASH" >actual
+  '
 }
 
 test_add_cat_raw() {
@@ -335,7 +422,7 @@ test_add_cat_raw() {
   '
 
   test_expect_success "zero length file has correct hash" '
-    test "$ZEROHASH" = zb2rhmy65F3REf8SZp7De11gxtECBGgUKaLdiDj7MCGCHxbDW
+    test "$ZEROHASH" = bafkreihdwdcefgh4dqkjv67uzcmw7ojee6xedzdetojuzjevtenxquvyku
   '
 
   test_expect_success "cat zero length file" '
@@ -628,23 +715,23 @@ VENUS="QmU5kp3BH3B8tnWUU2Pikdb2maksBNkb92FHRr56hyghh4"
 add_directory
 
 PLANETS="QmfWfQfKCY5Ukv9peBbxM5vqWM9BzmqUSXvdCgjT2wsiBT"
-MARS="zb2rhZdTkQNawVajsTNiYc9cTPHqgLdJVvBRkZok9RjkgQYRU"
-VENUS="zb2rhn6TGvnUaMAg4VV4y9HVx5W42HihcH4jsyrDv8mkepFqq"
+MARS="bafkreibmlvvgdyihetgocpof6xk64kjjzdeq2e4c7hqs3krdheosk4tgj4"
+VENUS="bafkreihfsphazrk2ilejpekyltjeh5k4yvwgjuwg26ueafohqioeo3sdca"
 add_directory '--raw-leaves'
 
-PLANETS="zdj7Wnbun6P41Z5ddTkNvZaDTmQ8ZLdiKFcJrL9sV87rPScMP"
-MARS="zb2rhZdTkQNawVajsTNiYc9cTPHqgLdJVvBRkZok9RjkgQYRU"
-VENUS="zb2rhn6TGvnUaMAg4VV4y9HVx5W42HihcH4jsyrDv8mkepFqq"
+PLANETS="bafybeih7e5dmkyk25up5vxug4q3hrg2fxbzf23dfrac2fns5h7z4aa7ioi"
+MARS="bafkreibmlvvgdyihetgocpof6xk64kjjzdeq2e4c7hqs3krdheosk4tgj4"
+VENUS="bafkreihfsphazrk2ilejpekyltjeh5k4yvwgjuwg26ueafohqioeo3sdca"
 add_directory '--cid-version=1'
 
-PLANETS="zdj7WiC51v78BjBcmZR7uuBvmDWxSn5EDr5MiyTwE18e8qvb7"
-MARS="zdj7WWx6fGNrNGkdpkuTAxCjKbQ1pPtarqA6VQhedhLTZu34J"
-VENUS="zdj7WbB1BUF8WejmVpQCmMLd1RbPnxJtvAj1Lep6eTmXRFbrz"
+PLANETS="bafybeif5tuep5ap2d7zyhbktucey75aoacxufgt6i3v4gebmixyipnyp7y"
+MARS="bafybeiawta2ntdmsy24aro35w3homzl4ak7svr3si7l7gesvq4erglyye4"
+VENUS="bafybeicvkvhs2fr75ynebtdjqpgm4g2fc63abqbmysupwpmcjl4gx7mzrm"
 add_directory '--cid-version=1 --raw-leaves=false'
 
-PLANETS="zDMZof1kqxDAx9myQbXsyWwyWP9qRPsXsWH7XuTz6isT7Rh1S6nM"
-MARS="zCT5htkdz1ZBHYVQXFQn51ngPXLVqaHSWoae87V1d6e9qWpSAjXw"
-VENUS="zCT5htke5JcdoMM4WhmUKXWf2QC3TnQToqGZHH1WsZERv6kPhFPg"
+PLANETS="bafykbzaceaptbcs7ik5mdfpot3b4ackvxlwh7loc5jcrtkayf64ukl7zyk46e"
+MARS="bafk2bzaceaqcxw46uzkyd2jmczoogof6pnkqt4dpiv3pwkunsv4g5rkkmecie"
+VENUS="bafk2bzacebxnke2fb5mgzxyjuuavvcfht4fd3gvn4klkujz6k72wboynhuvfw"
 add_directory '--hash=blake2b-256'
 
 test_expect_success "'ipfs add -rn' succeeds" '
@@ -682,32 +769,32 @@ test_add_cat_5MB --raw-leaves "QmbdLHCmdi48eM8T7D67oXjA1S2Puo8eMfngdHhdPukFd6"
 
 # note: the specified hash implies that internal nodes are stored
 # using CidV1 and leaves are stored using raw blocks
-test_add_cat_5MB --cid-version=1 "zdj7WiiaedqVBXjX4SNqx3jfuZideDqdLYnDzCDJ66JDMK9o2"
+test_add_cat_5MB --cid-version=1 "bafybeigfnx3tka2rf5ovv2slb7ymrt4zbwa3ryeqibe6fipyt5vgsrli3u"
 
 # note: the specified hash implies that internal nodes are stored
 # using CidV1 and leaves are stored using CidV1 but using the legacy
 # format (i.e. not raw)
-test_add_cat_5MB '--cid-version=1 --raw-leaves=false' "zdj7WfgEsj897BBZj2mcfsRLhaPZcCixPV2G7DkWgF1Wdr64P"
+test_add_cat_5MB '--cid-version=1 --raw-leaves=false' "bafybeieyifrgpjn3yengthr7qaj72ozm2aq3wm53srgeprc43w67qpvfqa"
 
 # note: --hash=blake2b-256 implies --cid-version=1 which implies --raw-leaves=true
 # the specified hash represents the leaf nodes stored as raw leaves and
 # encoded with the blake2b-256 hash funtion
-test_add_cat_5MB '--hash=blake2b-256' "zDMZof1kuxn7ebvKyvmkYLPvocSvFYxxAWT1yQBN1wWiXXr7w5mY"
+test_add_cat_5MB '--hash=blake2b-256' "bafykbzacebnmjcl4sn37b3ehtibvf263oun2w6idghenrvlpehq5w5jqyvhjo"
 
 # the specified hash represents the leaf nodes stored as protoful nodes and
 # encoded with the blake2b-256 hash funtion
-test_add_cat_5MB '--hash=blake2b-256 --raw-leaves=false' "zDMZof1krz3SFTyhboRyWZyUP2qNgVdn9wjtaX211aHJ8WgeyT9v"
+test_add_cat_5MB '--hash=blake2b-256 --raw-leaves=false' "bafykbzaceaxiiykzgpbhnzlecffqm3zbuvhujyvxe5scltksyafagkyw4rjn2"
 
 test_add_cat_expensive "" "QmU9SWAPPmNEKZB8umYMmjYvN7VyHqABNvdA6GUi4MMEz3"
 
 # note: the specified hash implies that internal nodes are stored
 # using CidV1 and leaves are stored using raw blocks
-test_add_cat_expensive "--cid-version=1" "zdj7WcatQrtuE4WMkS4XsfsMixuQN2po4irkYhqxeJyW1wgCq"
+test_add_cat_expensive "--cid-version=1" "bafybeidkj5ecbhrqmzrcee2rw7qwsx24z3364qya3fnp2ktkg2tnsrewhi"
 
 # note: --hash=blake2b-256 implies --cid-version=1 which implies --raw-leaves=true
 # the specified hash represents the leaf nodes stored as raw leaves and
 # encoded with the blake2b-256 hash funtion
-test_add_cat_expensive '--hash=blake2b-256' "zDMZof1kwndounDzQCANUHjiE3zt1mPEgx7RE3JTHoZrRRa79xcv"
+test_add_cat_expensive '--hash=blake2b-256' "bafykbzaceb26fnq5hz5iopzamcb4yqykya5x6a4nvzdmcyuu4rj2akzs3z7r6"
 
 test_add_named_pipe " Post http://$API_ADDR/api/v0/add?chunker=size-262144&encoding=json&hash=sha2-256&inline-limit=32&pin=true&progress=true&recursive=true&stream-channels=true:"
 

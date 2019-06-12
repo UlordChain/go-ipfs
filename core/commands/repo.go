@@ -12,15 +12,15 @@ import (
 	"sync"
 	"text/tabwriter"
 
+	humanize "github.com/dustin/go-humanize"
 	cmdenv "github.com/ipfs/go-ipfs/core/commands/cmdenv"
 	corerepo "github.com/ipfs/go-ipfs/core/corerepo"
 	fsrepo "github.com/ipfs/go-ipfs/repo/fsrepo"
 
-	cid "gx/ipfs/QmR8BauakNcBa3RbE4nbQu76PDiJgoQgz8AJdhJuiU4TAw/go-cid"
-	bstore "gx/ipfs/QmS2aqUZLJp8kF1ihE5rvDGE5LvmKDPnx32w9Z1BW9xLV5/go-ipfs-blockstore"
-	cmds "gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
-	config "gx/ipfs/QmcRKBUqc2p3L1ZraoJjbXfs9E6xzvEuyK9iypb5RGwfsr/go-ipfs-config"
-	cmdkit "gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
+	cid "github.com/ipfs/go-cid"
+	bstore "github.com/ipfs/go-ipfs-blockstore"
+	cmds "github.com/ipfs/go-ipfs-cmds"
+	config "github.com/ipfs/go-ipfs-config"
 )
 
 type RepoVersion struct {
@@ -28,7 +28,7 @@ type RepoVersion struct {
 }
 
 var RepoCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "Manipulate the IPFS repo.",
 		ShortDescription: `
 'ipfs repo' is a plumbing command used to manipulate the repo.
@@ -56,7 +56,7 @@ const (
 )
 
 var repoGcCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "Perform a garbage collection sweep on the repo.",
 		ShortDescription: `
 'ipfs repo gc' is a plumbing command that will sweep the local
@@ -64,9 +64,9 @@ set of stored objects and remove ones that are not pinned in
 order to reclaim hard disk space.
 `,
 	},
-	Options: []cmdkit.Option{
-		cmdkit.BoolOption(repoStreamErrorsOptionName, "Stream errors."),
-		cmdkit.BoolOption(repoQuietOptionName, "q", "Write minimal output."),
+	Options: []cmds.Option{
+		cmds.BoolOption(repoStreamErrorsOptionName, "Stream errors."),
+		cmds.BoolOption(repoQuietOptionName, "q", "Write minimal output."),
 	},
 	Run: func(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment) error {
 		n, err := cmdenv.GetNode(env)
@@ -97,7 +97,10 @@ order to reclaim hard disk space.
 			}
 		} else {
 			err := corerepo.CollectResult(req.Context, gcOutChan, func(k cid.Cid) {
-				re.Emit(&GcResult{Key: k})
+				// Nothing to do with this error, really. This
+				// most likely means that the client is gone but
+				// we still need to let the GC finish.
+				_ = re.Emit(&GcResult{Key: k})
 			})
 			if err != nil {
 				return err
@@ -133,7 +136,7 @@ const (
 )
 
 var repoStatCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "Get stats for the currently used repo.",
 		ShortDescription: `
 'ipfs repo stat' provides information about the local set of
@@ -146,9 +149,9 @@ RepoPath        string The path to the repo being currently used.
 Version         string The repo version.
 `,
 	},
-	Options: []cmdkit.Option{
-		cmdkit.BoolOption(repoSizeOnlyOptionName, "Only report RepoSize and StorageMax."),
-		cmdkit.BoolOption(repoHumanOptionName, "Output sizes in MiB."),
+	Options: []cmds.Option{
+		cmds.BoolOption(repoSizeOnlyOptionName, "Only report RepoSize and StorageMax."),
+		cmds.BoolOption(repoHumanOptionName, "Print sizes in human readable format (e.g., 1K 234M 2G)"),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		n, err := cmdenv.GetNode(env)
@@ -162,10 +165,9 @@ Version         string The repo version.
 			if err != nil {
 				return err
 			}
-			cmds.EmitOnce(res, &corerepo.Stat{
+			return cmds.EmitOnce(res, &corerepo.Stat{
 				SizeStat: sizeStat,
 			})
-			return nil
 		}
 
 		stat, err := corerepo.RepoStat(req.Context, n)
@@ -185,12 +187,12 @@ Version         string The repo version.
 			sizeOnly, _ := req.Options[repoSizeOnlyOptionName].(bool)
 
 			printSize := func(name string, size uint64) {
-				sizeInMiB := size / (1024 * 1024)
-				if human && sizeInMiB > 0 {
-					fmt.Fprintf(wtr, "%s (MiB):\t%d\n", name, sizeInMiB)
-				} else {
-					fmt.Fprintf(wtr, "%s:\t%d\n", name, size)
+				sizeStr := fmt.Sprintf("%d", size)
+				if human {
+					sizeStr = humanize.Bytes(size)
 				}
+
+				fmt.Fprintf(wtr, "%s:\t%s\n", name, sizeStr)
 			}
 
 			if !sizeOnly {
@@ -211,7 +213,7 @@ Version         string The repo version.
 }
 
 var repoFsckCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "Remove repo lockfiles.",
 		ShortDescription: `
 'ipfs repo fsck' is a plumbing command that will remove repo and level db
@@ -310,7 +312,7 @@ func verifyResultChan(ctx context.Context, keys <-chan cid.Cid, bs bstore.Blocks
 }
 
 var repoVerifyCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "Verify all blocks in repo are not corrupted.",
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
@@ -374,15 +376,15 @@ var repoVerifyCmd = &cmds.Command{
 }
 
 var repoVersionCmd = &cmds.Command{
-	Helptext: cmdkit.HelpText{
+	Helptext: cmds.HelpText{
 		Tagline: "Show the repo version.",
 		ShortDescription: `
 'ipfs repo version' returns the current repo version.
 `,
 	},
 
-	Options: []cmdkit.Option{
-		cmdkit.BoolOption(repoQuietOptionName, "q", "Write minimal output."),
+	Options: []cmds.Option{
+		cmds.BoolOption(repoQuietOptionName, "q", "Write minimal output."),
 	},
 	Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 		return cmds.EmitOnce(res, &RepoVersion{
@@ -395,9 +397,9 @@ var repoVersionCmd = &cmds.Command{
 			quiet, _ := req.Options[repoQuietOptionName].(bool)
 
 			if quiet {
-				fmt.Fprintf(w, fmt.Sprintf("fs-repo@%s\n", out.Version))
+				fmt.Fprintf(w, "fs-repo@%s\n", out.Version)
 			} else {
-				fmt.Fprintf(w, fmt.Sprintf("ipfs repo version fs-repo@%s\n", out.Version))
+				fmt.Fprintf(w, "ipfs repo version fs-repo@%s\n", out.Version)
 			}
 			return nil
 		}),

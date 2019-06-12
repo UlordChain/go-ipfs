@@ -12,10 +12,7 @@ import (
 	"sort"
 	"strings"
 
-	e "github.com/ipfs/go-ipfs/core/commands/e"
-
-	cmds "gx/ipfs/QmWGm4AbZEbnmdgVTza52MSNpEmBdFVqzmAysRbjrRyGbH/go-ipfs-cmds"
-	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
+	"github.com/ipfs/go-ipfs-cmds"
 )
 
 type commandEncoder struct {
@@ -62,12 +59,12 @@ const (
 // and returns a command that lists the subcommands in that root
 func CommandsCmd(root *cmds.Command) *cmds.Command {
 	return &cmds.Command{
-		Helptext: cmdkit.HelpText{
+		Helptext: cmds.HelpText{
 			Tagline:          "List all available commands.",
 			ShortDescription: `Lists all available commands (and subcommands) and exits.`,
 		},
-		Options: []cmdkit.Option{
-			cmdkit.BoolOption(flagsOptionName, "f", "Show command flags"),
+		Options: []cmds.Option{
+			cmds.BoolOption(flagsOptionName, "f", "Show command flags"),
 		},
 		Run: func(req *cmds.Request, res cmds.ResponseEmitter, env cmds.Environment) error {
 			rootCmd := cmd2outputCmd("ipfs", root)
@@ -129,26 +126,8 @@ func cmdPathStrings(cmd *Command, showOptions bool) []string {
 	}
 
 	recurse("", cmd)
-	sort.Sort(sort.StringSlice(cmds))
+	sort.Strings(cmds)
 	return cmds
-}
-
-// changes here will also need to be applied at
-// - ./dag/dag.go
-// - ./object/object.go
-// - ./files/files.go
-// - ./unixfs/unixfs.go
-func unwrapOutput(i interface{}) (interface{}, error) {
-	var (
-		ch <-chan interface{}
-		ok bool
-	)
-
-	if ch, ok = i.(<-chan interface{}); !ok {
-		return nil, e.TypeErr(ch, i)
-	}
-
-	return <-ch, nil
 }
 
 type nonFatalError string

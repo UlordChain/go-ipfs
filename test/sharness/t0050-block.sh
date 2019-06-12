@@ -11,6 +11,7 @@ test_description="Test block command"
 test_init_ipfs
 
 HASH="QmRKqGMAM6EZngbpjSqrvYzq5Qd8b1bSWymjSUY9zQSNDk"
+HASHB="QmdnpnsaEj69isdw5sNzp3h3HkaDz7xKq7BmvFFBzNr5e7"
 
 #
 # "block put tests"
@@ -23,6 +24,18 @@ test_expect_success "'ipfs block put' succeeds" '
 
 test_expect_success "'ipfs block put' output looks good" '
   echo "$HASH" >expected_out &&
+  test_cmp expected_out actual_out
+'
+
+test_expect_success "'ipfs block put' with 2 files succeeds" '
+  echo "Hello Mars!" > a &&
+  echo "Hello Venus!" > b &&
+  ipfs block put a b >actual_out
+'
+
+test_expect_success "'ipfs block put' output looks good" '
+  echo "$HASH" >expected_out &&
+  echo "$HASHB" >>expected_out &&
   test_cmp expected_out actual_out
 '
 
@@ -203,7 +216,7 @@ test_expect_success "can set multihash type and length on block put" '
 '
 
 test_expect_success "output looks good" '
-  test "z83bYcqyBkbx5fuNAcvbdv4pr5RYQiEpK" = "$HASH"
+  test "bafkrifctrq4xazzixy2v4ezymjcvzpskqdwlxra" = "$HASH"
 '
 
 test_expect_success "can read block with different hash" '
@@ -228,7 +241,7 @@ test_expect_success "can set multihash type and length on block put without form
 '
 
 test_expect_success "output looks good" '
-  test "z8bwYCvQPhyDY7VUTsUdGdE8Evm1ktSPV" = "$HASH"
+  test "bafybifctrq4xazzixy2v4ezymjcvzpskqdwlxra" = "$HASH"
 '
 
 test_expect_success "put with sha3 and cidv0 fails" '
