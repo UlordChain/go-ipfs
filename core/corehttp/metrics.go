@@ -1,13 +1,17 @@
 package corehttp
 
 import (
+	"github.com/ipfs/go-ipfs/core"
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/disk"
+	"github.com/shirou/gopsutil/mem"
 	"net"
 	"net/http"
+	"os"
+	"path"
 
-	core "github.com/ipfs/go-ipfs/core"
-
-	prometheus "gx/ipfs/QmTQuFQWHAWy4wMH6ZyPfGiawA5u9T8rs79FENoV8yXaoS/client_golang/prometheus"
-	promhttp "gx/ipfs/QmTQuFQWHAWy4wMH6ZyPfGiawA5u9T8rs79FENoV8yXaoS/client_golang/prometheus/promhttp"
+	"gx/ipfs/QmTQuFQWHAWy4wMH6ZyPfGiawA5u9T8rs79FENoV8yXaoS/client_golang/prometheus"
+	"gx/ipfs/QmTQuFQWHAWy4wMH6ZyPfGiawA5u9T8rs79FENoV8yXaoS/client_golang/prometheus/promhttp"
 )
 
 // This adds the scraping endpoint which Prometheus uses to fetch metrics.
@@ -97,6 +101,22 @@ var (
 	peersTotalMetric = prometheus.NewDesc(
 		prometheus.BuildFQName("ipfs", "p2p", "peers_total"),
 		"Number of connected peers", []string{"transport"}, nil)
+	cpuTotalMetric = prometheus.NewDesc(
+		prometheus.BuildFQName("ipfs", "machine", "cpu_total"),
+		"Number of cpu cores", []string{}, nil)
+	memoryTotalMetric = prometheus.NewDesc(
+		prometheus.BuildFQName("ipfs", "machine", "memory_total"),
+		"Size of memory total", []string{}, nil)
+	memoryFreeMetric = prometheus.NewDesc(
+		prometheus.BuildFQName("ipfs", "machine", "memory_free"),
+		"Size of memory free", []string{}, nil)
+
+	diskTotalMetric = prometheus.NewDesc(
+		prometheus.BuildFQName("ipfs", "machine", "disk_total"),
+		"Size of disk total", []string{"path","fstype"}, nil)
+	diskFreeMetric = prometheus.NewDesc(
+		prometheus.BuildFQName("ipfs", "machine", "disk_free"),
+		"Size of disk free", []string{"path","fstype"}, nil)
 )
 
 type IpfsNodeCollector struct {
@@ -105,6 +125,15 @@ type IpfsNodeCollector struct {
 
 func (_ IpfsNodeCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- peersTotalMetric
+	ch <- cpuTotalMetric
+}
+
+func ipfsPath() string {
+	p := os.Getenv("IPFS_PATH")
+	if p == "" {
+		p = path.Join(os.Getenv("HOME"), ".ipfs")
+	}
+	return p
 }
 
 func (c IpfsNodeCollector) Collect(ch chan<- prometheus.Metric) {
@@ -116,6 +145,44 @@ func (c IpfsNodeCollector) Collect(ch chan<- prometheus.Metric) {
 			tr,
 		)
 	}
+
+	infos, _ := cpu.Info()
+	ch <- prometheus.MustNewConstMetric(
+		cpuTotalMetric,
+		prometheus.GaugeValue,
+		float64(len(infos)),
+	)
+
+	vms, _ := mem.VirtualMemory()
+	ch <- prometheus.MustNewConstMetric(
+		memoryTotalMetric,
+		prometheus.GaugeValue,
+		float64(vms.Total),
+		)
+
+	ch <- prometheus.MustNewConstMetric(
+		memoryFreeMetric,
+		prometheus.GaugeValue,
+		float64(vms.Free),
+	)
+
+	us, _ := disk.Usage(ipfsPath())
+	ch <- prometheus.MustNewConstMetric(
+		diskTotalMetric,
+		prometheus.GaugeValue,
+		float64(us.Total),
+		us.Path,
+		us.Fstype,
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		diskFreeMetric,
+		prometheus.GaugeValue,
+		float64(us.Free),
+		us.Path,
+		us.Fstype,
+	)
+
 }
 
 func (c IpfsNodeCollector) PeersTotalValues() map[string]float64 {
