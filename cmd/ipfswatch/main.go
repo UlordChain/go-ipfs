@@ -22,7 +22,7 @@ import (
 )
 
 var http = flag.Bool("http", false, "expose IPFS HTTP API")
-var repoPath = flag.String("repo", os.Getenv("IPFS_PATH"), "IPFS_PATH to use")
+var repoPath = flag.String("repo", os.Getenv("UDFS_PATH"), "UDFS_PATH to use")
 var watchPath = flag.String("path", ".", "the path to watch")
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
 
 	// precedence
 	// 1. --repo flag
-	// 2. IPFS_PATH environment variable
+	// 2. UDFS_PATH environment variable
 	// 3. default repo path
 	var ipfsPath string
 	if *repoPath != "" {

@@ -117,6 +117,10 @@ var (
 	diskFreeMetric = prometheus.NewDesc(
 		prometheus.BuildFQName("ipfs", "machine", "disk_free"),
 		"Size of disk free", []string{"path","fstype"}, nil)
+
+	repoUsedMetric = prometheus.NewDesc(
+		prometheus.BuildFQName("ipfs", "machine", "repo_used"),
+		"Size of repo used", []string{}, nil)
 )
 
 type IpfsNodeCollector struct {
@@ -129,9 +133,9 @@ func (_ IpfsNodeCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func ipfsPath() string {
-	p := os.Getenv("IPFS_PATH")
+	p := os.Getenv("UDFS_PATH")
 	if p == "" {
-		p = path.Join(os.Getenv("HOME"), ".ipfs")
+		p = path.Join(os.Getenv("HOME"), ".udfs")
 	}
 	return p
 }
@@ -181,6 +185,13 @@ func (c IpfsNodeCollector) Collect(ch chan<- prometheus.Metric) {
 		float64(us.Free),
 		us.Path,
 		us.Fstype,
+	)
+
+	usage, _ := c.Node.Repo.GetStorageUsage()
+	ch <- prometheus.MustNewConstMetric(
+		repoUsedMetric,
+		prometheus.GaugeValue,
+		float64(usage),
 	)
 
 }

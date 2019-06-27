@@ -225,6 +225,10 @@ func RequestLicense(servAddr string, txid string, voutid int32) (info *LicenseMe
 		e = errors.Wrap(err, "read response license message field <license> failed")
 		return
 	}
+	if res.License == "" {
+		e = errors.New("request license is empty")
+		return
+	}
 
 	err = binary.Read(conn, binary.LittleEndian, &res.Nodeperiod)
 	if err != nil {

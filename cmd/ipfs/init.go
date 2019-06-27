@@ -27,9 +27,9 @@ const (
 
 var initCmd = &cmds.Command{
 	Helptext: cmdkit.HelpText{
-		Tagline: "Initializes ipfs config file.",
+		Tagline: "Initializes udfs config file.",
 		ShortDescription: `
-Initializes ipfs configuration files and generates a new keypair.
+Initializes udfs configuration files and generates a new keypair.
 
 If you are going to run IPFS in server environment, you may want to
 initialize it using 'server' profile.
@@ -37,10 +37,10 @@ initialize it using 'server' profile.
 For the list of available profiles see 'ipfs config profile --help'
 
 ipfs uses a repository in the local file system. By default, the repo is
-located at ~/.ipfs. To change the repo location, set the $IPFS_PATH
+located at ~/.udfs. To change the repo location, set the $UDFS_PATH
 environment variable:
 
-    export IPFS_PATH=/path/to/ipfsrepo
+    export UDFS_PATH=/path/to/ipfsrepo
 `,
 	},
 	Arguments: []cmdkit.Argument{

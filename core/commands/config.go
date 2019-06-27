@@ -57,7 +57,7 @@ Get the value of the 'Datastore.Path' key:
 
 Set the value of the 'Datastore.Path' key:
 
-  $ ipfs config Datastore.Path ~/.ipfs/datastore
+  $ ipfs config Datastore.Path ~/.udfs/datastore
 `,
 	},
 

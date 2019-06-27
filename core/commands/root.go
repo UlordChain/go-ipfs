@@ -82,10 +82,10 @@ TOOL COMMANDS
 Use 'ipfs <command> --help' to learn more about each command.
 
 ipfs uses a repository in the local file system. By default, the repo is
-located at ~/.ipfs. To change the repo location, set the $IPFS_PATH
+located at ~/.udfs. To change the repo location, set the $UDFS_PATH
 environment variable:
 
-  export IPFS_PATH=/path/to/ipfsrepo
+  export UDFS_PATH=/path/to/ipfsrepo
 
 EXIT STATUS
 

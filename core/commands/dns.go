@@ -37,7 +37,7 @@ For general-purpose recursive resolution, use ipfs name resolve -r.
 
 For example, with this DNS TXT record:
 
-	> dig +short TXT _dnslink.ipfs.io
+	> dig +short TXT _dnslink.udfs.io
 	dnslink=/ipfs/QmRzTuh2Lpuz7Gr39stNr6mTFdqAghsZec1JoUnfySUzcy
 
 The resolver will give:
@@ -47,9 +47,9 @@ The resolver will give:
 
 The resolver can recursively resolve:
 
-	> dig +short TXT recursive.ipfs.io
+	> dig +short TXT recursive.udfs.io
 	dnslink=/ipns/ipfs.io
-	> ipfs dns -r recursive.ipfs.io
+	> ipfs dns -r recursive.udfs.io
 	/ipfs/QmRzTuh2Lpuz7Gr39stNr6mTFdqAghsZec1JoUnfySUzcy
 `,
 	},

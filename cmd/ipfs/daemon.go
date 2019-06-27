@@ -1,8 +1,13 @@
 package main
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	_ "expvar"
 	"fmt"
+	"gx/ipfs/QmPEpj17FDRpc7K1aArKZp3RsHtzRMKykeK9GVgn4WQGPR/go-ipfs-config"
+	"gx/ipfs/QmUDTcnDp2WssbmiDLC6aYurUeyt7QeRakHUQMxA2mZ5iB/go-libp2p/p2p/protocol/verify"
 	"io/ioutil"
 	"math/rand"
 	"net"
@@ -14,32 +19,28 @@ import (
 	"sort"
 	"sync"
 	"time"
-	"context"
-	"bytes"
-	"encoding/json"
 
-	"github.com/pkg/errors"
-	"github.com/ipfs/go-ipfs/udfs/ca"
 	version "github.com/ipfs/go-ipfs"
 	utilmain "github.com/ipfs/go-ipfs/cmd/ipfs/util"
 	oldcmds "github.com/ipfs/go-ipfs/commands"
 	"github.com/ipfs/go-ipfs/core"
-	commands "github.com/ipfs/go-ipfs/core/commands"
-	corehttp "github.com/ipfs/go-ipfs/core/corehttp"
-	corerepo "github.com/ipfs/go-ipfs/core/corerepo"
+	"github.com/ipfs/go-ipfs/core/commands"
+	"github.com/ipfs/go-ipfs/core/corehttp"
+	"github.com/ipfs/go-ipfs/core/corerepo"
 	nodeMount "github.com/ipfs/go-ipfs/fuse/node"
-	fsrepo "github.com/ipfs/go-ipfs/repo/fsrepo"
-	migrate "github.com/ipfs/go-ipfs/repo/fsrepo/migrations"
 	"github.com/ipfs/go-ipfs/repo"
+	"github.com/ipfs/go-ipfs/repo/fsrepo"
+	migrate "github.com/ipfs/go-ipfs/repo/fsrepo/migrations"
+	"github.com/ipfs/go-ipfs/udfs/ca"
+	"github.com/pkg/errors"
 
+	"gx/ipfs/QmNkxFCmPtr2RQxjZNRCNryLud4L9wMEiBJsLgF14MqTHj/go-bitswap"
 	mprome "gx/ipfs/QmQXBfkuwgMaPx334WuL9NmyrKnbZ5udaWnHTHEsts2x3T/go-metrics-prometheus"
-	cmds "gx/ipfs/QmSXUokcP4TJpFfqozT69AVAYRtzXVMUjzQVkYX41R9Svs/go-ipfs-cmds"
+	"gx/ipfs/QmSXUokcP4TJpFfqozT69AVAYRtzXVMUjzQVkYX41R9Svs/go-ipfs-cmds"
 	ma "gx/ipfs/QmT4U94DnD8FRfqr21obWY32HLM5VExccPKMjQHofeYqr9/go-multiaddr"
 	"gx/ipfs/QmTQuFQWHAWy4wMH6ZyPfGiawA5u9T8rs79FENoV8yXaoS/client_golang/prometheus"
 	"gx/ipfs/Qmaabb1tJZ2CX5cp6MuuiGgns71NYoxdgQP6Xdid1dVceC/go-multiaddr-net"
 	"gx/ipfs/Qmde5VP1qUkyQXKCfmEUA7bP64V2HAptbJ7phuPp7jXWwg/go-ipfs-cmdkit"
-	"gx/ipfs/QmNkxFCmPtr2RQxjZNRCNryLud4L9wMEiBJsLgF14MqTHj/go-bitswap"
-	"gx/ipfs/QmUDTcnDp2WssbmiDLC6aYurUeyt7QeRakHUQMxA2mZ5iB/go-libp2p/p2p/protocol/verify"
 )
 
 const (
@@ -92,14 +93,14 @@ For example, to change the 'Gateway' port:
 
 The API address can be changed the same way:
 
-  ipfs config Addresses.API /ip4/127.0.0.1/tcp/5002
+  udfs config Addresses.API /ip4/127.0.0.1/tcp/5002
 
 Make sure to restart the daemon after changing addresses.
 
 By default, the gateway is only accessible locally. To expose it to
 other computers in the network, use 0.0.0.0 as the ip address:
 
-  ipfs config Addresses.Gateway /ip4/0.0.0.0/tcp/8080
+  udfs config Addresses.Gateway /ip4/0.0.0.0/tcp/8080
 
 Be careful if you expose the API. It is a security risk, as anyone could
 control your node remotely. If you need to control the node remotely,
@@ -112,8 +113,8 @@ ipfs supports passing arbitrary headers to the API and Gateway. You can
 do this by setting headers on the API.HTTPHeaders and Gateway.HTTPHeaders
 keys:
 
-  ipfs config --json API.HTTPHeaders.X-Special-Header '["so special :)"]'
-  ipfs config --json Gateway.HTTPHeaders.X-Special-Header '["so special :)"]'
+  udfs config --json API.HTTPHeaders.X-Special-Header '["so special :)"]'
+  udfs config --json Gateway.HTTPHeaders.X-Special-Header '["so special :)"]'
 
 Note that the value of the keys is an _array_ of strings. This is because
 headers can have more than one value, and it is convenient to pass through
@@ -123,9 +124,9 @@ CORS Headers (for API)
 
 You can setup CORS headers the same way:
 
-  ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '["example.com"]'
-  ipfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '["PUT", "GET", "POST"]'
-  ipfs config --json API.HTTPHeaders.Access-Control-Allow-Credentials '["true"]'
+  udfs config --json API.HTTPHeaders.Access-Control-Allow-Origin '["example.com"]'
+  udfs config --json API.HTTPHeaders.Access-Control-Allow-Methods '["PUT", "GET", "POST"]'
+  udfs config --json API.HTTPHeaders.Access-Control-Allow-Credentials '["true"]'
 
 Shutdown
 
@@ -134,13 +135,13 @@ or send a SIGTERM signal to it (e.g. with 'kill'). It may take a while for the
 daemon to shutdown gracefully, but it can be killed forcibly by sending a
 second signal.
 
-IPFS_PATH environment variable
+UDFS_PATH environment variable
 
 ipfs uses a repository in the local file system. By default, the repo is
-located at ~/.ipfs. To change the repo location, set the $IPFS_PATH
+located at ~/.udfs. To change the repo location, set the $UDFS_PATH
 environment variable:
 
-  export IPFS_PATH=/path/to/ipfsrepo
+  export UDFS_PATH=/path/to/ipfsrepo
 
 Routing
 
@@ -148,14 +149,14 @@ IPFS by default will use a DHT for content routing. There is a highly
 experimental alternative that operates the DHT in a 'client only' mode that
 can be enabled by running the daemon as:
 
-  ipfs daemon --routing=dhtclient
+  udfs daemon --routing=dhtclient
 
 This will later be transitioned into a config option once it gets out of the
 'experimental' stage.
 
 DEPRECATION NOTICE
 
-Previously, ipfs used an environment variable as seen below:
+Previously, udfs used an environment variable as seen below:
 
   export API_ORIGIN="http://localhost:8888/"
 
@@ -166,8 +167,8 @@ Headers.
 	},
 
 	Options: []cmdkit.Option{
-		cmdkit.BoolOption(initOptionKwd, "Initialize ipfs with default settings if not already initialized"),
-		cmdkit.StringOption(initProfileOptionKwd, "Configuration profiles to apply for --init. See ipfs init --help for more"),
+		cmdkit.BoolOption(initOptionKwd, "Initialize udfs with default settings if not already initialized"),
+		cmdkit.StringOption(initProfileOptionKwd, "Configuration profiles to apply for --init. See udfs init --help for more"),
 		cmdkit.StringOption(routingOptionKwd, "Overrides the routing option").WithDefault(routingOptionDefaultKwd),
 		cmdkit.BoolOption(mountKwd, "Mounts IPFS to the filesystem"),
 		cmdkit.BoolOption(writableKwd, "Enable writing objects (with POST, PUT and DELETE)"),
@@ -179,7 +180,7 @@ Headers.
 		cmdkit.BoolOption(adjustFDLimitKwd, "Check and raise file descriptor limits if needed").WithDefault(true),
 		cmdkit.BoolOption(offlineKwd, "Run offline. Do not connect to the rest of the network but provide local API."),
 		cmdkit.BoolOption(migrateKwd, "If true, assume yes at the migrate prompt. If false, assume no."),
-		cmdkit.BoolOption(enablePubSubKwd, "Instantiate the ipfs daemon with the experimental pubsub feature enabled."),
+		cmdkit.BoolOption(enablePubSubKwd, "Instantiate the udfs daemon with the experimental pubsub feature enabled."),
 		cmdkit.BoolOption(enableIPNSPubSubKwd, "Enable IPNS record distribution through pubsub; enables pubsub."),
 		cmdkit.BoolOption(enableMultiplexKwd, "Add the experimental 'go-multiplex' stream muxer to libp2p on construction.").WithDefault(true),
 
@@ -217,7 +218,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 	// let the user know we're going.
 	fmt.Printf("Initializing daemon...\n")
 
-	// print the ipfs version
+	// print the udfs version
 	printVersion()
 
 	managefd, _ := req.Options[adjustFDLimitKwd].(bool)
@@ -278,7 +279,7 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 
 		if !domigrate {
 			fmt.Println("Not running migrations of fs-repo now.")
-			fmt.Println("Please get fs-repo-migrations from https://dist.ipfs.io")
+			fmt.Println("Please get fs-repo-migrations from https://dist.udfs.io")
 			return fmt.Errorf("fs-repo requires migration")
 		}
 
@@ -358,6 +359,12 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 
 		if rcfg.Report.Account == "" {
 			return errors.New("must provide uos account from config or option of command daemon")
+		}
+
+		// make sure the license valid
+		err = doVerify(repo, rcfg)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -476,7 +483,9 @@ func daemonFunc(req *cmds.Request, re cmds.ResponseEmitter, env cmds.Environment
 		}
 		fmt.Println("run blacklist refresh service success")
 
-		go reportWorker(node, req.Context)
+		if cfg.Report.Address != "" {
+			go reportWorker(node, req.Context)
+		}
 	}
 
 	fmt.Printf("Daemon is ready\n")
@@ -525,7 +534,7 @@ func serveHTTPApi(req *cmds.Request, cctx *oldcmds.Context) (<-chan error, error
 		listeners = append(listeners, apiLis)
 	}
 
-	// by default, we don't let you load arbitrary ipfs objects through the api,
+	// by default, we don't let you load arbitrary udfs objects through the api,
 	// because this would open up the api to scripting vulnerabilities.
 	// only the webui objects are allowed.
 	// if you know what you're doing, go ahead and pass --unrestricted-api.
@@ -1016,5 +1025,87 @@ func handleReportResponse(resp *http.Response) error {
 	if rrb.ErrorCode != "OK" {
 		return errors.New(string(bs))
 	}
+	return nil
+}
+
+
+func doVerify(repo repo.Repo, rcfg *config.Config, ) error {
+
+	vfi := &rcfg.Verify
+	if time.Now().After(time.Unix(vfi.Period, 0)) || vfi.License == "" || vfi.Licversion == 0 {
+		log.Debug("request license...")
+
+		lbi, err := ca.RequestLicense(rcfg.UCenter.ServerAddress, vfi.Txid, vfi.Voutid)
+		if err != nil {
+			return errors.Wrap(err, "request license failed")
+		}
+		vfi.License = lbi.License
+		vfi.Period = lbi.LicPeriod
+		vfi.Licversion = lbi.Licversion
+
+		err = repo.SetConfig(rcfg)
+		if err != nil {
+			return errors.Wrap(err, "Save verify info to config file failed")
+		}
+	}
+
+	// got pubkey
+	pubkeyStr, err := ca.PublicKeyFromPrivateAddr(vfi.Secret)
+	if err != nil {
+		return errors.Wrap(err, "got pubkey failed")
+	}
+
+	// got server pubkey
+	serverPubKey := ""
+	for _, sp := range rcfg.UCenter.ServerPubkeys {
+		if sp.Licversion == vfi.Licversion {
+			serverPubKey = sp.Pubkey
+			break
+		}
+	}
+	if serverPubKey == "" {
+		// request
+		upm, err := ca.RequestUcenterPublicKeyMap(rcfg.UCenter.ServerAddress, vfi.Txid, vfi.Voutid)
+		if err != nil {
+			return errors.Wrap(err, "request ucenter public key map failed")
+		}
+
+		if len(upm.V2key) < len(rcfg.UCenter.ServerPubkeys) {
+			return errors.New("request ucenter public key map less than already known")
+		}
+
+		var vps []*config.VersionPubkey
+		for ver, key := range upm.V2key {
+			vps = append(vps, &config.VersionPubkey{
+				Licversion: ver,
+				Pubkey:     key,
+			})
+
+			if ver == vfi.Licversion {
+				serverPubKey = key
+			}
+		}
+		rcfg.UCenter.ServerPubkeys = vps
+
+		// save server public keys
+		err = repo.SetConfig(rcfg)
+		if err != nil {
+			return errors.Wrap(err, "Save verify info to config file failed")
+		}
+	}
+
+	// make node hash
+	nodeHash := ca.MakeNodeInfoHash(vfi.Txid, int32(vfi.Voutid), pubkeyStr, vfi.Period, vfi.Licversion)
+
+	// verify license
+	ok, err := ca.VerifySignature(nodeHash, vfi.License, serverPubKey)
+	if err != nil {
+		return errors.Wrap(err, "verify license error")
+	}
+
+	if !ok {
+		return errors.New("verify failed")
+	}
+
 	return nil
 }

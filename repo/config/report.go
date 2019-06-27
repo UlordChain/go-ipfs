@@ -29,7 +29,7 @@ type ReportInfo struct {
 
 var defaultReportInfo = ReportInfo{
 	Account:"",
-	Address:        "http://1.1.2.3/abc",
+	Address:        "",
 	DurationMin:    Duration{4 * time.Minute},
 	DurationMax:    Duration{5 * time.Minute},
 	RequestTimeout: Duration{5 * time.Second},
